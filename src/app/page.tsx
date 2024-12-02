@@ -50,7 +50,7 @@ const Subtitle = styled.div`
 
 const Button = styled.button`
   background-color: #46bdb9;
-  color: #fff;
+  color: #ffffff;
   border: none;
   border-radius: 25px;
   padding: 0.8rem 1.5rem;
@@ -62,8 +62,11 @@ const Button = styled.button`
     background-color: #3aa29e;
   }
 
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
+  /* Mejora de contraste adicional en estados activos y focus */
+  &:focus,
+  &:active {
+    background-color: #2d8a88;
+    outline: 2px solid #ffffff;
   }
 `;
 
