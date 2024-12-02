@@ -1,12 +1,33 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
-  body {
+  /* Reseteo de estilos básicos */
+  *, *::before, *::after {
     margin: 0;
     padding: 0;
-    font-family: ${({ theme }) => theme.fonts.main};
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: ${({ theme }) => theme.colors.secondary};
+    box-sizing: border-box;
+  }
+
+  /* Estilo general del body */
+  body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: rgba(141, 131, 183, 0.1);
+    background-image: url('/images/fondo_app_diversa_2276.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 {
+    font-weight: bold;
+  }
+
+  button {
+    cursor: pointer;
+    font-family: inherit;
   }
 `;
 
