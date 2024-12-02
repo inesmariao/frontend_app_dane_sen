@@ -1,0 +1,1 @@
+# Ejemplo de función para obtener datos

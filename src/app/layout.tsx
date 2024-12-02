@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
-import { ThemeProvider } from '@/theme/ThemeContext'; // Importa el ThemeContext
-import GlobalStyles from '@/theme/GlobalStyles';
-import theme from '@/theme/theme';
+import { ThemeProvider } from '@/styles/theme/ThemeContext'; // Importa el ThemeContext
+import GlobalStyles from '@/styles/theme/GlobalStyles';
+import theme from '@/styles/theme/theme';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Configuración de ReactAxe para auditorías de accesibilidad
