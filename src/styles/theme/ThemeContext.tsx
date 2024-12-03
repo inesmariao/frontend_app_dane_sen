@@ -17,7 +17,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // Proveedor del contexto
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<ThemeType>(() => {
-    // Carga el tema desde localStorage si está disponible
     if (typeof window !== "undefined") {
       return (localStorage.getItem("theme") as ThemeType) || "light";
     }

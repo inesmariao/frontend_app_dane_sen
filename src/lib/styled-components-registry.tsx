@@ -16,12 +16,7 @@ export default function StyledComponentsRegistry({ children }: Props) {
 
   return (
     <StyleSheetManager sheet={sheet.instance}>
-      <>
-        {children}
-        <style
-          dangerouslySetInnerHTML={{ __html: sheet.getStyleTags() }}
-        />
-      </>
+      <>{children}</>
     </StyleSheetManager>
   );
 }

@@ -6,6 +6,5 @@ import styled from 'styled-components';
 export const Question: React.FC<{ question: string }> = ({ question }) => (
   <fieldset>
     <legend>{question}</legend>
-    {/* Opciones de respuesta aquí */}
   </fieldset>
 );

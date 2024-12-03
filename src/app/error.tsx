@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Head from "next/head";
 
 interface ErrorProps {
   error: Error;
@@ -11,10 +10,6 @@ interface ErrorProps {
 const ErrorComponent: React.FC<ErrorProps> = ({ error, reset }) => {
   return (
     <>
-      <Head>
-        <title>Error - AppDiversa</title>
-        <meta name="description" content="Se produjo un error en la aplicación." />
-      </Head>
       <div>
         <h1>Ocurrió un error:</h1>
         <p>{error.message}</p>

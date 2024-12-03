@@ -1,8 +1,14 @@
 "use client";
 
-import Head from "next/head";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
+
+const FullHeightContainer = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const WelcomeCard = styled.div`
   background: #fff;
@@ -63,7 +69,6 @@ const Button = styled.button`
     background-color: #3aa29e;
   }
 
-  /* Mejora de contraste adicional en estados activos y focus */
   &:focus,
   &:active {
     background-color: #2d8a88;
@@ -79,11 +84,7 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Head>
-        <title>App Diversa - Bienvenida</title>
-        <meta name="description" content="Página de bienvenida de App Diversa" />
-      </Head>
+    <FullHeightContainer>
       <WelcomeCard>
         <Title>¡Bienvenido/a a la App Diversa!</Title>
         <Subtitle>
@@ -96,6 +97,6 @@ export default function Home() {
         </Subtitle>
         <Button onClick={handleNext}>Siguiente</Button>
       </WelcomeCard>
-    </>
+    </FullHeightContainer>
   );
 }

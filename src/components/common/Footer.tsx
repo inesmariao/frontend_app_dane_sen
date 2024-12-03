@@ -1,3 +1,5 @@
+"use client";
+
 import styled from "styled-components";
 
 const FooterContainer = styled.footer`
@@ -8,10 +10,14 @@ const FooterContainer = styled.footer`
   font-size: 0.875rem;
 `;
 
-export default function Footer() {
+interface FooterProps extends React.HTMLAttributes<HTMLElement> {}
+
+const Footer: React.FC<FooterProps> = (props) => {
   return (
-    <FooterContainer>
-      &copy; {new Date().getFullYear()} DANE - SEN - App Diversa
+    <FooterContainer {...props}>
+      <p>&copy; {new Date().getFullYear()} App Diversa - DANE - SEN. Todos los derechos reservados.</p>
     </FooterContainer>
   );
-}
+};
+
+export default Footer;

@@ -14,6 +14,5 @@ export const Survey: React.FC = () => (
   <SurveyContainer aria-labelledby="survey-title">
     <h2 id="survey-title">Encuesta de Discriminación</h2>
     <p>Responde las preguntas relacionadas con discriminación.</p>
-    {/* Contenido dinámico aquí */}
   </SurveyContainer>
 );

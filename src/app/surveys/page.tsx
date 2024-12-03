@@ -1,7 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+
+const FullHeightContainer = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const SurveysWrapper = styled.div`
   display: flex;
@@ -157,11 +165,17 @@ const Button = styled.button`
 `;
 
 export default function Surveys() {
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
+
   return (
-    <>
-      <head>
-        <title>Encuestas</title>
-      </head>
+    <FullHeightContainer>
       <main role="main">
       <SurveysWrapper>
         <Title>Temas</Title>
@@ -219,6 +233,6 @@ export default function Surveys() {
         </CardsContainer>
       </SurveysWrapper>
       </main>
-    </>
+    </FullHeightContainer>
   );
 }
