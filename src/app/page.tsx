@@ -2,6 +2,7 @@
 
 import Head from "next/head";
 import styled from "styled-components";
+import { useRouter } from "next/navigation";
 
 const WelcomeCard = styled.div`
   background: #fff;
@@ -71,6 +72,12 @@ const Button = styled.button`
 `;
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleNext = () => {
+    router.push("/surveys");
+  };
+
   return (
     <>
       <Head>
@@ -87,7 +94,7 @@ export default function Home() {
             Recuerda que todas tus respuestas son anónimas y tratadas de acuerdo con la política de   tratamiento y protección de datos personales (Res.0379/2022).
           </p>
         </Subtitle>
-        <Button>Siguiente</Button>
+        <Button onClick={handleNext}>Siguiente</Button>
       </WelcomeCard>
     </>
   );

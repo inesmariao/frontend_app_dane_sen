@@ -49,13 +49,13 @@ const MainContent = styled.main`
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
+  /* useEffect(() => {
     if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
       const ReactAxe = require("@axe-core/react");
       const React = require("react");
       ReactAxe(React, window, 1000);
     }
-  }, []);
+  }, []); */
 
   return (
     <html lang="es">
