@@ -23,6 +23,7 @@ const GlobalStyles = createGlobalStyle`
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
   }
 
@@ -49,11 +50,12 @@ const GlobalStyles = createGlobalStyle`
   }
 
   footer {
+    margin-top: auto;
     text-align: center;
     padding: 1rem;
     background-color: #4A0070; /* O el color definido */
     color: white;
-    margin-top: auto;
+    width: 100%;
 }
 `;
 

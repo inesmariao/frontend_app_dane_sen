@@ -11,12 +11,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="description" content="Encuesta de App Diversa" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body style={{ margin: 0, padding: 0, height: "100vh", display: "flex", flexDirection: "column" }}>
+      <body style={{ margin: 0, padding: 0, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <ClientProvider>
           <Header />
-          <LayoutWrapper style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <LayoutWrapper style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <TitleWrapper>App Diversa</TitleWrapper>
-            <MainContent style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <MainContent style={{ flex: 1 }}>
               {children}
             </MainContent>
           </LayoutWrapper>
