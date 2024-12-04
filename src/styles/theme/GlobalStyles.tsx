@@ -36,6 +36,7 @@ const GlobalStyles = createGlobalStyle`
     background-position: center;
     background-attachment: fixed;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   h1, h2, h3 {
@@ -52,6 +53,7 @@ const GlobalStyles = createGlobalStyle`
     padding: 1rem;
     background-color: #4A0070; /* O el color definido */
     color: white;
+    margin-top: auto;
 }
 `;
 
