@@ -159,9 +159,6 @@ const Button = styled.button`
 export default function Surveys() {
   return (
     <>
-      <head>
-        <title>Encuestas</title>
-      </head>
       <main role="main">
       <SurveysWrapper>
         <Title>Temas</Title>
