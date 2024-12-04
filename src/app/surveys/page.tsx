@@ -164,7 +164,7 @@ const Button = styled.button`
   }
 `;
 
-export default function Surveys() {
+export default function SurveysPage() {
 
   const [isClient, setIsClient] = useState(false);
 
