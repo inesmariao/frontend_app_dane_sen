@@ -3,8 +3,10 @@
 import styled from "styled-components";
 
 export const LayoutWrapper = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   min-height: 100vh;
   background: url("/assets/images/fondo_app_diversa_2276.png") no-repeat center center;
   background-size: cover;
@@ -16,13 +18,13 @@ export const TitleWrapper = styled.div`
   font-weight: bold;
   color: #413087;
   line-height: 1;
-  margin: 20px 0 29.5px 192px;
+  margin: 20px 0 15px 192px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   text-align: left;
 
   @media (max-width: 768px) {
     font-size: 2rem;
-    margin: 20px 1rem;
+    margin: 15px 1rem;
   }
 
   @media (max-width: 480px) {

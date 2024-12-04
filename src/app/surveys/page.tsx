@@ -9,6 +9,8 @@ const FullHeightContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  padding: 0;
+  margin: 0;
 `;
 
 const SurveysWrapper = styled.div`

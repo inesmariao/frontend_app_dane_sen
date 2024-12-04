@@ -14,17 +14,9 @@ const GlobalStyles = createGlobalStyle`
   }
 
   #__next {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-  }
-
-  main {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    min-height: 100vh;
   }
 
   body {
@@ -36,8 +28,6 @@ const GlobalStyles = createGlobalStyle`
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    min-height: 100vh;
-    overflow-x: hidden;
   }
 
   h1, h2, h3 {
@@ -49,16 +39,13 @@ const GlobalStyles = createGlobalStyle`
     font-family: inherit;
   }
 
-  footer {
-    margin-top: auto;
-    text-align: center;
-    padding: 1rem;
-    background-color: #4A0070; /* O el color definido */
-    color: white;
-    width: 100%;
-}
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 `;
-
-
 
 export default GlobalStyles;
