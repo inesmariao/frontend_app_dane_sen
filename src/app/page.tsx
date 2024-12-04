@@ -11,21 +11,42 @@ const WelcomeCard = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   max-width: 600px;
+  width: 90%;
   margin: auto;
 
-  @media (max-width: 768px) {
-    margin: 1rem 1rem;
+  @media (max-width: 767px) {
+    margin: 1.5rem;
+    max-width: 95%;
     padding: 1.5rem;
   }
+
+  @media (min-width: 768px) and (max-width: 1024px) {
+    max-width: 550px;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 650px;
+  }
+
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
   color: #413087;
 
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
+   @media (max-width: 767px) {
+    font-size: 1.5rem;
+    line-height: 1.2;
   }
+
+  @media (min-width: 768px) and (max-width: 1024px) {
+      font-size: 1.8rem;
+      line-height: 1.6;
+    }
+  @media (min-width: 1024px) {
+      font-size: 2.2rem;
+      line-height: 1;
+    }
 `;
 
 const Subtitle = styled.div`
@@ -37,14 +58,18 @@ const Subtitle = styled.div`
     margin-bottom: 1rem;
     font-size: 1rem;
 
-    @media (min-width: 768px) and (max-width: 1024px) {
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       font-size: 0.9rem;
       line-height: 1.4;
+    }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.3rem;
     }
   }
 `;

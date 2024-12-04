@@ -43,7 +43,7 @@ const MainContent = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   padding: 0;
   margin: 0;
