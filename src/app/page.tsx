@@ -44,7 +44,7 @@ const Title = styled.h1`
       line-height: 1.6;
     }
   @media (min-width: 1024px) {
-      font-size: 2.2rem;
+      font-size: 2.1;
       line-height: 1;
     }
 `;
@@ -69,7 +69,7 @@ const Subtitle = styled.div`
     }
 
     @media (min-width: 1024px) {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
   }
 `;
