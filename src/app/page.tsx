@@ -50,7 +50,7 @@ const Subtitle = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: #46bdb9;
+  background-color: #5aaba7;
   color: #ffffff;
   border: none;
   border-radius: 25px;
@@ -60,10 +60,9 @@ const Button = styled.button`
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #3aa29e;
+    background-color: #468d8a;
   }
 
-  /* Mejora de contraste adicional en estados activos y focus */
   &:focus,
   &:active {
     background-color: #2d8a88;

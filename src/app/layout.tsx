@@ -23,7 +23,7 @@ const TitleWrapper = styled.div`
   font-weight: bold;
   color: #413087;
   line-height: 1;
-  margin: 20px 0 29.5px 192px;
+  margin: 20px 0 15px 192px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   text-align: left;
 
@@ -42,8 +42,12 @@ const TitleWrapper = styled.div`
 const MainContent = styled.main`
   flex: 1;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
+  padding: 0;
+  margin: 0;
+  width: 100%;
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
