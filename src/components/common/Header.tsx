@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+import { Nav } from "./Nav";
 
 const HeaderContainer = styled.header`
   background-color: #413087;
@@ -74,10 +76,70 @@ const MenuButton = styled.button`
   }
 `;
 
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%; /* Coloca el menú justo debajo del botón hamburguesa */
+  left: 0; /* Alinea el menú con el lado izquierdo del botón */
+  background-color: #413087; /* Mantiene el color del Header */
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding: 0;
+  display: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para resaltar el menú */
+  z-index: 1000;
+
+  &.open {
+    display: block; /* Muestra el menú cuando está abierto */
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Asegura que las opciones se apilen verticalmente */
+
+    li a {
+      display: block;
+      padding: 0.75rem 1.5rem; /* Espaciado para los enlaces */
+      color: white; /* Texto blanco */
+      text-decoration: none;
+      font-weight: bold;
+
+      &:hover {
+        background-color: #8269d2; /* Fondo más oscuro al pasar el cursor */
+        text-decoration: none;
+      }
+    }
+  }
+`;
+
+
 export default function Header() {
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setIsMenuOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <HeaderContainer>
-      <MenuButton aria-label="Abrir menú de navegación">
+      <MenuButton aria-label="Abrir menú de navegación" onClick={toggleMenu}>
         <div></div>
         <div></div>
         <div></div>
@@ -86,6 +148,9 @@ export default function Header() {
         <Image src="/assets/images/logo-sen.png" className="logo-sen" alt="Logo SEN"  width={110} height={53} priority/>
         <Image src="/assets/images/logo-dane.png" className="logo-dane" alt="Logo DANE" width={116} height={50} priority/>
       </LogoContainer>
+      <DropdownMenu ref={menuRef} className={isMenuOpen ? "open" : ""}>
+        <Nav />
+      </DropdownMenu>
     </HeaderContainer>
   );
 }
