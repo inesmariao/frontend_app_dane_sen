@@ -7,12 +7,23 @@ const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
 
-  html, body, #__next {
+  html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+  }
+
+  #__next {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+  }
+
+  main {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
   }
 
   body {
@@ -27,12 +38,6 @@ const GlobalStyles = createGlobalStyle`
     min-height: 100vh;
   }
 
-  #__next {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
   h1, h2, h3 {
     font-weight: bold;
   }
@@ -41,6 +46,15 @@ const GlobalStyles = createGlobalStyle`
     cursor: pointer;
     font-family: inherit;
   }
+
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #4A0070; /* O el color definido */
+    color: white;
+}
 `;
+
+
 
 export default GlobalStyles;

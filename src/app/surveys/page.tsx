@@ -5,10 +5,10 @@ import styled from "styled-components";
 import Image from "next/image";
 
 const FullHeightContainer = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
 `;
 
 const SurveysWrapper = styled.div`
@@ -33,14 +33,14 @@ const Title = styled.h1`
 
 const CardsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: 2rem;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 `;
 

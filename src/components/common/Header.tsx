@@ -8,7 +8,7 @@ const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 2rem;
+  padding: 1rem 2rem;
   color: white;
   position: sticky;
   top: 0;
@@ -32,8 +32,8 @@ const LogoContainer = styled.div`
     margin: 0 37px;
 
     @media (max-width: 768px) {
-      width: 70px;
-      height: 35px;
+      width: 60px;
+      height: 30px;
       margin: 0 10px;
     }
   }
@@ -44,8 +44,8 @@ const LogoContainer = styled.div`
     margin: 0 0 3px 37px;
 
     @media (max-width: 768px) {
-      width: 75px;
-      height: 35px;
+      width: 60px;
+      height: 30px;
       margin: 0 10px;
     }
   }
