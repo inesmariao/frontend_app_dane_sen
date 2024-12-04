@@ -5,7 +5,7 @@ const theme = {
     danger: "#e3342f",
   },
   fonts: {
-    main: "'Roboto', sans-serif",
+    main: "'Poppins', sans-serif",
   },
   fontSizes: {
     small: "12px",

@@ -83,7 +83,6 @@ const SurveyImage = styled(Image)`
   object-fit: cover;
 `;
 
-
 const SurveyTitle = styled.h2`
   font-family: "Poppins", sans-serif;
   font-size: 1rem;

@@ -14,7 +14,7 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.6;
     color: #333;
     background-color: rgba(141, 131, 183, 0.1);
-    background-image: url('/images/fondo_app_diversa_2276.png');
+    background-image: url('/assets/images/fondo_app_diversa_2276.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

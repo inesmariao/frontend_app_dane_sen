@@ -83,8 +83,8 @@ export default function Header() {
         <div></div>
       </MenuButton>
       <LogoContainer>
-        <Image src="/images/logo-sen.png" className="logo-sen" alt="Logo SEN"  width={110} height={53} priority/>
-        <Image src="/images/logo-dane.png" className="logo-dane" alt="Logo DANE" width={116} height={50} priority/>
+        <Image src="/assets/images/logo-sen.png" className="logo-sen" alt="Logo SEN"  width={110} height={53} priority/>
+        <Image src="/assets/images/logo-dane.png" className="logo-dane" alt="Logo DANE" width={116} height={50} priority/>
       </LogoContainer>
     </HeaderContainer>
   );
