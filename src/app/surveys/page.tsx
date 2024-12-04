@@ -166,7 +166,7 @@ export default function Surveys() {
           {/* Card 1 */}
           <Card>
             <SurveyImage
-              src="/images/tokyo-people-traveling-street.png"
+              src="/assets/images/tokyo-people-traveling-street.png"
               alt="Encuesta de discriminación"
               width={300}
               height={200}
@@ -183,7 +183,7 @@ export default function Surveys() {
           {/* Card 2 */}
           <Card>
             <SurveyImage
-              src="/images/tokyo-people-traveling-street.png"
+              src="/assets/images/tokyo-people-traveling-street.png"
               alt="Encuesta II - Servicios Públicos"
               width={300}
               height={200}
@@ -200,7 +200,7 @@ export default function Surveys() {
           {/* Card 3 */}
           <Card>
             <SurveyImage
-              src="/images/tokyo-people-traveling-street.png"
+              src="/assets/images/tokyo-people-traveling-street.png"
               alt="Encuesta III - Gestión del Agua"
               width={300}
               height={200}

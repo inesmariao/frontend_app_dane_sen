@@ -15,8 +15,6 @@ const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: url("/assets/images/fondo_app_diversa_2276.png") no-repeat center center;
-  background-size: cover;
 `;
 
 const TitleWrapper = styled.div`
