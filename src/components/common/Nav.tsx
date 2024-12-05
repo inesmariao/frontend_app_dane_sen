@@ -20,6 +20,11 @@ const NavWrapper = styled.nav`
         border-bottom: none;
       }
 
+      &:hover {
+        text-decoration: none;
+        background-color: #5c4aa1; /* Color de fondo en hover */
+      }
+
       a {
         color: white;
         text-decoration: none;
@@ -27,9 +32,10 @@ const NavWrapper = styled.nav`
         margin-left: 1rem;
         display: flex;
         align-items: center;
+        width: 100%;
 
         &:hover {
-          text-decoration: underline;
+          text-decoration: none;
           background-color: #5c4aa1;
         }
       }

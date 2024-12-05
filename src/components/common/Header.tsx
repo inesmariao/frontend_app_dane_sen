@@ -81,7 +81,7 @@ const DropdownMenu = styled.div`
   left: 0;
   background-color: #413087;
   border-radius: 0 0 0.5rem 0.5rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0; /* Ajusta el padding para reducir espacio */
   display: none;
   box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -98,48 +98,75 @@ const DropdownMenu = styled.div`
     li {
       display: flex;
       align-items: center;
-      padding: 0.75rem 1.5rem;
-      color: white;
-      text-decoration: none;
-      font-weight: normal;
-      border-top: 1px solid #8269d2;
+      padding: 0.5rem 1rem; /* Reducir padding en pantallas pequeñas */
+      border-bottom: 0.0625rem solid #8269d2;
 
-      &:first-child {
-        border-top: none;
+      &:last-child {
+        border-bottom: none;
       }
 
       a {
+        color: white;
+        text-decoration: none;
+        font-weight: normal;
+        margin-left: 1rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        color: inherit;
-        text-decoration: none;
-        width: 100%;
-      }
+        font-size: 0.9rem; /* Tamaño base del texto */
 
-      &:hover {
-        background-color: #5c4aa1;
       }
 
       svg {
-        font-size: 1.2rem;
         color: white;
+        font-size: 1.2rem; /* Tamaño base de los íconos */
       }
     }
   }
+
+  @media (max-width: 480px) {
+    ul li {
+      padding: 0.3rem 0.6rem; /* Más compacto en pantallas pequeñas */
+      a {
+        font-size: 0.7rem; /* Texto más pequeño */
+      }
+      svg {
+        font-size: 1rem; /* Íconos más pequeños */
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.3rem 0; /* Reducir el padding general */
+    ul li {
+      padding: 0.4rem 0.8rem; /* Reducir padding entre elementos */
+      a {
+        font-size: 0.7rem; /* Disminuir tamaño del texto */
+      }
+      svg {
+        font-size: 1rem; /* Disminuir tamaño del ícono */
+      }
+    }
+  }
+
+
 `;
+
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsMenuOpen((prevState) => !prevState); // Alternar el estado del menú
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setIsMenuOpen(false);
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target as Node) &&
+      !(event.target as HTMLElement).closest("button") // Ignorar clics en el botón del menú hamburguesa
+    ) {
+      setIsMenuOpen(false); // Cerrar el menú si se hace clic fuera
     }
   };
 
