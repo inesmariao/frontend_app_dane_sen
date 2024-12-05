@@ -45,5 +45,32 @@ export const loginUser = async (credentials: { identifier: string; password: str
   }
 };
 
+// Método para obtener datos de las encuestas
+export const fetchSurvey = async (surveyId: number) => {
+  try {
+    const response = await fetch(`${API_URL}/v1/surveys/${surveyId}`);
+    if (!response.ok) {
+      throw new Error("Error al obtener la encuesta.");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchSurvey:", error);
+    throw error;
+  }
+};
+
+// Método para enviar las respuestas al Backend
+export const submitResponses = async (responses: any) => {
+  try {
+    const response = await axios.post(`${API_URL}/responses`, responses, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al enviar las respuestas.");
+  }
+};
 
 export default apiClient;

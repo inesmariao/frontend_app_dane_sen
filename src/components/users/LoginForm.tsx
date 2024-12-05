@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useRouter } from "next/navigation";
 import StyledButton from "@/styles/components/StyledButton";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const LoginFormContainer = styled.div`
   max-width: 25rem;
-  margin: 1rem auto; /* Ajustar el margen superior para subir el formulario */
+  margin: 1rem auto;
   padding: 0.7rem 1.25rem;
   border: 0.0625rem solid #ddd;
   border-radius: 0.5rem;
@@ -17,7 +17,7 @@ const LoginFormContainer = styled.div`
   text-align: center;
 
   @media (max-width: 48rem) {
-    margin: 1.5rem auto; /* Ajustar margen para pantallas pequeñas */
+    margin: 1.5rem auto;
     padding: 0.9375rem;
   }
 `;
@@ -46,10 +46,28 @@ const ErrorMessage = styled.p`
   font-weight: bold;
 `;
 
+const RegisterLink = styled.p`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+
+  a {
+    color: #51d0cd;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
 const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,10 +79,14 @@ const LoginForm: React.FC = () => {
     setError(null);
 
     try {
-      await login(formData); // Llama a la función login desde el contexto
+      await login(formData);
     } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión."); // Muestra el error si ocurre
+      setError(err.message || "Error al iniciar sesión.");
     }
+  };
+
+  const handleGoToRegister = () => {
+    router.push("/register"); // Redirige a la página de registro
   };
 
   return (
@@ -97,6 +119,12 @@ const LoginForm: React.FC = () => {
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <StyledButton type="submit">Iniciar Sesión</StyledButton>
       </form>
+      <RegisterLink>
+        ¿No tienes una cuenta?{" "}
+          <a onClick={handleGoToRegister} role="button" tabIndex={0}>
+            Regístrate aquí
+          </a>
+      </RegisterLink>
     </LoginFormContainer>
   );
 };
