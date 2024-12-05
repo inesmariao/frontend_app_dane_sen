@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { useRouter } from "next/navigation";
 import { registerUser } from "@/utils/api";
 import StyledButton from "@/styles/components/StyledButton";
 
 
+
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
-  margin: 0.625rem 1rem; 
+  margin: 0.625rem 1rem;
   padding: 0.7rem 1.25rem;
   border: 0.0625rem solid #ddd;
   border-radius: 0.5rem;
@@ -152,6 +154,8 @@ const RegisterForm: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     identifier: "",
@@ -172,7 +176,7 @@ const RegisterForm: React.FC = () => {
       document.removeEventListener("click", handleOutsideClick);
     };
   }, []);
-  
+
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleOptionSelect = (option: string) => {
@@ -203,16 +207,14 @@ const RegisterForm: React.FC = () => {
     }
 
     try {
-      const result = await registerUser(formData);
-      setSuccessMessage("Usuario registrado exitosamente.");
-      setFormData({
-        identifier: "",
-        password: "",
-        name: "",
-        last_name: "",
-      });
-    } catch (error: any) {
-      setErrors(error.error || "Error al registrar el usuario.");
+      await registerUser(formData); // Llamada al API de registro
+      setSuccess("Usuario registrado exitosamente. Redirigiendo...");
+
+      setTimeout(() => {
+        router.push("/login"); // Redirigir al login después del éxito
+      }, 2000); // Espera de 2 segundos para mostrar el mensaje
+    } catch (err: any) {
+      setErrors(err.message || "Error al registrar usuario.");
     }
   };
 

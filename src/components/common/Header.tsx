@@ -105,7 +105,7 @@ const DropdownMenu = styled.div`
         border-bottom: none;
       }
 
-      a {
+      a, span {
         color: white;
         text-decoration: none;
         font-weight: normal;
@@ -126,7 +126,7 @@ const DropdownMenu = styled.div`
   @media (max-width: 480px) {
     ul li {
       padding: 0.3rem 0.6rem; /* Más compacto en pantallas pequeñas */
-      a {
+      a, span {
         font-size: 0.7rem; /* Texto más pequeño */
       }
       svg {
@@ -139,7 +139,7 @@ const DropdownMenu = styled.div`
     padding: 0.3rem 0; /* Reducir el padding general */
     ul li {
       padding: 0.4rem 0.8rem; /* Reducir padding entre elementos */
-      a {
+      a, span {
         font-size: 0.7rem; /* Disminuir tamaño del texto */
       }
       svg {
