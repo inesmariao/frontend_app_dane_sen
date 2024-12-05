@@ -8,28 +8,38 @@ import StyledButton from "@/styles/components/StyledButton";
 
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
-  margin: 0 auto;
-  padding: 1.25rem;
+  margin: 0.625rem 1rem; 
+  padding: 0.7rem 1.25rem;
   border: 0.0625rem solid #ddd;
   border-radius: 0.5rem;
   background-color: #f9f9f9;
   box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.1);
   text-align: center;
 
-  @media (max-width: 48rem) {
-    margin: 0.625rem 0.9375rem 1.25rem 0.9375rem;
-    padding: 0.9375rem;
+  /* Ajuste para pantallas medianas y grandes */
+  @media (min-width: 769px) and (max-width: 1023px) {
+    margin: 0 auto; /* Espacio más equilibrado */
+    max-width: 22rem; /* Reduce ligeramente el ancho */
+    padding: 1rem; /* Aumenta un poco el padding */
   }
+
+  /* Ajuste adicional para pantallas grandes */
+  @media (min-width: 1024px) {
+      margin: 1rem auto; /* Mayor separación en pantallas grandes */
+      max-width: 26rem; /* Reduce el ancho para pantallas grandes */
+    }
+
+
 `;
 
 const Instructions = styled.p`
-  margin: 0.625rem 0 1.25rem;
+  margin: 0 0 1.25rem;
   font-size: 1rem;
   color: #413087;
   text-align: center;
 
   @media (max-width: 48rem) {
-    margin: 0.3125rem 0 0.9375rem;
+    margin: 0.3rem 0 0.9375rem;
   }
 `;
 
@@ -55,7 +65,7 @@ const DropdownButton = styled.button`
   }
 
   &:focus {
-    border-color: #2d8a88;
+    border-color: #51d0cd;
     outline: none;
   }
 
@@ -89,22 +99,27 @@ const DropdownMenu = styled.ul`
 const DropdownMenuItem = styled.li`
   padding: 0.625rem;
   cursor: pointer;
+  padding: 0.3rem 0.5rem;
 
   &:hover {
-    background-color: #56bfbd;
-    color: #ffffff;
+    background-color: #51d0cd;
+    color: #000000;
   }
 
   @media (max-width: 768px) {
-    background-color: #56bfbd;
-    color: #ffffff;
+    background-color: #d3f5f4;
+    color: #000000;
+    border-bottom: 1px solid #56bfbd;
+
     &:hover {
       background-color: #56bfbd;
       color: #ffffff;
     }
     &:active {
       background-color: #56bfbd;
-
+    }
+    &:last-child {
+      border-bottom: none;
     }
   }
 `;
@@ -121,11 +136,13 @@ const StyledInput = styled.input`
 const ErrorMessage = styled.p`
   color: red;
   font-size: 0.875rem;
+  font-weight: bold;
 `;
 
 const SuccessMessage = styled.p`
   color: green;
   font-size: 0.875rem;
+  font-weight: bold;
 `;
 
 const RegisterForm: React.FC = () => {

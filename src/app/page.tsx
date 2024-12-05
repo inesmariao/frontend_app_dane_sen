@@ -38,6 +38,7 @@ const WelcomeCard = styled.div`
 
 const Title = styled.h1`
   color: #413087;
+  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
 
   @media (max-width: 47.9375rem) {
     font-size: 1.4rem;

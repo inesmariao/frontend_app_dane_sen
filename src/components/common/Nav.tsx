@@ -2,7 +2,10 @@
 
 import React from "react";
 import styled from "styled-components";
-import { FaHome, FaUsers, FaClipboardList, FaEnvelope } from "react-icons/fa";
+import { FaHome } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa";
+import { FaEnvelope } from "react-icons/fa";
 
 const NavWrapper = styled.nav`
   ul {

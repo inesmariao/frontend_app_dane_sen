@@ -6,13 +6,14 @@ import RegisterForm from '@/components/users/RegisterForm';
 import Head from "next/head";
 
 const Title = styled.h2`
-  margin-bottom: 20px;
-  font-size: 2rem;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
   text-align: center;
+  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
 
   @media (max-width: 768px) {
     margin-bottom: 6px;
-    font-size: 1.5rem; /* Título más pequeño en pantallas pequeñas */
+    font-size: 1.2rem; /* Título más pequeño en pantallas pequeñas */
   }
 `;
 

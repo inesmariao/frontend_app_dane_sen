@@ -29,6 +29,7 @@ const Title = styled.h1`
   color: #000;
   margin: 0;
   padding: 0;
+  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
 
   @media (max-width: 48rem) {
     font-size: 1.5rem;
@@ -60,7 +61,6 @@ const CardsContainer = styled.div`
     align-content: space-between; /* Distribución equitativa */
   }
 
-  /* Desde 1024px: Tarjetas en una sola fila */
   @media (min-width: 1024px) {
     justify-content: space-between; /* Espacio uniforme en una fila */
   }
@@ -86,7 +86,7 @@ const Card = styled.div`
     aspect-ratio: auto;
   }
 
-  /* Entre 769px y 1023px: Tarjetas adaptadas a filas */
+  /* Entre 769px y 1023px */
   @media (min-width: 769px) and (max-width: 1023px) {
     max-height: 30rem; /* No restringir el ancho */
   }
@@ -161,8 +161,6 @@ const SurveyDescription = styled.p`
     max-height: 8rem;
   }
 `;
-
-
 
 const StatusLabel = styled.div`
   width: 8.375rem; /* Ajustado a 134px en rem */
