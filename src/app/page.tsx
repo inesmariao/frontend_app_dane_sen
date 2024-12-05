@@ -8,10 +8,10 @@ import StyledButton from "@/styles/components/StyledButton";
 const WelcomeCard = styled.div`
   background: #fff;
   border-radius: 0.9375rem;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
   text-align: center;
-  max-width: 37.5rem;
+  max-width: 37rem;
   width: 90%;
   margin: auto;
 
@@ -22,31 +22,41 @@ const WelcomeCard = styled.div`
   }
 
   @media (min-width: 48rem) and (max-width: 64rem) {
-    max-width: 34.375rem;
+    max-width: 34rem;
+    max-height: 22rem;
+    padding: 0.5rem;
+    margin: 1rem;
   }
 
   @media (min-width: 64rem) {
-    max-width: 40.625rem;
+    max-width: 35rem;
+    max-height: 23rem;
+    padding: 0.5rem;
+    margin: 0.5rem;
   }
 `;
 
 const Title = styled.h1`
-  font-size: 2rem;
   color: #413087;
 
   @media (max-width: 47.9375rem) {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     line-height: 1.2;
+    padding: 0.2rem;
   }
 
   @media (min-width: 48rem) and (max-width: 64rem) {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     line-height: 1.6;
+    padding: 0;
+    margin-top: 0.2rem
   }
 
   @media (min-width: 64rem) {
-    font-size: 2.1rem;
+    font-size: 1.7rem;
     line-height: 1;
+    padding: 0;
+    margin-top: 0.5rem
   }
 `;
 
@@ -57,7 +67,7 @@ const Subtitle = styled.div`
 
   p {
     margin-bottom: 1rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
 
     @media (max-width: 47.9375rem) {
       font-size: 0.9rem;
@@ -70,7 +80,8 @@ const Subtitle = styled.div`
     }
 
     @media (min-width: 64rem) {
-      font-size: 1.1rem;
+      font-size: 1rem;
+      line-height: 1.28;
     }
   }
 `;
