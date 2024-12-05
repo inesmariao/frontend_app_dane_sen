@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { fetchSurvey, submitResponses } from "@/utils/api";
+import { getSurvey, submitResponses } from "@/utils/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useParams } from 'next/navigation';
 
 const SurveyContainer = styled.section`
   max-width: 800px;
@@ -64,7 +65,14 @@ const StyledButton = styled.button`
   }
 `;
 
-const SurveyApp: React.FC<{ surveyId: number }> = ({ surveyId }) => {
+const SurveyApp: React.FC = () => {
+  
+  const params = useParams();
+  const id = params?.id;
+
+  console.log("Parámetros de la ruta (useParams):", params); // Debugging
+  console.log("ID recibido:", id); // Debugging
+
   const { authData } = useAuth();
   const router = useRouter();
   const [survey, setSurvey] = useState<any>(null);
@@ -72,24 +80,29 @@ const SurveyApp: React.FC<{ surveyId: number }> = ({ surveyId }) => {
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
-    if (!authData) {
-      router.push("/login");
-    }
-  }, [authData, router]);
-
-  // Cargar la encuesta desde el backend
-  useEffect(() => {
     const loadSurvey = async () => {
       try {
-        const data = await fetchSurvey(surveyId);
-        setSurvey(data);
+        if (id) {
+          console.log("ID encontrado:", id); // Debugging
+          console.log(`Fetching survey with ID: ${id}`); // Debugging
+          const data = await getSurvey(Number(id));
+          console.log("Survey data:", data); // Debugging
+          setSurvey(data);
+        }
       } catch (error: any) {
         console.error("Error al cargar la encuesta:", error.message);
       }
     };
-
     loadSurvey();
-  }, [surveyId]);
+  }, [id]);
+
+  if (!survey) {
+    return <p>Cargando datos de la encuesta...</p>;
+  }
+  
+  if (survey.questions && survey.questions.length === 0) {
+    return <p>No hay preguntas en esta encuesta.</p>;
+  }
 
   // Manejar cambios en las respuestas
   const handleOptionChange = (questionId: number, optionId: number) => {
@@ -113,7 +126,7 @@ const SurveyApp: React.FC<{ surveyId: number }> = ({ surveyId }) => {
   return (
     <SurveyContainer>
       <SurveyHeader>
-        <SurveyTitle>{survey.title}</SurveyTitle>
+        <SurveyTitle>{survey.name}</SurveyTitle>
         <SurveyDescription>{survey.description}</SurveyDescription>
       </SurveyHeader>
       {survey.questions.map((question: any) => (

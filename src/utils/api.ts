@@ -46,16 +46,24 @@ export const loginUser = async (credentials: { identifier: string; password: str
 };
 
 // Método para obtener datos de las encuestas
-export const fetchSurvey = async (surveyId: number) => {
+export const getSurvey = async (surveyId: number) => {
   try {
-    const response = await fetch(`${API_URL}/v1/surveys/${surveyId}`);
-    if (!response.ok) {
-      throw new Error("Error al obtener la encuesta.");
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación.");
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Error en fetchSurvey:", error);
-    throw error;
+
+    const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("URL de la API llamada:", `${API_URL}/app_diversa/v1/surveys/${surveyId}`);
+ // DEbbuggin
+    return response.data;
+  } catch (error: any) {
+    console.error("Error en getSurvey:", error.message || error);
+    throw new Error(error.response?.data?.error || "Error al obtener la encuesta.");
   }
 };
 

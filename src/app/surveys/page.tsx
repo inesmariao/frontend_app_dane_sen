@@ -207,8 +207,8 @@ export default function Surveys() {
 
   const router = useRouter(); 
 
-  const handleStartSurvey = () => {
-    router.push("/surveyApp");
+  const handleStartSurvey = (surveyId: number) => {
+    router.push(`/surveyApp/${surveyId}`);
   };
 
   return (
@@ -230,7 +230,7 @@ export default function Surveys() {
               experiencias de discriminación en personas mayores.
             </SurveyDescription>
             <StyledButtonWrapper>
-            <StyledButton onClick={handleStartSurvey}>Iniciar</StyledButton>
+            <StyledButton onClick={() => handleStartSurvey(1)}>Iniciar</StyledButton>
             </StyledButtonWrapper>
           </CardContent>
         </Card>
