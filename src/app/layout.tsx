@@ -10,6 +10,7 @@ import theme from "@/styles/theme/theme";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import styled from "styled-components";
+import { AuthProvider } from "@/context/AuthContext";
 
 const LayoutWrapper = styled.div`
   display: flex;
@@ -65,13 +66,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StyledComponentsRegistry>
           <ThemeProvider>
             <StyledThemeProvider theme={theme}>
-              <GlobalStyles />
-              <LayoutWrapper>
-                <Header />
-                <TitleWrapper>App Diversa</TitleWrapper>
-                <MainContent>{children}</MainContent>
-                <Footer />
-              </LayoutWrapper>
+              <AuthProvider>
+                <GlobalStyles />
+                <LayoutWrapper>
+                  <Header />
+                  <TitleWrapper>App Diversa</TitleWrapper>
+                  <MainContent>{children}</MainContent>
+                  <Footer />
+                </LayoutWrapper>
+              </AuthProvider>
             </StyledThemeProvider>
           </ThemeProvider>
         </StyledComponentsRegistry>
