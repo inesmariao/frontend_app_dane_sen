@@ -15,10 +15,10 @@ const HeaderContainer = styled.header`
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 116px;
+  height: 5rem;
 
-  @media (max-width: 768px) {
-    height: 80px;
+  @media (max-width: 48rem) {
+    height: 3rem;
     padding: 0.5rem 1rem;
   }
 `;
@@ -29,30 +29,29 @@ const LogoContainer = styled.div`
   gap: 1rem;
 
   .logo-sen {
-    width: 110px;
-    height: 53px;
-    margin: 0 37px;
+    width: 5rem;
+    height: 3rem;
+    margin: 0 2.3125rem;
 
-    @media (max-width: 768px) {
-      width: 70px;
-      height: 35px;
-      margin: 0 10px;
+    @media (max-width: 48rem) {
+      width: 4rem;
+      height: 1.6rem;
+      margin: 0 0.625rem;
     }
   }
 
   .logo-dane {
-    width: 116px;
-    height: 50px;
-    margin: 0 0 3px 37px;
+    width: 5rem;
+    height: 3rem;
+    margin: 0 0 0.1875rem 2.3125rem;
 
-    @media (max-width: 768px) {
-      width: 75px;
-      height: 35px;
-      margin: 0 10px;
+    @media (max-width: 48rem) {
+      width: 4rem;
+      height: 1.6rem;
+      margin: 0 0.625rem;
     }
   }
 `;
-
 
 const MenuButton = styled.button`
   background: none;
@@ -61,62 +60,76 @@ const MenuButton = styled.button`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 24px;
-  width: 30px;
+  height: 1.5rem;
+  width: 1.875rem;
 
   div {
-    width: 30px;
-    height: 3px;
+    width: 1.875rem;
+    height: 0.1875rem;
     background-color: white;
 
-    @media (max-width: 768px) {
-      width: 20px;
-      height: 2px;
+    @media (max-width: 48rem) {
+      width: 1.25rem;
+      height: 0.125rem;
     }
   }
 `;
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 100%; /* Coloca el menú justo debajo del botón hamburguesa */
-  left: 0; /* Alinea el menú con el lado izquierdo del botón */
-  background-color: #413087; /* Mantiene el color del Header */
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-  padding: 0;
+  top: 100%;
+  left: 0;
+  background-color: #413087;
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 0.5rem 0;
   display: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para resaltar el menú */
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
   z-index: 1000;
 
   &.open {
-    display: block; /* Muestra el menú cuando está abierto */
+    display: block;
   }
 
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column; /* Asegura que las opciones se apilen verticalmente */
 
-    li a {
-      display: block;
-      padding: 0.75rem 1.5rem; /* Espaciado para los enlaces */
-      color: white; /* Texto blanco */
+    li {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      color: white;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: normal;
+      border-top: 1px solid #8269d2;
+
+      &:first-child {
+        border-top: none;
+      }
+
+      a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: inherit;
+        text-decoration: none;
+        width: 100%;
+      }
 
       &:hover {
-        background-color: #8269d2; /* Fondo más oscuro al pasar el cursor */
-        text-decoration: none;
+        background-color: #5c4aa1;
+      }
+
+      svg {
+        font-size: 1.2rem;
+        color: white;
       }
     }
   }
 `;
 
-
 export default function Header() {
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -145,8 +158,22 @@ export default function Header() {
         <div></div>
       </MenuButton>
       <LogoContainer>
-        <Image src="/assets/images/logo-sen.png" className="logo-sen" alt="Logo SEN"  width={110} height={53} priority/>
-        <Image src="/assets/images/logo-dane.png" className="logo-dane" alt="Logo DANE" width={116} height={50} priority/>
+        <Image
+          src="/assets/images/logo-sen.png"
+          className="logo-sen"
+          alt="Logo SEN"
+          width={110}
+          height={53}
+          priority
+        />
+        <Image
+          src="/assets/images/logo-dane.png"
+          className="logo-dane"
+          alt="Logo DANE"
+          width={116}
+          height={50}
+          priority
+        />
       </LogoContainer>
       <DropdownMenu ref={menuRef} className={isMenuOpen ? "open" : ""}>
         <Nav />

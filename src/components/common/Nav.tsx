@@ -13,29 +13,30 @@ const NavWrapper = styled.nav`
     li {
       display: flex;
       align-items: center;
-      padding: 0.75rem 1.5rem; /* Espaciado interno */
-      border-bottom: 1px solid #8269d2; /* Línea de separación entre opciones */
+      padding: 0.75rem 1.5rem;
+      border-bottom: 0.0625rem solid #8269d2;
 
       &:last-child {
-        border-bottom: none; /* Elimina la línea de la última opción */
+        border-bottom: none;
       }
 
       a {
         color: white;
         text-decoration: none;
-        font-weight: bold;
-        margin-left: 1rem; /* Espacio entre el icono y el texto */
+        font-weight: normal;
+        margin-left: 1rem;
         display: flex;
         align-items: center;
 
         &:hover {
-          text-decoration: underline; /* Subrayado al pasar el cursor */
+          text-decoration: underline;
+          background-color: #5c4aa1;
         }
       }
 
       svg {
-        color: white; /* Color del icono */
-        font-size: 1.2rem; /* Tamaño del icono */
+        color: white;
+        font-size: 1.2rem;
       }
     }
   }
@@ -45,19 +46,19 @@ export const Nav: React.FC = () => (
   <NavWrapper>
     <ul>
       <li>
-        <FaHome /> {/* Icono de inicio */}
+        <FaHome />
         <a href="#inicio">Inicio</a>
       </li>
       <li>
-        <FaUsers /> {/* Icono de registro de usuarios */}
+        <FaUsers />
         <a href="/register">Registro de Usuarios</a>
       </li>
       <li>
-        <FaClipboardList /> {/* Icono de encuestas */}
+        <FaClipboardList />
         <a href="#encuestas">Encuestas</a>
       </li>
       <li>
-        <FaEnvelope /> {/* Icono de contacto */}
+        <FaEnvelope />
         <a href="#contacto">Contacto</a>
       </li>
     </ul>

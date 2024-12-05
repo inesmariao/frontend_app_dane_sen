@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { registerUser } from "@/utils/api";
+import StyledButton from "@/styles/components/StyledButton";
+
 
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
@@ -114,28 +116,6 @@ const StyledInput = styled.input`
   border: 0.0625rem solid #ccc;
   border-radius: 0.25rem;
   font-size: 1rem;
-`;
-
-const StyledButton = styled.button`
-  background-color: #2d8a88;
-  color: #ffffff;
-  border: none;
-  border-radius: 1.5625rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  margin-top: 1rem;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #56bfbd;
-    color: #000;
-  }
-
-  &:focus,
-  &:active {
-    background-color: #88e2e0;
-    outline: 0.125rem solid #ffffff;
-  }
 `;
 
 const ErrorMessage = styled.p`
