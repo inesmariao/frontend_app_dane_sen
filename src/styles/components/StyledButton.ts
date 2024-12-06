@@ -37,7 +37,6 @@ const StyledButton = styled.button`
     box-shadow: none;
   }
 
-  
   @media (min-width: 48rem) and (max-width: 64rem) {
     margin-top: 0.1rem;
     margin-bottom: 1rem;
@@ -54,8 +53,6 @@ const StyledButton = styled.button`
     padding: 0.6rem 1.2rem;
     margin-bottom: 2rem;
   }
-
-
 `;
 
 export default StyledButton;

@@ -47,6 +47,7 @@ export const loginUser = async (credentials: { identifier: string; password: str
 
 // Método para obtener datos de las encuestas
 export const getSurvey = async (surveyId: number) => {
+
   try {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -58,11 +59,15 @@ export const getSurvey = async (surveyId: number) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("URL de la API llamada:", `${API_URL}/app_diversa/v1/surveys/${surveyId}`);
- // DEbbuggin
+
     return response.data;
   } catch (error: any) {
     console.error("Error en getSurvey:", error.message || error);
+
+    if (error.response?.status === 401) {
+      throw new Error("UNAUTHORIZED"); // Manejar específicamente el error de no autenticado
+    }
+
     throw new Error(error.response?.data?.error || "Error al obtener la encuesta.");
   }
 };

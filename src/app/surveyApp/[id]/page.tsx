@@ -3,17 +3,19 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { getSurvey, submitResponses } from "@/utils/api";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useParams } from 'next/navigation';
-import StyledButton from "@/styles/components/StyledButton";
+import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
 
 interface Question {
   id: number;
   text: string;
   order: number;
   instruction: string;
-  options: Option[];
+  question_type: "open" | "closed";
+  min_value?: number;
+  max_value?: number;
+  options?: Option[];
 }
 
 interface Option {
@@ -47,6 +49,22 @@ const SurveyTitle = styled.h2`
 const SurveyDescription = styled.p`
   font-size: 1rem;
   color: #666;
+`;
+
+const NumericInput = styled.input`
+  width: 25%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  outline: none;
+
+  &:focus {
+    border-color: #2d8a88;
+    box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+  }
 `;
 
 const QuestionCard = styled.div`
@@ -121,6 +139,13 @@ const OptionLabel = styled.label`
   color: #000;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+`;
+
+
 const SurveyApp: React.FC = () => {
 
   const params = useParams();
@@ -129,6 +154,7 @@ const SurveyApp: React.FC = () => {
   const [survey, setSurvey] = useState<any>(null);
   const [responses, setResponses] = useState<{ [key: number]: number | string }>({});
   const [error, setError] = useState(false);
+  const router = useRouter();
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
@@ -140,9 +166,15 @@ const SurveyApp: React.FC = () => {
         }
       } catch (error: any) {
         console.error("Error al cargar la encuesta:", error.message);
-        setError(true);
+
+        if (error.message.includes("UNAUTHORIZED") || error.response?.status === 401) {
+          router.push("/login");
+        } else {
+          setError(true);
+        }
       }
     };
+
     loadSurvey();
   }, [id]);
 
@@ -191,27 +223,38 @@ const SurveyApp: React.FC = () => {
         <QuestionCard key={question.id}>
           <QuestionText>{`${question.order} - ${question.text}`}</QuestionText>
           <QuestionInstructions>{question.instruction}</QuestionInstructions>
-          {question.options.map((option: Option) => (
-            <OptionWrapper key={option.id}>
-              <input
-                type="radio"
-                id={`option-${option.id}`}
-                name={`question-${question.id}`}
-                value={option.id}
-                aria-labelledby={`option-label-${option.id}`}
-                onChange={() => handleOptionChange(question.id, option.id)}
-              />
-              <OptionLabel
-                id={`option-label-${option.id}`}
-                htmlFor={`option-${option.id}`}
-              >
-                {option.text}
-              </OptionLabel>
-            </OptionWrapper>
-          ))}
+
+          {question.question_type === "open" && question.min_value != null && question.max_value != null && (
+            <NumericInput
+              type="number"
+              min={question.min_value}
+              max={question.max_value}
+              value={responses[question.id] || ""}
+              onChange={(e) => handleOptionChange(question.id, Number(e.target.value))}
+              placeholder="Ingrese su edad"
+            />
+          )}
+
+          {question.question_type === "closed" && Array.isArray(question.options) &&
+            question.options.map((option: Option) => (
+              <OptionWrapper key={option.id}>
+                <input
+                  type="radio"
+                  id={`option-${option.id}`}
+                  name={`question-${question.id}`}
+                  value={option.id}
+                  aria-labelledby={`option-label-${option.id}`}
+                  onChange={() => handleOptionChange(question.id, option.id)}
+                />
+                <OptionLabel id={`option-label-${option.id}`} htmlFor={`option-${option.id}`}>
+                  {option.text}
+                </OptionLabel>
+              </OptionWrapper>))}
         </QuestionCard>
-      ))}
-      <StyledButton onClick={handleSubmit}>Enviar respuestas</StyledButton>
+        ))}
+      <ButtonContainer>
+        <LargeStyledButton onClick={handleSubmit}>Siguiente</LargeStyledButton>
+      </ButtonContainer>
     </SurveyContainer>
   );
 };
