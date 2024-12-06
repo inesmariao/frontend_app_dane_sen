@@ -7,6 +7,20 @@ import { useRouter } from "next/navigation";
 import { useParams } from 'next/navigation';
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
 
+
+interface Survey {
+  id: number;
+  name: string;
+  description_name: string;
+  description_title: string;
+  chapters: Chapter[];
+  questions: Question[];
+}
+interface Chapter {
+  id: number;
+  name: string;
+}
+
 interface Question {
   id: number;
   text: string;
@@ -23,17 +37,11 @@ interface Option {
   text: string;
 }
 
-interface Survey {
-  id: number;
-  name: string;
-  description: string;
-  questions: Question[];
-}
 
 const SurveyContainer = styled.section`
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 0 auto;
+  padding: 0 2rem;
 `;
 
 const SurveyHeader = styled.div`
@@ -41,29 +49,77 @@ const SurveyHeader = styled.div`
   margin-bottom: 2rem;
 `;
 
-const SurveyTitle = styled.h2`
-  font-size: 2rem;
+const SurveyTitle = styled.div`
+  font-family: "Poppins", sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
   color: #413087;
+  line-height: 1.2;
+  margin: 1rem;
+  text-shadow: 0.125rem 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
+  text-align: center;
+
+  @media (max-width: 48rem) {
+    font-size: 1.5rem;
+    margin: 1.25rem 1rem;
+  }
 `;
 
-const SurveyDescription = styled.p`
+const SurveyDescriptionName = styled.p`
+  font-family: "Poppins", sans-serif;
   font-size: 1rem;
-  color: #666;
+  color: #000;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  text-align: left;
+`;
+
+const ChaptersContainer = styled.div`
+  font-family: "Poppins", sans-serif;
+  font-size: 1.5rem;
+  color: #000;
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: left;
+  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
+
+  @media (max-width: 768px) {
+    /* Pantallas medianas */
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 480px) {
+    /* Pantallas pequeñas */
+    font-size: 1rem;
+  }
 `;
 
 const NumericInput = styled.input`
   width: 25%;
   padding: 0.5rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 2px solid #2d8a88;
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   text-align: center;
   outline: none;
 
   &:focus {
     border-color: #2d8a88;
     box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+  }
+
+  @media (max-width: 480px) {
+    /* Pantallas pequeñas */
+    width: 90%;
+    font-size: 0.8rem; /* Texto más pequeño para pantallas muy pequeñas */
+  }
+
+  @media (max-width: 768px) {
+    /* Pantallas medianas */
+    width: 90%;
+    font-size: 0.9rem; /* Ajuste del texto */
   }
 `;
 
@@ -213,19 +269,41 @@ const SurveyApp: React.FC = () => {
     }
   };
 
+  const chapterWithIdOne = (survey.chapters as Chapter[]).find((chapter) => chapter.id === 1);
+  const chapterWithIdTwo = (survey.chapters as Chapter[]).find((chapter) => chapter.id === 2);
+  const chapterWithIdThree = (survey.chapters as Chapter[]).find((chapter) => chapter.id === 3);
+
   return (
     <SurveyContainer>
       <SurveyHeader>
         <SurveyTitle>{survey.name}</SurveyTitle>
-        <SurveyDescription>{survey.description}</SurveyDescription>
+        <SurveyDescriptionName>
+          {survey.description_name.includes('Definición de "discriminación":') ? (
+            <>
+              <strong>Definición de "discriminación":</strong>{" "}
+              {survey.description_name.replace('Definición de "discriminación":', '').trim()}
+            </>
+          ) : (
+            survey.description_name
+          )}
+        </SurveyDescriptionName>
+        {chapterWithIdOne && (
+          <ChaptersContainer>{chapterWithIdOne.name.toUpperCase()}</ChaptersContainer>
+        )}
       </SurveyHeader>
+      {/* Renderizado de preguntas */}
       {sortedQuestions.map((question: Question) => (
         <QuestionCard key={question.id}>
-          <QuestionText>{`${question.order} - ${question.text}`}</QuestionText>
+          <QuestionText id={`question-label-${question.id}`}>
+            {`${question.order} - ${question.text}`}
+          </QuestionText>
           <QuestionInstructions>{question.instruction}</QuestionInstructions>
-
+          {/* Input numérico para preguntas abiertas */}
           {question.question_type === "open" && question.min_value != null && question.max_value != null && (
             <NumericInput
+              id={`question-${question.id}`}
+              name={`question-${question.id}`}
+              aria-labelledby={`question-label-${question.id}`}
               type="number"
               min={question.min_value}
               max={question.max_value}
@@ -234,7 +312,7 @@ const SurveyApp: React.FC = () => {
               placeholder="Ingrese su edad"
             />
           )}
-
+          {/* Opciones para preguntas cerradas */}
           {question.question_type === "closed" && Array.isArray(question.options) &&
             question.options.map((option: Option) => (
               <OptionWrapper key={option.id}>

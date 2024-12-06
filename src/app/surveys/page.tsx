@@ -227,7 +227,7 @@ export default function Surveys() {
             <SurveyTitle>Encuesta I - Discriminación</SurveyTitle>
             <SurveyDescription>
               Preguntas para la recolección de información relevante sobre las
-              experiencias de discriminación en personas mayores.
+              experiencias de discriminación en personas mayores de edad.
             </SurveyDescription>
             <StyledButtonWrapper>
             <StyledButton onClick={() => handleStartSurvey(1)}>Iniciar</StyledButton>

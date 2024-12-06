@@ -10,7 +10,7 @@ const StyledButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
   display: inline-block;
-  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.15);
   width: 10rem;
   max-width: 100%;
   margin-top: 0.8rem;

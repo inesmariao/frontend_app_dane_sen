@@ -24,7 +24,7 @@ export const LargeStyledButton = styled(StyledButton)`
   width: 15rem;
   border-radius: 20px;
   background-color: #2d8a88;
-  
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
 
   &:hover {
     background-color: #1f5e5e;
