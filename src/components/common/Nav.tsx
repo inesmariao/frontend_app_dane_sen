@@ -53,35 +53,40 @@ const NavWrapper = styled.nav`
   }
 `;
 
-export const Nav: React.FC = () => {
-  const { authData, logout } = useAuth(); // Obtenemos authData en lugar de user
-  const user = authData?.user; // Extraemos el usuario de authData si existe
+export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
+  const { authData, logout } = useAuth();
+  const user = authData?.user;
+
+  const handleLogout = () => {
+    logout();
+    closeMenu();
+  };
 
   return (
     <NavWrapper>
       <ul>
-        <li>
+        <li onClick={closeMenu}>
           <FaHome />
           <a href="/surveys">Inicio</a>
         </li>
-        <li>
+        <li onClick={closeMenu}>
           <FaUsers />
           <a href="/register">Registro de Usuarios</a>
         </li>
         {!user ? (
           // Mostrar la opción de Login solo si no hay un usuario autenticado
-          <li>
+          <li onClick={closeMenu}>
             <FaSignInAlt />
             <a href="/login">Login</a>
           </li>
         ) : (
           // Mostrar la opción de Cerrar sesión si el usuario está autenticado
-          <li onClick={logout} style={{ cursor: "pointer" }}>
+          <li onClick={handleLogout} style={{ cursor: "pointer" }}>
             <FaSignOutAlt />
             <span style={{ marginLeft: "1rem" }}>Cerrar sesión</span>
           </li>
         )}
-        <li>
+        <li onClick={closeMenu}>
           <FaEnvelope />
           <a href="#contacto">Contacto</a>
         </li>
