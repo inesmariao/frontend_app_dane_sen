@@ -32,7 +32,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
       <>
         {questions.map((question) => (
           <QuestionCard key={question.id}>
-            <QuestionText>{`${question.order} - ${question.text}`}</QuestionText>
+            <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
             <QuestionInstructions>{question.instruction}</QuestionInstructions>
             {question.question_type === "open" &&
               question.min_value != null &&
@@ -61,7 +61,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                     onChange={() => handleOptionChange(question.id, option.id)}
                   />
                   <OptionLabel htmlFor={`option-${option.id}`}>
-                    {option.text}
+                    {option.text_option}
                   </OptionLabel>
                 </OptionWrapper>
               ))}

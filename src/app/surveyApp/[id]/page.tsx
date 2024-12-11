@@ -99,10 +99,10 @@ const SurveyApp: React.FC = () => {
     (q: Question) => q.chapter === 1
   );
   const chapterTwoQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 1
+    (q: Question) => q.chapter ===  2
   );
   const chapterThreeQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 1
+    (q: Question) => q.chapter === 3
   );
 
 

@@ -10,7 +10,7 @@ import {
   QuestionText,
   QuestionInstructions,
   OptionWrapper,
-  OptionLabel
+  OptionLabel,
 } from "@/styles/components/StyledSurvey";
 
 interface ChapterProps {
@@ -20,6 +20,29 @@ interface ChapterProps {
   chapterName: string;
 }
 
+const MatrixContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const SubQuestionRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding: 0.5rem 0;
+`;
+
+const SubQuestionText = styled.span`
+  flex: 1;
+`;
+
+const MatrixOptions = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
 const ChapterTwo: React.FC<ChapterProps> = ({
   questions,
   responses,
@@ -28,12 +51,46 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 }) => {
   return (
     <>
-    <ChapterTitle>{chapterName}</ChapterTitle>
+      <ChapterTitle>{chapterName}</ChapterTitle>
       <>
         {questions.map((question) => (
           <QuestionCard key={question.id}>
-            <QuestionText>{`${question.order} - ${question.text}`}</QuestionText>
+            <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
             <QuestionInstructions>{question.instruction}</QuestionInstructions>
+
+            {/* Manejo para preguntas tipo matrix */}
+            {question.question_type === "matrix" &&
+              Array.isArray(question.subquestions) && (
+                <MatrixContainer>
+                  {question.subquestions.map((subQuestion) => (
+                    <SubQuestionRow key={subQuestion.id}>
+                      <SubQuestionText>{subQuestion.text_question}</SubQuestionText>
+                      <MatrixOptions>
+                        {Array.isArray(subQuestion.options) &&
+                          subQuestion.options.map((option) => (
+                            <OptionWrapper key={option.id}>
+                              <input
+                                type="radio"
+                                id={`option-${option.id}`}
+                                name={`question-${subQuestion.id}`}
+                                value={option.id}
+                                checked={responses[subQuestion.id] === option.id}
+                                onChange={() =>
+                                  handleOptionChange(subQuestion.id, option.id)
+                                }
+                              />
+                              <OptionLabel htmlFor={`option-${option.id}`}>
+                                {option.text_option}
+                              </OptionLabel>
+                            </OptionWrapper>
+                          ))}
+                      </MatrixOptions>
+                    </SubQuestionRow>
+                  ))}
+                </MatrixContainer>
+              )}
+
+            {/* Preguntas abiertas */}
             {question.question_type === "open" &&
               question.min_value != null &&
               question.max_value != null && (
@@ -48,6 +105,8 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                   placeholder="Ingrese su respuesta"
                 />
               )}
+
+            {/* Preguntas cerradas */}
             {question.question_type === "closed" &&
               Array.isArray(question.options) &&
               question.options.map((option) => (
@@ -61,14 +120,14 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                     onChange={() => handleOptionChange(question.id, option.id)}
                   />
                   <OptionLabel htmlFor={`option-${option.id}`}>
-                    {option.text}
+                    {option.text_option}
                   </OptionLabel>
                 </OptionWrapper>
               ))}
           </QuestionCard>
         ))}
       </>
-  </>
+    </>
   );
 };
 

@@ -67,7 +67,7 @@ export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
       <ul>
         <li onClick={closeMenu}>
           <FaHome />
-          <a href="/surveys">Inicio</a>
+          <a href="/">Inicio</a>
         </li>
         <li onClick={closeMenu}>
           <FaUsers />
