@@ -9,10 +9,11 @@ import {
   QuestionText,
   QuestionInstructions,
   OptionWrapper,
+  OptionWrapper_Subquestions,
   OptionLabel,
+  SubQuestionColumn,
   Table,
   TableRow,
-  SubQuestionColumn,
   Column,
 } from "@/styles/components/StyledSurvey";
 
@@ -62,13 +63,13 @@ const ChapterThree: React.FC<ChapterProps> = ({
 
                   return (
                     <TableRow key={subQuestion.id}>
-                      {/* Subpregunta */}
+                      {/* Subpregunta en una fila */}
                       <SubQuestionColumn>{subQuestion.text_subquestion}</SubQuestionColumn>
 
-                      {/* Opciones */}
-                      {filteredOptions.map((option) => (
-                        <Column key={`sub-${subQuestion.id}-opt-${option.id}`}>
-                          <OptionWrapper>
+                      {/* Opciones en la fila siguiente */}
+                      <OptionWrapper_Subquestions>
+                        {filteredOptions.map((option) => (
+                          <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
                             <input
                               type="radio"
                               id={`option-${subQuestion.id}-${option.id}`}
@@ -82,9 +83,9 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                               {option.text_option}
                             </OptionLabel>
-                          </OptionWrapper>
-                        </Column>
-                      ))}
+                          </div>
+                        ))}
+                      </OptionWrapper_Subquestions>
                     </TableRow>
                   );
                 })}

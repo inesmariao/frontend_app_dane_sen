@@ -20,6 +20,7 @@ export interface Question {
   instruction?: string;
   question_type: "open" | "closed" | "matrix";
   is_required?: boolean;
+  is_multiple?: boolean;
   options?: Option[];
   subquestions?: SubQuestion[];
   min_value?: number;

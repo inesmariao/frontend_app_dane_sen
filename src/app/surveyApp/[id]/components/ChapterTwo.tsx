@@ -19,8 +19,8 @@ import {
 
 interface ChapterProps {
   questions: Question[];
-  responses: { [key: number]: number | string };
-  handleOptionChange: (questionId: number, value: number | string) => void;
+  responses: { [key: number]: number | string | number[] };
+  handleOptionChange: (questionId: number, value: number | string | number[]) => void;
   chapterName: string;
 }
 
@@ -95,12 +95,25 @@ const ChapterTwo: React.FC<ChapterProps> = ({
               question.options?.map((option) => (
                 <OptionWrapper key={option.id}>
                   <input
-                    type="radio"
+                    type={question.is_multiple ? "checkbox" : "radio"} // Cambiar a checkbox para preguntas múltiples.
                     id={`option-${option.id}`}
                     name={`question-${question.id}`}
                     value={option.id}
-                    checked={responses[question.id] === option.id}
-                    onChange={() => handleOptionChange(question.id, option.id)}
+                    checked={
+                      question.is_multiple
+                        ? Array.isArray(responses[question.id]) &&
+                          (responses[question.id] as number[]).includes(option.id)
+                        : responses[question.id] === option.id
+                    }
+                    onChange={() => {
+                      const currentResponses = Array.isArray(responses[question.id])
+                        ? (responses[question.id] as number[])
+                        : [];
+                      const newResponses = currentResponses.includes(option.id)
+                        ? currentResponses.filter((id) => id !== option.id)
+                        : [...currentResponses, option.id];
+                      handleOptionChange(question.id, newResponses);
+                    }}
                   />
                   <OptionLabel htmlFor={`option-${option.id}`}>
                     {option.text_option}

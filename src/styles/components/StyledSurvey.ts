@@ -142,7 +142,6 @@ export const OptionWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 10px;
-  
 
   input[type="radio"] {
     width: 1.6vw;
@@ -163,6 +162,26 @@ export const OptionWrapper = styled.div`
       background-color: #2d8a88;
     }
   }
+
+  input[type="checkbox"] {
+  width: 1.6vw;
+  height: 1.6vw;
+  max-width: 2rem;
+  max-height: 2rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+  margin-right: 10px;
+  border: 2px solid #2d8a88;
+  border-radius: 0.2rem;
+  aspect-ratio: 1 / 1;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+
+  &:checked {
+    background-color: #2d8a88;
+  }
+}
 `;
 
 // Etiquetas de las opciones

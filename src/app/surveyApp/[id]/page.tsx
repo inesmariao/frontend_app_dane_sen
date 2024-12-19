@@ -20,8 +20,8 @@ import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 
 interface ChapterProps {
   questions: Question[];
-  responses: { [key: number]: number | string };
-  handleOptionChange: (questionId: number, value: number | string) => void;
+  responses: { [key: number]: string | number | number[] };
+  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
   chapterName: string;
 }
 
@@ -32,7 +32,7 @@ const SurveyApp: React.FC = () => {
   const id = params?.id;
 
   const [survey, setSurvey] = useState<any>(null);
-  const [responses, setResponses] = useState<{ [key: number]: number | string }>({});
+  const [responses, setResponses] = useState<{ [key: number]: number | string | number[] }>({});
   const [error, setError] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(1);
   const router = useRouter();
@@ -65,8 +65,23 @@ const SurveyApp: React.FC = () => {
     return <p>Cargando datos de la encuesta...</p>;
   }
 
-  const handleOptionChange = (questionId: number, value: number | string) => {
-    setResponses((prev) => ({ ...prev, [questionId]: value }));
+  const handleOptionChange = (questionId: number, value: number | string | number[]) => {
+    setResponses((prev) => {
+      const current = prev[questionId];
+
+      // Manejar preguntas múltiples
+      if (Array.isArray(current)) {
+        if (typeof value === 'number') {
+          const updatedSelections = current.includes(value)
+            ? current.filter((id) => id !== value)
+            : [...current, value];
+          return { ...prev, [questionId]: updatedSelections };
+        }
+      }
+
+      // Manejar preguntas únicas (radio buttons)
+      return { ...prev, [questionId]: value };
+    });
   };
 
   const handleNextChapter = () => {
@@ -82,13 +97,30 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const unansweredQuestions = survey.questions.filter((q: Question) => !responses[q.id]);
+    // Verificar si hay preguntas sin responder.
+    const unansweredQuestions = survey.questions.filter((q: Question) => {
+      const response = responses[q.id]; // Obtenemos la respuesta actual
+      return (
+        response === undefined || // Si no hay respuesta
+        (Array.isArray(response) && response.length === 0) // Si es un arreglo vacío
+      );
+    });
+  
     if (unansweredQuestions.length > 0) {
       alert("Por favor responde todas las preguntas.");
       return;
     }
+  
+    // Formatear las respuestas antes de enviarlas al backend.
+    const formattedResponses = Object.entries(responses).map(([questionId, value]) => ({
+      question_id: parseInt(questionId, 10),
+      ...(Array.isArray(value)
+        ? { options_multiple_selected: value }
+        : { option_selected: value }),
+    }));
+  
     try {
-      const response = await submitResponses(responses);
+      const response = await submitResponses(formattedResponses);
       console.log("Respuestas enviadas:", response);
     } catch (error: any) {
       console.error("Error al enviar respuestas:", error.message);
