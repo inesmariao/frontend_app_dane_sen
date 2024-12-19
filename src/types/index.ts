@@ -17,16 +17,38 @@ export interface Question {
   id: number;
   text_question: string;
   order_question: number;
-  instruction: string;
+  instruction?: string;
   question_type: "open" | "closed" | "matrix";
-  subquestions?: Question[];
+  is_required?: boolean;
+  options?: Option[];
+  subquestions?: SubQuestion[];
   min_value?: number;
   max_value?: number;
-  options?: Option[];
   chapter: number;
+}
+
+export interface SubQuestion {
+  id: number;
+  parent_question: number;
+  subquestion_order: number;
+  text_subquestion: string;
+  instruction?: string;
+  subquestion_type: string;
+  min_value?: number;
+  max_value?: number;
+  is_multiple: boolean;
+  is_required: boolean;
 }
 
 export interface Option {
   id: number;
   text_option: string;
+  is_other: boolean;
+  note: string | null;
+  created_at: string;
+  question_id: number;
+  option_type: string | null;
+  updated_at: string;
+  order_option: number;
+  subquestion_id: number;
 }

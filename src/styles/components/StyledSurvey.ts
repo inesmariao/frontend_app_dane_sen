@@ -1,16 +1,28 @@
 import styled from "styled-components";
 
+// Contenedor principal de la encuesta
 export const SurveyContainer = styled.section`
-  max-width: 800px;
+  width: 80%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    width: 95%;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
+// Encabezado de la encuesta
 export const SurveyHeader = styled.div`
   text-align: center;
   margin-bottom: 2rem;
 `;
 
+// Título de la encuesta
 export const SurveyTitle = styled.div`
   font-family: "Poppins", sans-serif;
   font-size: 2.5rem;
@@ -27,15 +39,21 @@ export const SurveyTitle = styled.div`
   }
 `;
 
+// Descripción debajo del título
 export const SurveyDescriptionName = styled.p`
   font-family: "Poppins", sans-serif;
-  font-size: 1rem;
+  font-size: 1.4rem;
   color: #000;
   margin-bottom: 1.5rem;
   margin-top: 2rem;
   text-align: left;
+
+  @media (max-width: 985px) {
+    font-size: 1rem;
+  }
 `;
 
+// Título de cada capítulo
 export const ChapterTitle = styled.div`
   font-family: "Poppins", sans-serif;
   font-size: 1.5rem;
@@ -44,15 +62,48 @@ export const ChapterTitle = styled.div`
   font-weight: bold;
   text-transform: uppercase;
   text-align: left;
-  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
 
   @media (max-width: 768px) {
-    /* Pantallas medianas */
     font-size: 1.2rem;
   }
 
   @media (max-width: 480px) {
-    /* Pantallas pequeñas */
+    font-size: 1rem;
+  }
+`;
+
+// Estilo de cada pregunta
+export const QuestionCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  margin: 1rem 0;
+  padding: 1.5rem;
+`;
+
+// Texto de las preguntas
+export const QuestionText = styled.h3`
+  font-family: "Poppins", sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
+
+  @media (max-width: 985px) {
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
+`;
+
+// Instrucciones para responder
+export const QuestionInstructions = styled.p`
+  font-family: "Poppins", sans-serif;
+  font-size: 1.2rem;
+  color: #2d8a88;
+  margin-top: 5px;
+  font-style: italic;
+
+  @media (max-width: 985px) {
     font-size: 1rem;
   }
 `;
@@ -75,62 +126,35 @@ export const NumericInput = styled.input`
   @media (max-width: 480px) {
     /* Pantallas pequeñas */
     width: 90%;
-    font-size: 0.8rem; /* Texto más pequeño para pantallas muy pequeñas */
+    font-size: 0.8rem;
   }
 
   @media (max-width: 768px) {
     /* Pantallas medianas */
     width: 90%;
-    font-size: 0.9rem; /* Ajuste del texto */
+    font-size: 0.9rem;
   }
 `;
 
-export const QuestionCard = styled.div`
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  margin: 1rem 0;
-  padding: 1.5rem;
-`;
-
-export const QuestionText = styled.h3`
-  font-family: "Poppins", sans-serif;
-  width: 100%;
-  font-size: 1.4rem;
-  line-height: 1.6rem;
-  font-weight: bold;
-  color: #000;
-  display: block;
-  margin-bottom: 0.4rem;
-`;
-
-export const QuestionInstructions = styled.p`
-  font-family: "Poppins", sans-serif;
-  font-size: 0.9rem !important;
-  color: #2d8a88;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  text-align: left;
-  font-style: italic;
-  margin-top: 5px;
-`;
-
+// Opciones de las preguntas
 export const OptionWrapper = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   margin-bottom: 10px;
+  
 
   input[type="radio"] {
-    width: 2vw; /* Tamaño relativo al ancho de la ventana */
-    height: 2vw; /* Igual al ancho para mantenerlo circular */
-    max-width: 2.5rem; /* Tamaño máximo (equivale a ~40px si 1rem = 16px) */
-    max-height: 2.5rem;
-    min-width: 1.25rem; /* Tamaño mínimo (equivale a ~20px) */
+    width: 1.6vw;
+    height: 1.6vw;
+    max-width: 2rem;
+    max-height: 2rem;
+    min-width: 1.25rem;
     min-height: 1.25rem;
     margin-right: 10px;
     border: 2px solid #2d8a88;
-    border-radius: 50%; /* Circular */
-    aspect-ratio: 1 / 1; /* Mantener la proporción 1:1 */
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
     appearance: none;
     outline: none;
     cursor: pointer;
@@ -138,23 +162,22 @@ export const OptionWrapper = styled.div`
     &:checked {
       background-color: #2d8a88;
     }
-
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  label {
-    font-family: "Poppins", sans-serif;
-    font-size: 1.2rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #000000;
   }
 `;
 
+// Etiquetas de las opciones
 export const OptionLabel = styled.label`
   font-family: "Poppins", sans-serif;
-  font-size: 20px;
+  font-size: 1.4rem;
   color: #000;
+  line-height: 1.5;
+  text-align: left;
+
+  @media (max-width: 985px) {
+    font-size: 1.1rem;
+    margin-top: 0.2rem;
+    text-align: left;
+  }
 `;
 
 export const ButtonContainer = styled.div`
@@ -162,3 +185,116 @@ export const ButtonContainer = styled.div`
   justify-content: center;
   margin-top: 1rem;
 `;
+
+// Tabla para subpreguntas (matrices)
+
+export const TableHeader = styled.div`
+  font-family: "Poppins", sans-serif;
+  display: table-row;
+  font-weight: bold;
+`;
+export const Table = styled.div`
+  font-family: "Poppins", sans-serif;
+  font-weight: normal;
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+
+  @media (max-width: 985px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+`;
+
+
+export const TableRow = styled.div`
+  font-family: "Poppins", sans-serif;
+  font-weight: normal;
+  display: table-row;
+
+  @media (max-width: 985px) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0;
+  }
+`;
+
+export const Column = styled.div`
+  display: table-cell;
+  text-align: center;
+  padding: 0.5rem;
+
+  @media (max-width: 985px) {
+    display: flex;
+    flex-direction: row;
+    
+    padding: 0;
+    gap: 0.5rem;
+  }
+`;
+
+export const SubQuestionColumn = styled(Column)`
+  font-family: "Poppins", sans-serif;
+  font-weight: normal;
+  display: table-cell;
+  text-align: left;
+  padding: 0.5rem 0;
+  font-size: 1.4rem;
+
+  @media (max-width: 985px) {
+    font-size: 1.1rem;
+    line-height: 1.2;
+    margin-bottom: 0;
+  }
+`;
+
+export const OptionWrapper_Subquestions = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+
+  @media (max-width: 985px) {
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: space-evenly;
+    align-items: flex-start;
+  }
+
+  div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    
+    @media (max-width: 985px) {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+  }
+
+  input[type="radio"] {
+    width: 1.6vw;
+    height: 1.6vw;
+    max-width: 2rem;
+    max-height: 2rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+    border: 2px solid #2d8a88;
+    border-radius: 50%;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+
+    &:checked {
+      background-color: #2d8a88;
+    }
+  }
+`;
+
+

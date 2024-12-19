@@ -1,16 +1,20 @@
 "use client";
 
 import React from "react";
-import { Survey, Chapter, Question, Option } from "@/types";
+import { Survey, Chapter, Question, SubQuestion, Option } from "@/types";
 import styled from "styled-components";
 import {
   ChapterTitle,
-  NumericInput,
   QuestionCard,
   QuestionText,
   QuestionInstructions,
   OptionWrapper,
+  OptionWrapper_Subquestions,
   OptionLabel,
+  SubQuestionColumn,
+  Table,
+  TableRow,
+  Column,
 } from "@/styles/components/StyledSurvey";
 
 interface ChapterProps {
@@ -20,29 +24,6 @@ interface ChapterProps {
   chapterName: string;
 }
 
-const MatrixContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const SubQuestionRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #ccc;
-  padding: 0.5rem 0;
-`;
-
-const SubQuestionText = styled.span`
-  flex: 1;
-`;
-
-const MatrixOptions = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
 const ChapterTwo: React.FC<ChapterProps> = ({
   questions,
   responses,
@@ -51,65 +32,67 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 }) => {
   return (
     <>
+      {/* Título del capítulo */}
       <ChapterTitle>{chapterName}</ChapterTitle>
-      <>
-        {questions.map((question) => (
+
+      {/* Renderizado de preguntas */}
+      {questions.map((question) => {
+        const isMatrix = question.question_type === "matrix";
+        const subQuestions = question.subquestions || [];
+
+        return (
           <QuestionCard key={question.id}>
+            {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
-            <QuestionInstructions>{question.instruction}</QuestionInstructions>
 
-            {/* Manejo para preguntas tipo matrix */}
-            {question.question_type === "matrix" &&
-              Array.isArray(question.subquestions) && (
-                <MatrixContainer>
-                  {question.subquestions.map((subQuestion) => (
-                    <SubQuestionRow key={subQuestion.id}>
-                      <SubQuestionText>{subQuestion.text_question}</SubQuestionText>
-                      <MatrixOptions>
-                        {Array.isArray(subQuestion.options) &&
-                          subQuestion.options.map((option) => (
-                            <OptionWrapper key={option.id}>
-                              <input
-                                type="radio"
-                                id={`option-${option.id}`}
-                                name={`question-${subQuestion.id}`}
-                                value={option.id}
-                                checked={responses[subQuestion.id] === option.id}
-                                onChange={() =>
-                                  handleOptionChange(subQuestion.id, option.id)
-                                }
-                              />
-                              <OptionLabel htmlFor={`option-${option.id}`}>
-                                {option.text_option}
-                              </OptionLabel>
-                            </OptionWrapper>
-                          ))}
-                      </MatrixOptions>
-                    </SubQuestionRow>
-                  ))}
-                </MatrixContainer>
-              )}
+            {/* Instrucciones de la pregunta */}
+            {question.instruction && (
+              <QuestionInstructions>{question.instruction}</QuestionInstructions>
+            )}
 
-            {/* Preguntas abiertas */}
-            {question.question_type === "open" &&
-              question.min_value != null &&
-              question.max_value != null && (
-                <NumericInput
-                  type="number"
-                  min={question.min_value}
-                  max={question.max_value}
-                  value={responses[question.id] || ""}
-                  onChange={(e) =>
-                    handleOptionChange(question.id, Number(e.target.value))
-                  }
-                  placeholder="Ingrese su respuesta"
-                />
-              )}
+            {/* Pregunta tipo "matrix" */}
+            {isMatrix && subQuestions.length > 0 ? (
+              <Table>
 
-            {/* Preguntas cerradas */}
-            {question.question_type === "closed" &&
-              Array.isArray(question.options) &&
-              question.options.map((option) => (
+                {/* Filas de la tabla */}
+                {subQuestions.map((subQuestion) => {
+                  const filteredOptions =
+                    question.options?.filter(
+                      (option) => option.subquestion_id === subQuestion.id
+                    ) || [];
+
+                  return (
+                    <TableRow key={subQuestion.id}>
+                      {/* Subpregunta en una fila */}
+                      <SubQuestionColumn>{subQuestion.text_subquestion}</SubQuestionColumn>
+
+                      {/* Opciones en la fila siguiente */}
+                      <OptionWrapper_Subquestions>
+                        {filteredOptions.map((option) => (
+                          <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                            <input
+                              type="radio"
+                              id={`option-${subQuestion.id}-${option.id}`}
+                              name={`subquestion-${subQuestion.id}`}
+                              value={option.id}
+                              checked={responses[subQuestion.id] === option.id}
+                              onChange={() =>
+                                handleOptionChange(subQuestion.id, option.id)
+                              }
+                            />
+                            <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                              {option.text_option}
+                            </OptionLabel>
+                          </div>
+                        ))}
+                      </OptionWrapper_Subquestions>
+                    </TableRow>
+                  );
+                })}
+              </Table>
+            ) : (
+              // Pregunta normal
+              question.options?.map((option) => (
                 <OptionWrapper key={option.id}>
                   <input
                     type="radio"
@@ -123,12 +106,14 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                     {option.text_option}
                   </OptionLabel>
                 </OptionWrapper>
-              ))}
+              ))
+            )}
           </QuestionCard>
-        ))}
-      </>
+        );
+      })}
     </>
   );
 };
+
 
 export default ChapterTwo;

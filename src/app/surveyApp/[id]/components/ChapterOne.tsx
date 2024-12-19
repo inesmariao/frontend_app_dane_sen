@@ -1,16 +1,18 @@
 "use client";
 
 import React from "react";
-import { Survey, Chapter, Question, Option } from "@/types";
-import styled from "styled-components";
+import { Question } from "@/types";
 import {
   ChapterTitle,
-  NumericInput,
   QuestionCard,
   QuestionText,
   QuestionInstructions,
   OptionWrapper,
-  OptionLabel
+  OptionLabel,
+  Table,
+  TableRow,
+  SubQuestionColumn,
+  Column,
 } from "@/styles/components/StyledSurvey";
 
 interface ChapterProps {
@@ -20,7 +22,6 @@ interface ChapterProps {
   chapterName: string;
 }
 
-
 const ChapterOne: React.FC<ChapterProps> = ({
   questions,
   responses,
@@ -28,30 +29,68 @@ const ChapterOne: React.FC<ChapterProps> = ({
   chapterName,
 }) => {
   return (
-  <>
-    <ChapterTitle>{chapterName}</ChapterTitle>
-      <>
-        {questions.map((question) => (
+    <>
+      {/* Título del capítulo */}
+      <ChapterTitle>{chapterName}</ChapterTitle>
+
+      {/* Renderizado de preguntas */}
+      {questions.map((question) => {
+        const isMatrix = question.question_type === "matrix";
+        const subQuestions = question.subquestions || [];
+
+        return (
           <QuestionCard key={question.id}>
+            {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
-            <QuestionInstructions>{question.instruction}</QuestionInstructions>
-            {question.question_type === "open" &&
-              question.min_value != null &&
-              question.max_value != null && (
-                <NumericInput
-                  type="number"
-                  min={question.min_value}
-                  max={question.max_value}
-                  value={responses[question.id] || ""}
-                  onChange={(e) =>
-                    handleOptionChange(question.id, Number(e.target.value))
-                  }
-                  placeholder="Ingrese su respuesta"
-                />
-              )}
-            {question.question_type === "closed" &&
-              Array.isArray(question.options) &&
-              question.options.map((option) => (
+
+            {/* Instrucciones de la pregunta */}
+            {question.instruction && (
+              <QuestionInstructions>{question.instruction}</QuestionInstructions>
+            )}
+
+            {/* Pregunta tipo "matrix" */}
+            {isMatrix && subQuestions.length > 0 ? (
+              <Table>
+
+                {/* Filas de la tabla */}
+                {subQuestions.map((subQuestion) => {
+                  const filteredOptions =
+                    question.options?.filter(
+                      (option) => option.subquestion_id === subQuestion.id
+                    ) || [];
+
+                  return (
+                    <TableRow key={subQuestion.id}>
+                      {/* Subpregunta */}
+                      <SubQuestionColumn>{subQuestion.text_subquestion}</SubQuestionColumn>
+
+                      {/* Opciones */}
+                      {filteredOptions.map((option) => (
+                        <Column key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                          <OptionWrapper>
+                            <input
+                              type="radio"
+                              id={`option-${subQuestion.id}-${option.id}`}
+                              name={`subquestion-${subQuestion.id}`}
+                              value={option.id}
+                              checked={responses[subQuestion.id] === option.id}
+                              onChange={() =>
+                                handleOptionChange(subQuestion.id, option.id)
+                              }
+                            />
+                            <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                              {option.text_option}
+                            </OptionLabel>
+                          </OptionWrapper>
+                        </Column>
+                      ))}
+                    </TableRow>
+                  );
+                })}
+              </Table>
+            ) : (
+              // Pregunta normal
+              question.options?.map((option) => (
                 <OptionWrapper key={option.id}>
                   <input
                     type="radio"
@@ -65,11 +104,12 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     {option.text_option}
                   </OptionLabel>
                 </OptionWrapper>
-              ))}
+              ))
+            )}
           </QuestionCard>
-        ))}
-        </>
-  </>
+        );
+      })}
+    </>
   );
 };
 
