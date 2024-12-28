@@ -19,6 +19,7 @@ export interface Question {
   order_question: number;
   instruction?: string;
   question_type: "open" | "closed" | "matrix";
+  matrix_layout_type?: "row" | "column";
   is_required?: boolean;
   is_multiple?: boolean;
   options?: Option[];
@@ -39,6 +40,7 @@ export interface SubQuestion {
   max_value?: number;
   is_multiple: boolean;
   is_required: boolean;
+  custom_identifier?: string;
 }
 
 export interface Option {

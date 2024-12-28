@@ -184,6 +184,35 @@ export const OptionWrapper = styled.div`
 }
 `;
 
+// Opciones de las preguntas tipo matrix con matrix_layout_type = column
+export const OptionWrapper_Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+
+  input[type="radio"] {
+    width: 1.6vw;
+    height: 1.6vw;
+    max-width: 2rem;
+    max-height: 2rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+    margin-right: 10px;
+    border: 2px solid #2d8a88;
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+
+    &:checked {
+      background-color: #2d8a88;
+    }
+  }
+`;
+
+
 // Etiquetas de las opciones
 export const OptionLabel = styled.label`
   font-family: "Poppins", sans-serif;

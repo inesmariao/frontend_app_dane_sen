@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Survey, Chapter, Question, SubQuestion, Option } from "@/types";
-import styled from "styled-components";
 import {
   ChapterTitle,
   QuestionCard,
@@ -10,16 +9,16 @@ import {
   QuestionInstructions,
   OptionWrapper,
   OptionWrapper_Subquestions,
+  OptionWrapper_Column,
   OptionLabel,
   SubQuestionColumn,
   Table,
-  TableRow,
-  Column,
+  TableRow
 } from "@/styles/components/StyledSurvey";
 
 interface ChapterProps {
   questions: Question[];
-  responses: { [key: number]: number | string | number[] };
+  responses: { [key: number]: string | number | number[] };
   handleOptionChange: (questionId: number, value: number | string | number[]) => void;
   chapterName: string;
 }
@@ -47,73 +46,129 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 
             {/* Instrucciones de la pregunta */}
             {question.instruction && (
-              <QuestionInstructions>{question.instruction}</QuestionInstructions>
+              <QuestionInstructions>
+                {question.instruction}
+              </QuestionInstructions>
             )}
 
-            {/* Pregunta tipo "matrix" */}
+            {/* Manejo de preguntas tipo "matrix" */}
             {isMatrix && subQuestions.length > 0 ? (
-              <Table>
+              question.matrix_layout_type === "row" ? (
+                // Diseño tipo "row" - Opciones en fila
+                <Table>
+                  {subQuestions.map((subQuestion) => {
+                    const filteredOptions =
+                      question.options?.filter(
+                        (option) => option.subquestion_id === subQuestion.id
+                      ) || [];
 
-                {/* Filas de la tabla */}
-                {subQuestions.map((subQuestion) => {
-                  const filteredOptions =
-                    question.options?.filter(
-                      (option) => option.subquestion_id === subQuestion.id
-                    ) || [];
+                    return (
+                      <TableRow key={subQuestion.id}>
+                        {/* Subpregunta */}
+                        <SubQuestionColumn>
+                          {subQuestion.custom_identifier
+                            ? `${subQuestion.custom_identifier} - `
+                            : ""}
+                          {subQuestion.text_subquestion}
+                          {subQuestion.instruction && (
+                            <QuestionInstructions>
+                              {subQuestion.instruction}
+                            </QuestionInstructions>
+                          )}
+                        </SubQuestionColumn>
+                        {/* Opciones en fila */}
+                        <OptionWrapper_Subquestions>
+                          {filteredOptions.map((option) => (
+                            <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                              <input
+                                type="radio"
+                                id={`option-${subQuestion.id}-${option.id}`}
+                                name={`subquestion-${subQuestion.id}`}
+                                value={option.id}
+                                checked={
+                                  responses[subQuestion.id] === option.id
+                                }
+                                onChange={() =>
+                                  handleOptionChange(subQuestion.id, option.id)
+                                }
+                              />
+                              <OptionLabel
+                                htmlFor={`option-${subQuestion.id}-${option.id}`}
+                              >
+                                {option.text_option}
+                              </OptionLabel>
+                            </div>
+                          ))}
+                        </OptionWrapper_Subquestions>
+                      </TableRow>
+                    );
+                  })}
+                </Table>
+              ) : (
+                // Diseño tipo "column" - Opciones en columna
+                <div>
+                  {subQuestions.map((subQuestion) => {
+                    const filteredOptions =
+                      question.options?.filter(
+                        (option) => option.subquestion_id === subQuestion.id
+                      ) || [];
 
-                  return (
-                    <TableRow key={subQuestion.id}>
-                      {/* Subpregunta en una fila */}
-                      <SubQuestionColumn>{subQuestion.text_subquestion}</SubQuestionColumn>
+                    return (
+                      <div key={subQuestion.id}>
+                        {/* Subpregunta en formato columna */}
+                        <SubQuestionColumn>
+                          {subQuestion.custom_identifier
+                            ? `${subQuestion.custom_identifier} - `
+                            : ""}
+                          {subQuestion.text_subquestion}
+                        </SubQuestionColumn>
 
-                      {/* Opciones en la fila siguiente */}
-                      <OptionWrapper_Subquestions>
-                        {filteredOptions.map((option) => (
-                          <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
-                            <input
-                              type="radio"
-                              id={`option-${subQuestion.id}-${option.id}`}
-                              name={`subquestion-${subQuestion.id}`}
-                              value={option.id}
-                              checked={responses[subQuestion.id] === option.id}
-                              onChange={() =>
-                                handleOptionChange(subQuestion.id, option.id)
-                              }
-                            />
-                            <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
-                              {option.text_option}
-                            </OptionLabel>
-                          </div>
-                        ))}
-                      </OptionWrapper_Subquestions>
-                    </TableRow>
-                  );
-                })}
-              </Table>
+                        {subQuestion.instruction && (
+                          <QuestionInstructions>
+                            {subQuestion.instruction}
+                          </QuestionInstructions>
+                        )}
+
+                        {/* Opciones para diseño en columna */}
+                        <OptionWrapper_Column>
+                          {filteredOptions.map((option) => (
+                            <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                              <input
+                                type="radio"
+                                id={`option-${subQuestion.id}-${option.id}`}
+                                name={`subquestion-${subQuestion.id}`}
+                                value={option.id}
+                                checked={
+                                  responses[subQuestion.id] === option.id
+                                }
+                                onChange={() =>
+                                  handleOptionChange(subQuestion.id, option.id)
+                                }
+                              />
+                              <OptionLabel
+                                htmlFor={`option-${subQuestion.id}-${option.id}`}
+                              >
+                                {option.text_option}
+                              </OptionLabel>
+                            </div>
+                          ))}
+                        </OptionWrapper_Column>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
             ) : (
-              // Pregunta normal
+              // Preguntas normales (no tipo matrix)
               question.options?.map((option) => (
                 <OptionWrapper key={option.id}>
                   <input
-                    type={question.is_multiple ? "checkbox" : "radio"} // Cambiar a checkbox para preguntas múltiples.
+                    type="radio"
                     id={`option-${option.id}`}
                     name={`question-${question.id}`}
                     value={option.id}
-                    checked={
-                      question.is_multiple
-                        ? Array.isArray(responses[question.id]) &&
-                          (responses[question.id] as number[]).includes(option.id)
-                        : responses[question.id] === option.id
-                    }
-                    onChange={() => {
-                      const currentResponses = Array.isArray(responses[question.id])
-                        ? (responses[question.id] as number[])
-                        : [];
-                      const newResponses = currentResponses.includes(option.id)
-                        ? currentResponses.filter((id) => id !== option.id)
-                        : [...currentResponses, option.id];
-                      handleOptionChange(question.id, newResponses);
-                    }}
+                    checked={responses[question.id] === option.id}
+                    onChange={() => handleOptionChange(question.id, option.id)}
                   />
                   <OptionLabel htmlFor={`option-${option.id}`}>
                     {option.text_option}

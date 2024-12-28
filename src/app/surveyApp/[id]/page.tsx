@@ -105,12 +105,12 @@ const SurveyApp: React.FC = () => {
         (Array.isArray(response) && response.length === 0) // Si es un arreglo vacío
       );
     });
-  
+
     if (unansweredQuestions.length > 0) {
       alert("Por favor responde todas las preguntas.");
       return;
     }
-  
+
     // Formatear las respuestas antes de enviarlas al backend.
     const formattedResponses = Object.entries(responses).map(([questionId, value]) => ({
       question_id: parseInt(questionId, 10),
@@ -118,7 +118,7 @@ const SurveyApp: React.FC = () => {
         ? { options_multiple_selected: value }
         : { option_selected: value }),
     }));
-  
+
     try {
       const response = await submitResponses(formattedResponses);
       console.log("Respuestas enviadas:", response);
