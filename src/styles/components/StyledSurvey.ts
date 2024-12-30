@@ -108,31 +108,55 @@ export const QuestionInstructions = styled.p`
   }
 `;
 
-export const NumericInput = styled.input`
-  width: 25%;
+export const NumericInputWrapper = styled.div`
+  width: 100%;
   padding: 0.5rem;
-  font-size: 1rem;
-  border: 2px solid #2d8a88;
-  border-radius: 5px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  font-size: 1.5rem;
   text-align: center;
   outline: none;
+  display: flex;
+  justify-content: flex-start;
 
-  &:focus {
-    border-color: #2d8a88;
-    box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+  input[type="number"] {
+    width: 25%;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    border: 2px solid #2d8a88;
+    border-radius: 5px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    outline: none;
+    appearance: textfield;
+
+    -moz-appearance: number-input;
+    -webkit-appearance: number-input;
+    appearance: number-input;
+
+    &:focus {
+      border-color: #2d8a88;
+      box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+    }
   }
 
+  /* Diseño responsivo */
   @media (max-width: 480px) {
-    /* Pantallas pequeñas */
-    width: 90%;
-    font-size: 0.8rem;
+    input[type="number"] {
+      width: 80%;
+      font-size: 1rem;
+      height: 2.8rem;
+    }
   }
 
   @media (max-width: 768px) {
-    /* Pantallas medianas */
-    width: 90%;
-    font-size: 0.9rem;
+    input[type="number"] {
+      width: 50%;
+      font-size: 1.1rem;
+      height: 2.8rem;
+    }
+
+  @media (min-width: 769px) {
+    width: 25%;
+  }
   }
 `;
 

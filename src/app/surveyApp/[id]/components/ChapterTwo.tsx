@@ -13,7 +13,8 @@ import {
   OptionLabel,
   SubQuestionColumn,
   Table,
-  TableRow
+  TableRow,
+  NumericInputWrapper
 } from "@/styles/components/StyledSurvey";
 
 interface ChapterProps {
@@ -37,6 +38,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
       {/* Renderizado de preguntas */}
       {questions.map((question) => {
         const isMatrix = question.question_type === "matrix";
+        const isNumeric = question.data_type === "integer";
         const subQuestions = question.subquestions || [];
 
         return (
@@ -46,13 +48,31 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 
             {/* Instrucciones de la pregunta */}
             {question.instruction && (
-              <QuestionInstructions>
-                {question.instruction}
-              </QuestionInstructions>
+              <QuestionInstructions>{question.instruction}</QuestionInstructions>
             )}
 
-            {/* Manejo de preguntas tipo "matrix" */}
-            {isMatrix && subQuestions.length > 0 ? (
+            {/* Manejo para preguntas tipo numérico */}
+            {isNumeric ? (
+              <NumericInputWrapper>
+                <input
+                  type="number"
+                  id={`numeric-${question.id}`}
+                  name={`question-${question.id}`}
+                  value={
+                    Array.isArray(responses[question.id])
+                      ? ((responses[question.id] as number[])[0]?.toString() || "")
+                      : responses[question.id]?.toString() || ""
+                  }
+                  min={question.min_value || undefined}
+                  max={question.max_value || undefined}
+                  step="1"
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? "" : parseInt(e.target.value, 10);
+                    handleOptionChange(question.id, value);
+                  }}
+                />
+              </NumericInputWrapper>
+            ) : isMatrix && subQuestions.length > 0 ? (
               question.matrix_layout_type === "row" ? (
                 // Diseño tipo "row" - Opciones en fila
                 <Table>
@@ -159,7 +179,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                 </div>
               )
             ) : (
-              // Preguntas normales (no tipo matrix)
+              // Preguntas normales (no tipo matrix ni numéricas)
               question.options?.map((option) => (
                 <OptionWrapper key={option.id}>
                   <input

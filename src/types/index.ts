@@ -26,6 +26,7 @@ export interface Question {
   subquestions?: SubQuestion[];
   min_value?: number;
   max_value?: number;
+  data_type?: "integer" | "string" | "float";
   chapter: number;
 }
 

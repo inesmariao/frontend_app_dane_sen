@@ -69,7 +69,7 @@ const SurveyApp: React.FC = () => {
     setResponses((prev) => {
       const current = prev[questionId];
 
-      // Manejar preguntas múltiples
+      // Manejar selección múltiple
       if (Array.isArray(current)) {
         if (typeof value === 'number') {
           const updatedSelections = current.includes(value)
@@ -79,7 +79,7 @@ const SurveyApp: React.FC = () => {
         }
       }
 
-      // Manejar preguntas únicas (radio buttons)
+      // Manejar selección única (radio buttons)
       return { ...prev, [questionId]: value };
     });
   };
