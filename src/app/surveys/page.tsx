@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import StyledButton from "@/styles/components/StyledButton";
 
 const SurveysWrapper = styled.div`
@@ -203,6 +204,13 @@ const StyledButtonWrapper = styled.div`
 `;
 
 export default function Surveys() {
+
+  const router = useRouter(); 
+
+  const handleStartSurvey = (surveyId: number) => {
+    router.push(`/surveyApp/${surveyId}`);
+  };
+
   return (
     <SurveysWrapper>
       <Title>Temas</Title>
@@ -219,10 +227,10 @@ export default function Surveys() {
             <SurveyTitle>Encuesta I - Discriminación</SurveyTitle>
             <SurveyDescription>
               Preguntas para la recolección de información relevante sobre las
-              experiencias de discriminación en personas mayores.
+              experiencias de discriminación en personas mayores de edad.
             </SurveyDescription>
             <StyledButtonWrapper>
-              <StyledButton>Iniciar</StyledButton>
+            <StyledButton onClick={() => handleStartSurvey(1)}>Iniciar</StyledButton>
             </StyledButtonWrapper>
           </CardContent>
         </Card>

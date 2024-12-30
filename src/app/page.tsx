@@ -50,14 +50,14 @@ const Title = styled.h1`
     font-size: 1.6rem;
     line-height: 1.6;
     padding: 0;
-    margin-top: 0.2rem
+    margin-top: 0.2rem;
   }
 
   @media (min-width: 64rem) {
     font-size: 1.7rem;
     line-height: 1;
     padding: 0;
-    margin-top: 0.5rem
+    margin-top: 0.5rem;
   }
 `;
 
@@ -91,7 +91,7 @@ export default function Home() {
   const router = useRouter();
 
   const handleNext = () => {
-    router.push("/surveys");
+    router.push("/login"); // Redirige al Login
   };
 
   return (

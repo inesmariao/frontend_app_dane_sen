@@ -10,7 +10,7 @@ const StyledButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
   display: inline-block;
-  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.15);
   width: 10rem;
   max-width: 100%;
   margin-top: 0.8rem;
@@ -37,7 +37,6 @@ const StyledButton = styled.button`
     box-shadow: none;
   }
 
-  
   @media (min-width: 48rem) and (max-width: 64rem) {
     margin-top: 0.1rem;
     margin-bottom: 1rem;
@@ -54,8 +53,6 @@ const StyledButton = styled.button`
     padding: 0.6rem 1.2rem;
     margin-bottom: 2rem;
   }
-
-
 `;
 
 export default StyledButton;

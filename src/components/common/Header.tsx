@@ -203,7 +203,9 @@ export default function Header() {
         />
       </LogoContainer>
       <DropdownMenu ref={menuRef} className={isMenuOpen ? "open" : ""}>
-        <Nav />
+        <Nav
+          closeMenu={() => setIsMenuOpen(false)}
+        />
       </DropdownMenu>
     </HeaderContainer>
   );

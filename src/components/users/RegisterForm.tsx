@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { registerUser } from "@/utils/api";
 import StyledButton from "@/styles/components/StyledButton";
 
-
-
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
   margin: 0.625rem 1rem;
@@ -30,8 +28,6 @@ const RegisterFormContainer = styled.div`
       margin: 1rem auto; /* Mayor separación en pantallas grandes */
       max-width: 26rem; /* Reduce el ancho para pantallas grandes */
     }
-
-
 `;
 
 const Instructions = styled.p`
@@ -122,6 +118,23 @@ const DropdownMenuItem = styled.li`
     }
     &:last-child {
       border-bottom: none;
+    }
+  }
+`;
+
+const LoginLink = styled.p`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+
+  a {
+    color: #51d0cd;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 `;
@@ -218,6 +231,10 @@ const RegisterForm: React.FC = () => {
     }
   };
 
+  const handleLoginRedirect = () => {
+    router.push("/login");
+  };
+
   return (
     <RegisterFormContainer>
       <Instructions>Selecciona tu identificador para el registro:</Instructions>
@@ -295,6 +312,12 @@ const RegisterForm: React.FC = () => {
         {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
         <StyledButton type="submit">Registrarse</StyledButton>
       </form>
+      <LoginLink>
+        ¿Ya tienes una cuenta?{" "}
+        <a onClick={handleLoginRedirect} role="button" tabIndex={0}>
+          Inicia sesión aquí
+        </a>
+      </LoginLink>
     </RegisterFormContainer>
   );
 };
