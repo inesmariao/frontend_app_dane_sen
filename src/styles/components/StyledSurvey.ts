@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+interface OptionWrapperProps {
+  isCheckbox?: boolean;
+}
+
 // Contenedor principal de la encuesta
 export const SurveyContainer = styled.section`
   width: 80%;
@@ -128,6 +132,7 @@ export const NumericInputWrapper = styled.div`
     outline: none;
     appearance: textfield;
 
+    -o-appearance: number-input;
     -moz-appearance: number-input;
     -webkit-appearance: number-input;
     appearance: number-input;
@@ -161,13 +166,13 @@ export const NumericInputWrapper = styled.div`
 `;
 
 // Opciones de las preguntas
-export const OptionWrapper = styled.div`
+export const OptionWrapper = styled.div<OptionWrapperProps>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 10px;
 
-  input[type="radio"] {
+  input {
     width: 1.6vw;
     height: 1.6vw;
     max-width: 2rem;
@@ -176,7 +181,11 @@ export const OptionWrapper = styled.div`
     min-height: 1.25rem;
     margin-right: 10px;
     border: 2px solid #2d8a88;
-    border-radius: 50%;
+
+    /* Aplica bordes dinámicos */
+    border-radius: ${({ isCheckbox }) =>
+      isCheckbox ? "0.2rem" : "50%"};
+
     aspect-ratio: 1 / 1;
     appearance: none;
     outline: none;
@@ -186,26 +195,6 @@ export const OptionWrapper = styled.div`
       background-color: #2d8a88;
     }
   }
-
-  input[type="checkbox"] {
-  width: 1.6vw;
-  height: 1.6vw;
-  max-width: 2rem;
-  max-height: 2rem;
-  min-width: 1.25rem;
-  min-height: 1.25rem;
-  margin-right: 10px;
-  border: 2px solid #2d8a88;
-  border-radius: 0.2rem;
-  aspect-ratio: 1 / 1;
-  appearance: none;
-  outline: none;
-  cursor: pointer;
-
-  &:checked {
-    background-color: #2d8a88;
-  }
-}
 `;
 
 // Opciones de las preguntas tipo matrix con matrix_layout_type = column
