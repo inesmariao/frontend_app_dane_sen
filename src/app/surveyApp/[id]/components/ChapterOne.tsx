@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Question, SubQuestion, Option } from "@/types";
+import { Question } from "@/types";
 import {
   ChapterTitle,
   QuestionCard,

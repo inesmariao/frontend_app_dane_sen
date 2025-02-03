@@ -6,7 +6,7 @@ import { getSurvey, submitResponses } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { useParams } from 'next/navigation';
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
-import { Survey, Chapter, Question, Option } from "@/types";
+import { Survey, Chapter, Question } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
@@ -18,20 +18,12 @@ import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
 import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
 import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 
-interface ChapterProps {
-  questions: Question[];
-  responses: { [key: number]: string | number | number[] };
-  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
-  chapterName: string;
-}
-
-
 const SurveyApp: React.FC = () => {
 
   const params = useParams();
   const id = params?.id;
 
-  const [survey, setSurvey] = useState<any>(null);
+  const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<{ [key: number]: number | string | number[] }>({});
   const [error, setError] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(1);
@@ -45,17 +37,25 @@ const SurveyApp: React.FC = () => {
           const data = await getSurvey(Number(id));
           setSurvey(data);
         }
-      } catch (error: any) {
-        console.error("Error al cargar la encuesta:", error.message);
-        if (error.message.includes("UNAUTHORIZED") || error.response?.status === 401) {
-          router.push("/login");
+      } catch (error: unknown) {
+        // Validar si el error es una instancia de Error
+        if (error instanceof Error) {
+          console.error("Error al cargar la encuesta:", error.message);
+  
+          // Validar mensaje de error y redirigir si es necesario
+          if (error.message.includes("UNAUTHORIZED")) {
+            router.push("/login");
+          } else {
+            setError(true);
+          }
         } else {
+          console.error("Error desconocido al cargar la encuesta");
           setError(true);
         }
       }
     };
     loadSurvey();
-  }, [id]);
+  }, [id, router]);
 
   if (error) {
     return <p>Ocurrió un error al cargar la encuesta.</p>;

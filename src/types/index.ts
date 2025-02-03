@@ -13,6 +13,13 @@ export interface Chapter {
   description?: string;
 }
 
+interface ChapterProps {
+  questions: Question[];
+  responses: { [key: number]: string | number | number[] };
+  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
+  chapterName: string;
+}
+
 export interface Question {
   id: number;
   text_question: string;

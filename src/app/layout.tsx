@@ -1,7 +1,6 @@
 "use client";
 
 import Head from "next/head";
-import { useEffect } from "react";
 import StyledComponentsRegistry from "@/lib/styled-components-registry";
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
 import { ThemeProvider } from "@/styles/theme/ThemeContext";
@@ -47,13 +46,6 @@ const MainContent = styled.main`
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  /* useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-      const ReactAxe = require("@axe-core/react");
-      const React = require("react");
-      ReactAxe(React, window, 1000);
-    }
-  }, []); */
 
   return (
     <html lang="es">
