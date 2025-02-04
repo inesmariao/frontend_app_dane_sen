@@ -17,11 +17,11 @@ import {
   NumericInputWrapper
 } from "@/styles/components/StyledSurvey";
 
-
+// Interfaz para las propiedades del capítulo
 interface ChapterProps {
   questions: Question[];
   responses: { [key: number]: string | number | number[] };
-  handleOptionChange: (questionId: number, value: number | string) => void;
+  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
   chapterName: string;
 }
 
@@ -40,6 +40,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
       {questions.map((question) => {
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
+        const isMultiple = question.is_multiple;
         const subQuestions = question.subquestions || [];
 
         return (
@@ -47,12 +48,12 @@ const ChapterThree: React.FC<ChapterProps> = ({
             {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
 
-            {/* Instrucciones de la pregunta */}
+            {/* Instrucciones */}
             {question.instruction && (
               <QuestionInstructions>{question.instruction}</QuestionInstructions>
             )}
 
-            {/* Manejo para preguntas tipo numérico */}
+            {/* Preguntas tipo numérico */}
             {isNumeric ? (
               <NumericInputWrapper>
                 <input
@@ -180,22 +181,47 @@ const ChapterThree: React.FC<ChapterProps> = ({
                 </div>
               )
             ) : (
-              // Preguntas normales (no tipo matrix ni numéricas)
-              question.options?.map((option) => (
-                <OptionWrapper key={option.id}>
-                  <input
-                    type="radio"
-                    id={`option-${option.id}`}
-                    name={`question-${question.id}`}
-                    value={option.id}
-                    checked={responses[question.id] === option.id}
-                    onChange={() => handleOptionChange(question.id, option.id)}
-                  />
-                  <OptionLabel htmlFor={`option-${option.id}`}>
-                    {option.text_option}
-                  </OptionLabel>
-                </OptionWrapper>
-              ))
+              // Preguntas cerradas (checkbox o radiobutton)
+              question.options?.map((option) => {
+                const inputType = isMultiple ? "checkbox" : "radio";
+
+                const isChecked = isMultiple
+                  ? Array.isArray(responses[question.id]) &&
+                    (responses[question.id] as number[]).includes(option.id)
+                  : responses[question.id] === option.id;
+
+                return (
+                  <OptionWrapper key={option.id} isCheckbox={isMultiple}>
+                    <input
+                      type={isMultiple ? "checkbox" : "radio"}
+                      id={`option-${option.id}`}
+                      name={
+                        isMultiple
+                          ? `question-${question.id}-${option.id}`
+                          : `question-${question.id}`
+                      }
+                      value={option.id}
+                      checked={isChecked}
+                      onChange={() => {
+                        if (isMultiple) {
+                          const currentSelections = Array.isArray(responses[question.id])
+                            ? (responses[question.id] as number[])
+                            : [];
+                          const updatedSelections = isChecked
+                            ? currentSelections.filter((id) => id !== option.id)
+                            : [...currentSelections, option.id];
+                          handleOptionChange(question.id, updatedSelections);
+                        } else {
+                          handleOptionChange(question.id, option.id);
+                        }
+                      }}
+                    />
+                    <OptionLabel htmlFor={`option-${option.id}`}>
+                      {option.text_option}
+                    </OptionLabel>
+                  </OptionWrapper>
+                );
+              })
             )}
           </QuestionCard>
         );

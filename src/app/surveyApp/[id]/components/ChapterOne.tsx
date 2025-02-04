@@ -40,7 +40,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
       {questions.map((question) => {
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
-        const isMultiple = question.is_multiple; // Determina si permite selección múltiple
+        const isMultiple = question.is_multiple;
         const subQuestions = question.subquestions || [];
 
         return (
@@ -193,7 +193,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
                 return (
                   <OptionWrapper key={option.id} isCheckbox={isMultiple}>
                     <input
-                      type={inputType}
+                      type={isMultiple ? "checkbox" : "radio"}
                       id={`option-${option.id}`}
                       name={
                         isMultiple

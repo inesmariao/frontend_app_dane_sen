@@ -1,6 +1,5 @@
-// src/styles/components/StyledButtonVariants.ts
 import styled from "styled-components";
-import StyledButton from "./StyledButton"; // Asegúrate de usar la ruta correcta
+import StyledButton from "./StyledButton";
 
 // Botón variante con dimensiones personalizadas
 
@@ -8,7 +7,7 @@ import StyledButton from "./StyledButton"; // Asegúrate de usar la ruta correct
 export const SmallStyledButton = styled(StyledButton)`
   padding: 0.2rem 0.8rem;
   font-size: 0.7rem;
-  width: auto; // Ajusta según tu necesidad
+  width: auto;
   border-radius: 10px;
   background-color: #4a90e2;
 

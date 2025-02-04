@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 import { getSurvey, submitResponses } from "@/utils/api";
-import { useRouter } from "next/navigation";
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from "next/navigation";
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
 import { Survey, Chapter, Question } from "@/types";
 import {
@@ -96,6 +95,13 @@ const SurveyApp: React.FC = () => {
     }
   };
 
+  const handlePrevChapter = () => {
+    if (currentChapter > 1) {
+      setCurrentChapter((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  };
+
   const handleSubmit = async () => {
     // Verificar si hay preguntas sin responder.
     const unansweredQuestions = survey.questions.filter((q: Question) => {
@@ -181,8 +187,14 @@ const SurveyApp: React.FC = () => {
       )}
 
       <ButtonContainer>
+        {currentChapter > 1 && (
+          <LargeStyledButton onClick={handlePrevChapter} style={{ marginRight: "1rem" }} >
+            ← Retroceder
+          </LargeStyledButton>
+        )}
+
         <LargeStyledButton onClick={handleNextChapter}>
-          {currentChapter < 3 ? "Siguiente" : "Enviar y Finalizar"}
+          {currentChapter < 3 ? "Siguiente →" : "Enviar y Finalizar"}
         </LargeStyledButton>
       </ButtonContainer>
     </SurveyContainer>

@@ -166,11 +166,20 @@ export const NumericInputWrapper = styled.div`
 `;
 
 // Opciones de las preguntas
-export const OptionWrapper = styled.div<OptionWrapperProps>`
+export const OptionWrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "isCheckbox",
+})<OptionWrapperProps>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 10px;
+  padding: 0.5rem;
+
+  ${({ isCheckbox }) =>
+    isCheckbox &&
+    `
+      border-radius: 5px;
+    `}
 
   input {
     width: 1.6vw;
@@ -182,9 +191,11 @@ export const OptionWrapper = styled.div<OptionWrapperProps>`
     margin-right: 10px;
     border: 2px solid #2d8a88;
 
-    /* Aplica bordes dinámicos */
-    border-radius: ${({ isCheckbox }) =>
-      isCheckbox ? "0.2rem" : "50%"};
+    /* 🔥 Asegura que los checkboxes sean cuadrados */
+    ${({ isCheckbox }) =>
+      isCheckbox
+        ? "border-radius: 5px;"
+        : "border-radius: 50%;"}
 
     aspect-ratio: 1 / 1;
     appearance: none;
@@ -196,6 +207,8 @@ export const OptionWrapper = styled.div<OptionWrapperProps>`
     }
   }
 `;
+
+
 
 // Opciones de las preguntas tipo matrix con matrix_layout_type = column
 export const OptionWrapper_Column = styled.div`
