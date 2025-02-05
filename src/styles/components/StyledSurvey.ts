@@ -188,8 +188,9 @@ export const OptionWrapper = styled.div.withConfig({
     max-height: 1.9rem;
     margin-right: 10px;
     border: 2px solid #2d8a88;
+    vertical-align: middle;
 
-    /* 🔥 Asegura que los checkboxes sean cuadrados */
+    /* Asegura que los checkboxes sean cuadrados */
     ${({ isCheckbox }) =>
       isCheckbox
         ? "border-radius: 5px;"
@@ -203,6 +204,14 @@ export const OptionWrapper = styled.div.withConfig({
     &:checked {
       background-color: #2d8a88;
     }
+
+    label {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
   }
 `;
 
@@ -234,7 +243,6 @@ export const OtherInputWrapper = styled.div`
 export const OptionWrapper_Column = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   margin-bottom: 10px;
 
   input[type="radio"] {
@@ -249,6 +257,7 @@ export const OptionWrapper_Column = styled.div`
     appearance: none;
     outline: none;
     cursor: pointer;
+    vertical-align: middle;
 
     &:checked {
       background-color: #2d8a88;
@@ -264,6 +273,8 @@ export const OptionLabel = styled.label`
   color: #000;
   line-height: 1.5;
   text-align: left;
+  cursor: pointer;
+  vertical-align: middle;
 
   @media (max-width: 985px) {
     font-size: 1.1rem;

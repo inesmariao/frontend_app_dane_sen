@@ -239,7 +239,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
 
                   return (
                     <div key={option.id} className="w-full">
-                      <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
+                      <OptionWrapper isCheckbox={isMultiple} className="flex items-center w-full">
                         <input
                           type={isMultiple ? "checkbox" : "radio"}
                           id={`option-${option.id}`}
