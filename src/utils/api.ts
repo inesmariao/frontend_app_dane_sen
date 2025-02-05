@@ -49,6 +49,11 @@ export const loginUser = async (credentials: { identifier: string; password: str
 export const getSurvey = async (surveyId: number) => {
 
   try {
+
+    if (!surveyId || isNaN(surveyId)) {
+      throw new Error("ID de la encuesta no válido.");
+    }
+
     const token = localStorage.getItem("authToken");
     if (!token) {
       throw new Error("No se encontró el token de autenticación.");
@@ -65,7 +70,7 @@ export const getSurvey = async (surveyId: number) => {
     console.error("Error en getSurvey:", error.message || error);
 
     if (error.response?.status === 401) {
-      throw new Error("UNAUTHORIZED"); // Manejar específicamente el error de no autenticado
+      throw new Error("UNAUTHORIZED"); // Manejar el error de no autenticado
     }
 
     throw new Error(error.response?.data?.error || "Error al obtener la encuesta.");

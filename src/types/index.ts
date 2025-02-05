@@ -13,10 +13,11 @@ export interface Chapter {
   description?: string;
 }
 
-interface ChapterProps {
+// Interfaz para las propiedades del capítulo
+export interface ChapterProps {
   questions: Question[];
-  responses: { [key: number]: string | number | number[] };
-  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
+  responses: { [key: string]: string | number | number[] };
+  handleOptionChange: (questionId: string | number, value: string | number | number[]) => void;
   chapterName: string;
 }
 

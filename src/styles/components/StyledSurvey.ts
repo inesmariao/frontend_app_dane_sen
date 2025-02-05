@@ -182,12 +182,10 @@ export const OptionWrapper = styled.div.withConfig({
     `}
 
   input {
-    width: 1.6vw;
-    height: 1.6vw;
-    max-width: 2rem;
-    max-height: 2rem;
-    min-width: 1.25rem;
-    min-height: 1.25rem;
+    min-width: 1.9rem;
+    min-height: 1.9rem;
+    max-width: 1.9rem;
+    max-height: 1.9rem;
     margin-right: 10px;
     border: 2px solid #2d8a88;
 
@@ -208,7 +206,29 @@ export const OptionWrapper = styled.div.withConfig({
   }
 `;
 
+// Estilos para la opción "Otro"
+export const OtherInputWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 0.5rem;
 
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    border: 2px solid #2d8a88;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+
+    &:focus {
+      border-color: #2d8a88;
+      box-shadow: 0 0 8px rgba(45, 138, 136, 0.5);
+    }
+  }
+`;
 
 // Opciones de las preguntas tipo matrix con matrix_layout_type = column
 export const OptionWrapper_Column = styled.div`
@@ -218,12 +238,10 @@ export const OptionWrapper_Column = styled.div`
   margin-bottom: 10px;
 
   input[type="radio"] {
-    width: 1.6vw;
-    height: 1.6vw;
-    max-width: 2rem;
-    max-height: 2rem;
-    min-width: 1.25rem;
-    min-height: 1.25rem;
+    min-width: 1.9rem;
+    min-height: 1.9rem;
+    max-width: 1.9rem;
+    max-height: 1.9rem;
     margin-right: 10px;
     border: 2px solid #2d8a88;
     border-radius: 50%;
@@ -353,12 +371,10 @@ export const OptionWrapper_Subquestions = styled.div`
   }
 
   input[type="radio"] {
-    width: 1.6vw;
-    height: 1.6vw;
-    max-width: 2rem;
-    max-height: 2rem;
-    min-width: 1.25rem;
-    min-height: 1.25rem;
+    min-width: 1.9rem;
+    min-height: 1.9rem;
+    max-width: 1.9rem;
+    max-height: 1.9rem;
     border: 2px solid #2d8a88;
     border-radius: 50%;
     appearance: none;

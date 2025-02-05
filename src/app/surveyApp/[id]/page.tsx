@@ -32,10 +32,14 @@ const SurveyApp: React.FC = () => {
   useEffect(() => {
     const loadSurvey = async () => {
       try {
-        if (id) {
-          const data = await getSurvey(Number(id));
-          setSurvey(data);
+        if (!id) {
+          console.error("ID de la encuesta no definido.");
+          return;
         }
+
+        const data = await getSurvey(Number(id));
+        setSurvey(data);
+
       } catch (error: unknown) {
         // Validar si el error es una instancia de Error
         if (error instanceof Error) {
@@ -64,24 +68,30 @@ const SurveyApp: React.FC = () => {
     return <p>Cargando datos de la encuesta...</p>;
   }
 
-  const handleOptionChange = (questionId: number, value: number | string | number[]) => {
+  const handleOptionChange = (questionId: string | number, value: string | number | number[]) => {
     setResponses((prev) => {
-      const current = prev[questionId];
+        const questionKey = String(questionId);
 
-      // Manejar selección múltiple
-      if (Array.isArray(current)) {
-        if (typeof value === 'number') {
-          const updatedSelections = current.includes(value)
-            ? current.filter((id) => id !== value)
-            : [...current, value];
-          return { ...prev, [questionId]: updatedSelections };
-        }
+        if (typeof questionId === "string" && questionId.startsWith("other_")) {
+          return { ...prev, [questionId]: value };
       }
 
-      // Manejar selección única (radio buttons)
-      return { ...prev, [questionId]: value };
+        const current = prev[questionId as number];
+
+        // Manejar selección múltiple
+        if (Array.isArray(current) && typeof value === "number") {
+          const updatedSelections = current.includes(value)
+              ? current.filter((id) => id !== value)
+              : [...current, value];
+          return { ...prev, [questionId]: updatedSelections };
+        }
+
+        // Manejar selección única (radio buttons)
+        return { ...prev, [questionId]: value };
     });
   };
+
+
 
   const handleNextChapter = () => {
     if (currentChapter < 3) {
@@ -105,33 +115,46 @@ const SurveyApp: React.FC = () => {
   const handleSubmit = async () => {
     // Verificar si hay preguntas sin responder.
     const unansweredQuestions = survey.questions.filter((q: Question) => {
-      const response = responses[q.id]; // Obtenemos la respuesta actual
-      return (
-        response === undefined || // Si no hay respuesta
-        (Array.isArray(response) && response.length === 0) // Si es un arreglo vacío
-      );
+        const response = responses[q.id];
+        return (
+            response === undefined ||
+            (Array.isArray(response) && response.length === 0)
+        );
     });
 
     if (unansweredQuestions.length > 0) {
-      alert("Por favor responde todas las preguntas.");
-      return;
+        alert("Por favor responde todas las preguntas.");
+        return;
     }
 
     // Formatear las respuestas antes de enviarlas al backend.
-    const formattedResponses = Object.entries(responses).map(([questionId, value]) => ({
-      question_id: parseInt(questionId, 10),
-      ...(Array.isArray(value)
-        ? { options_multiple_selected: value }
-        : { option_selected: value }),
-    }));
+    const formattedResponses = Object.entries(responses).map(([key, value]) => {
+        const questionId = String(key); // Asegurar que questionId es un string
+
+        if (questionId.startsWith("other_")) {
+            return {
+                question_id: parseInt(questionId.replace("other_", ""), 10),
+                other_response: value, // Enviar respuesta de "Otro" al backend
+            };
+        }
+
+        return {
+            question_id: parseInt(questionId, 10),
+            ...(Array.isArray(value)
+                ? { options_multiple_selected: value }
+                : { option_selected: value }),
+        };
+    });
 
     try {
-      const response = await submitResponses(formattedResponses);
-      console.log("Respuestas enviadas:", response);
+        const response = await submitResponses(formattedResponses);
+        console.log("Respuestas enviadas:", response);
     } catch (error: any) {
-      console.error("Error al enviar respuestas:", error.message);
+        console.error("Error al enviar respuestas:", error.message);
     }
   };
+
+
 
   const chapterOneQuestions = survey.questions.filter(
     (q: Question) => q.chapter === 1
