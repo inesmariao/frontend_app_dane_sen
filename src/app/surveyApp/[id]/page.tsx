@@ -181,7 +181,9 @@ const SurveyApp: React.FC = () => {
     <SurveyContainer>
       <SurveyHeader>
         <SurveyTitle>{survey.name}</SurveyTitle>
-        <SurveyDescriptionName>{survey.description_name}</SurveyDescriptionName>
+        <SurveyDescriptionName>
+          <strong>Definición de "discriminación":</strong> {survey.description_name.replace('Definición de "discriminación":', '')}
+        </SurveyDescriptionName>
       </SurveyHeader>
 
       {currentChapter === 1 && (
