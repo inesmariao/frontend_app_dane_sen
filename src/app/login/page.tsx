@@ -21,8 +21,8 @@ const LoginPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Iniciar Sesión - AppDiversa</title>
-        <meta name="description" content="Iniciar Sesión - AppDiversa" />
+        <title>Iniciar Sesión</title>
+        <meta name="description" content="Iniciar Sesión" />
       </Head>
       <Title>Iniciar Sesión</Title>
       <LoginForm />

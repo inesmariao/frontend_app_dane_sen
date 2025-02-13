@@ -31,14 +31,15 @@ const ChapterTwo: React.FC<ChapterProps> = ({
       <ChapterTitle>{chapterName}</ChapterTitle>
 
       {/* Renderizado de preguntas */}
-      {questions.map((question) => {
+      {questions.map((question, index) => {
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
         const subQuestions = question.subquestions || [];
+        const questionKey = `question-${question.id}-${index}`;
 
         return (
-          <QuestionCard key={question.id}>
+          <QuestionCard key={questionKey}>
             {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
 

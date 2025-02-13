@@ -36,6 +36,8 @@ export interface Question {
   max_value?: number;
   data_type?: "integer" | "string" | "float";
   chapter: number;
+  is_geographic?: boolean;
+  geography_type?: "COUNTRY" | "DEPARTMENT" | "MUNICIPALITY";
 }
 
 export interface SubQuestion {

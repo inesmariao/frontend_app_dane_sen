@@ -50,8 +50,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <Head>
-        <title>App Diversa</title>
-        <meta name="description" content="Encuesta de App Diversa" />
+        <title>App Recolección Datos</title>
+        <meta name="description" content="App Recolección Datos" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <body>
@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <GlobalStyles />
                 <LayoutWrapper>
                   <Header />
-                  <TitleWrapper>App Diversa</TitleWrapper>
+                  <TitleWrapper>App Recolección Datos</TitleWrapper>
                   <MainContent>{children}</MainContent>
                   <Footer />
                 </LayoutWrapper>

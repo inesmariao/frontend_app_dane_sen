@@ -399,3 +399,47 @@ export const OptionWrapper_Subquestions = styled.div`
 `;
 
 
+// Contenedor del bloque de selección geográfica
+export const GeoContainer = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #f9f9f9;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+// Título para el select de Departamento - Municipio y País
+export const GeoLabel = styled.label`
+  font-family: "Poppins", sans-serif;
+  font-size: 1.4rem;  // Ajustado para igualar la fuente de las opciones
+  font-weight: bold;
+  color: #2d8a88;
+  margin-bottom: 0.5rem;
+  display: block;
+
+  @media (max-width: 985px) {
+    font-size: 1.1rem;
+  }
+`;
+
+// Estilos para los selects
+export const StyledSelect = styled.select`
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #2d8a88;
+  border-radius: 5px;
+  font-size: 1.4rem;  // Igualando el tamaño de la fuente de las opciones
+  font-family: "Poppins", sans-serif;
+  background: white;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #1a6563;
+    outline: none;
+    box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+  }
+
+  @media (max-width: 985px) {
+    font-size: 1.1rem;
+  }
+`;

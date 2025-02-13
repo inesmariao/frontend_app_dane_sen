@@ -12,7 +12,7 @@ const ErrorComponent: React.FC<ErrorProps> = ({ error, reset }) => {
   return (
     <>
       <Head>
-        <title>Error - AppDiversa</title>
+        <title>Error</title>
         <meta name="description" content="Se produjo un error en la aplicación." />
       </Head>
       <div>

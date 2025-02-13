@@ -21,8 +21,8 @@ const RegisterPage: React.FC = () => {
   return (
     <>
       <Head>
-          <title>Registro de Usuarios - AppDiversa</title>
-          <meta name="description" content="Registro de Usuarios - AppDiversa" />
+          <title>Registro de Usuarios</title>
+          <meta name="description" content="Registro de Usuarios" />
       </Head>
       <Title>Registro de Usuarios</Title>
       <RegisterForm />

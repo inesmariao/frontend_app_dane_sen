@@ -97,11 +97,11 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>App Diversa - Bienvenida</title>
-        <meta name="description" content="Página de bienvenida de App Diversa" />
+        <title>App Recolección Datos - Bienvenida</title>
+        <meta name="description" content="Página de bienvenida de App Recolección Datos" />
       </Head>
       <WelcomeCard>
-        <Title>¡Bienvenido/a a la App Diversa!</Title>
+        <Title>¡Bienvenido/a a la App de Recolección Datos!</Title>
         <Subtitle>
           <p>
             Desde el DANE queremos darte las gracias por tomarte el tiempo de participar. Tus respuestas son muy valiosas para nosotros, ya que nos ayudarán a entender mejor las realidades que viven las personas en relación con la discriminación en diferentes ámbitos. Esta información será clave para promover cambios y políticas que favorezcan la inclusión y el respeto.

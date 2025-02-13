@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import { ChapterProps } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
+import { GeographicQuestion } from "./GeographicQuestion";
 import {
   ChapterTitle,
   QuestionCard,
@@ -25,20 +26,30 @@ const ChapterOne: React.FC<ChapterProps> = ({
   handleOptionChange,
   chapterName,
 }) => {
+  // Estado local para almacenar la opción seleccionada
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
   return (
     <>
       {/* Título del capítulo */}
       <ChapterTitle>{chapterName}</ChapterTitle>
 
+      {/* Debug */}
+      {console.log("IDs de Preguntas:", questions.map(q => q.id))}
+      {console.log("Lista completa de preguntas:", questions)}
+
       {/* Renderizado de preguntas */}
-      {questions.map((question) => {
+      {questions.map((question, questionIndex) => {
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
-        const subQuestions = question.subquestions || [];
+        const isGeographic = question.is_geographic;
+        const subQuestions = Array.isArray(question.subquestions) ? question.subquestions : [];
+        const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
+
 
         return (
-          <QuestionCard key={question.id}>
+          <QuestionCard key={questionKey}>
             {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
 
@@ -47,8 +58,15 @@ const ChapterOne: React.FC<ChapterProps> = ({
               <QuestionInstructions>{question.instruction}</QuestionInstructions>
             )}
 
-            {/* Preguntas tipo numérico */}
-            {isNumeric ? (
+            {/* Si la pregunta es de tipo geográfico, se usa el nuevo componente */}
+            { isGeographic ? (
+              <GeographicQuestion
+                questionId={question.id}
+                options={question.options ?? []}
+                responses={responses}
+                handleOptionChange={handleOptionChange}
+              />
+            ) : isNumeric ? (
               <NumericInputWrapper>
                 <input
                   type="number"
@@ -68,11 +86,10 @@ const ChapterOne: React.FC<ChapterProps> = ({
                   }}
                 />
               </NumericInputWrapper>
-            ) : isMatrix && subQuestions.length > 0 ? (
+            ) : isMatrix && subQuestions?.length > 0 ? (
               question.matrix_layout_type === "row" ? (
-                // Diseño tipo "row" - Opciones en fila
                 <Table>
-                  {subQuestions.map((subQuestion) => {
+                  {subQuestions.map((subQuestion, subQuestionIndex) => {
                     const filteredOptions =
                       question.options?.filter(
                         (option) => option.subquestion_id === subQuestion.id
@@ -80,10 +97,11 @@ const ChapterOne: React.FC<ChapterProps> = ({
 
                     // Verificar si la subpregunta contiene las palabras clave para mostrar el input "Otro"
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
+                    const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
+
 
                     return (
-                      <TableRow key={subQuestion.id}>
-                        {/* Subpregunta */}
+                      <TableRow key={subQuestionKey}>
                         <SubQuestionColumn>
                           {subQuestion.custom_identifier
                             ? `${subQuestion.custom_identifier} - `
@@ -95,16 +113,13 @@ const ChapterOne: React.FC<ChapterProps> = ({
                             </QuestionInstructions>
                           )}
                         </SubQuestionColumn>
-                        {/* Opciones en fila */}
                         <OptionWrapper_Subquestions>
-                          {filteredOptions.map((option) => {
+                          {filteredOptions.map((option, optionIndex) => {
                             const isChecked = responses[subQuestion.id] === option.id;
-
-                            // Verificar si esta opción no es "No sé"
-                            const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
+                            const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
                             return (
-                              <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                              <div key={optionKey}>
                                 <input
                                   type="radio"
                                   id={`option-${subQuestion.id}-${option.id}`}
@@ -118,7 +133,6 @@ const ChapterOne: React.FC<ChapterProps> = ({
                                 <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                   {option.text_option}
                                 </OptionLabel>
-
                                 {/* Mostrar el input solo si la opción no es "No sé" y es una opción válida para "Otro" */}
                                 {enableOther && isChecked && !option.text_option.toLowerCase().includes("no sé") && (
                                   <OtherInputWrapper>
@@ -127,7 +141,9 @@ const ChapterOne: React.FC<ChapterProps> = ({
                                       id={`other-input-${subQuestion.id}`}
                                       placeholder="Otro, ¿cuál?"
                                       value={String(responses[`other_${subQuestion.id}`] || "")}
-                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                      onChange={(e) =>
+                                        handleOptionChange(`other_${subQuestion.id}`, e.target.value)
+                                      }
                                     />
                                   </OtherInputWrapper>
                                 )}
@@ -142,7 +158,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
               ) : (
                 // Diseño tipo "column" - Opciones en columna
                 <div>
-                  {subQuestions.map((subQuestion) => {
+                  {subQuestions.map((subQuestion, subQuestionIndex) => {
                     const filteredOptions =
                       question.options?.filter(
                         (option) => option.subquestion_id === subQuestion.id
@@ -150,9 +166,11 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     // Verificar si la subpregunta contiene "Otro, ¿cuál?"
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const isChecked = responses[subQuestion.id] !== undefined;
+                    const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
+
 
                     return (
-                      <div key={subQuestion.id}>
+                      <div key={subQuestionKey}>
                         {/* Subpregunta en formato columna */}
                         <SubQuestionColumn>
                           {subQuestion.custom_identifier
@@ -169,12 +187,13 @@ const ChapterOne: React.FC<ChapterProps> = ({
 
                         {/* Opciones para diseño en columna */}
                         <OptionWrapper_Column>
-                          {filteredOptions.map((option) => {
+                          {filteredOptions.map((option, optionIndex) => {
                             const isChecked = responses[subQuestion.id] === option.id;
                             const enableOther = shouldEnableOtherInput(option.text_option);
+                            const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
                             return (
-                              <div key={`sub-${subQuestion.id}-opt-${option.id}`}>
+                              <div key={optionKey}>
                                 <input
                                   type="radio"
                                   id={`option-${subQuestion.id}-${option.id}`}
@@ -212,8 +231,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
                           <OtherInputWrapper>
                             <input
                               type="text"
-                              id={`other-input-${subQuestion.id}`}
-                              placeholder="Otro, ¿cuál?"
+                              id={`other-input-${subQuestion.id}`} placeholder="Otro, ¿cuál?"
                               value={String(responses[`other_${subQuestion.id}`] || "")}
                               onChange={(e) =>
                                 handleOptionChange(`other_${subQuestion.id}`, e.target.value)
@@ -226,19 +244,20 @@ const ChapterOne: React.FC<ChapterProps> = ({
                   })}
                 </div>
               )
-            ) : (
-              // Preguntas cerradas (checkbox o radiobutton)
-              Array.isArray(question.options) && question.options.length > 0 ? (
-                question.options.map((option) => {
-                  if (!option || typeof option.id !== "number") return null;
+            ) : 
+                // Preguntas cerradas (checkbox o radiobutton)
+                Array.isArray(question.options) && question.options.length > 0 ? (
+                  question.options?.map((option, optionIndex) => {
+                    if (!option || typeof option.id !== "number") return null;
 
-                  const isChecked = isMultiple
-                    ? Array.isArray(responses[question.id]) &&
+                    const isChecked = isMultiple
+                      ? Array.isArray(responses[question.id]) &&
                       (responses[question.id] as number[]).includes(option.id)
-                    : responses[question.id] === option.id;
+                      : responses[question.id] === option.id;
+                    const optionKey = `option-${question.id}-${optionIndex}`;
 
-                  return (
-                    <div key={option.id} className="w-full">
+                    return (
+                      <div key={optionKey}>
                       <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                         <input
                           type={isMultiple ? "checkbox" : "radio"}
@@ -248,7 +267,6 @@ const ChapterOne: React.FC<ChapterProps> = ({
                           checked={isChecked}
                           onChange={() => {
                             if (isMultiple) {
-                              // Manejo de selección múltiple
                               const currentSelections = Array.isArray(responses[question.id])
                                 ? (responses[question.id] as number[])
                                 : [];
@@ -257,35 +275,33 @@ const ChapterOne: React.FC<ChapterProps> = ({
                                 : [...currentSelections, option.id];
                               handleOptionChange(question.id, updatedSelections);
                             } else {
-                              // Manejo de selección única
                               handleOptionChange(question.id, option.id);
                             }
                           }}
                         />
-                        <OptionLabel htmlFor={`option-${option.id}`}>
-                          {option.text_option}
-                        </OptionLabel>
+                        <OptionLabel htmlFor={`option-${option.id}`}>{option.text_option}</OptionLabel>
                       </OptionWrapper>
 
-                      {/* Input de texto "Otro" correctamente alineado */}
-                      {option.is_other && isChecked && (
-                        <OtherInputWrapper>
-                          <input
-                            type="text"
-                            id={`other-input-${question.id}`}
-                            placeholder="Otro, ¿cuál?"
-                            value={String(responses[`other_${question.id}`] || "")}
-                            onChange={(e) =>
-                              handleOptionChange(`other_${question.id}`, e.target.value)
-                            }
-                          />
-                        </OtherInputWrapper>
-                      )}
-                    </div>
-                  );
-                })
-              ) : null
-            )}
+                        {/* Input de texto "Otro" */}
+                        {option.is_other && isChecked && (
+                          <OtherInputWrapper>
+                            <input
+                              type="text"
+                              id={`other-input-${question.id}`}
+                              placeholder="Otro, ¿cuál?"
+                              value={String(responses[`other_${question.id}`] || "")}
+                              onChange={(e) =>
+                                handleOptionChange(`other_${question.id}`, e.target.value)
+                              }
+                            />
+                          </OtherInputWrapper>
+                          
+                        )}
+                      </div>
+                    );
+                  })
+                ) : null
+              }
           </QuestionCard>
         );
       })}

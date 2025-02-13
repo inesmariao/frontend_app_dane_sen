@@ -22,7 +22,7 @@ const FooterContainer = styled.footer`
 export default function Footer() {
   return (
     <FooterContainer>
-      &copy; {new Date().getFullYear()} DANE - SEN - App Diversa
+      &copy; {new Date().getFullYear()} DANE - SEN - App Recolección Datos
     </FooterContainer>
   );
 }
