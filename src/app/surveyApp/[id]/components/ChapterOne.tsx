@@ -66,6 +66,13 @@ const ChapterOne: React.FC<ChapterProps> = ({
                 responses={responses}
                 handleOptionChange={handleOptionChange}
               />
+            ) : question.id === 7 && responses[question.id] === "Sí" ? (
+              <GeographicQuestion
+                questionId={question.id}
+                options={question.options ?? []}
+                responses={responses}
+                handleOptionChange={handleOptionChange}
+              />
             ) : isNumeric ? (
               <NumericInputWrapper>
                 <input

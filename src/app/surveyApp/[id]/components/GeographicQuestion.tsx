@@ -34,9 +34,26 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   // Encontrar las opciones de "Colombia" y "Otro país"
   const colombiaOption = options.find((option) => option.text_option.toLowerCase() === "colombia");
   const otherCountryOption = options.find((option) => option.text_option.toLowerCase() === "otro país");
+  const yesOption = options.find((option) => option.text_option.toLowerCase() === "sí");
 
   const isColombiaSelected = responses[questionId] === colombiaOption?.id;
   const isOtherCountrySelected = responses[questionId] === otherCountryOption?.id;
+  const isYesSelected = responses[questionId] === yesOption?.id;
+
+  // Determinar si la pregunta es la 5 o la 7
+  const isQuestionFive = questionId === 5;
+  const isQuestionSeven = questionId === 7;
+
+  // Mostrar el selector de departamento solo si:
+  // - En la pregunta 5, la opción "Colombia" está seleccionada
+  // - En la pregunta 7, la opción "Sí" está seleccionada
+  const showDepartmentSelector =
+    (isQuestionFive && isColombiaSelected) || (isQuestionSeven && isYesSelected);
+
+  // Mostrar el selector de país solo si:
+  // - En la pregunta 5, la opción "Otro País" está seleccionada
+  const showCountrySelector = isQuestionFive && isOtherCountrySelected;
+
 
   // Cargar países al inicio con Axios
   useEffect(() => {
@@ -102,7 +119,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
       ))}
 
       {/* Si seleccionó Colombia, mostrar departamentos y municipios */}
-      {isColombiaSelected && (
+      {showDepartmentSelector && (
         <GeoContainer>
           <GeoLabel htmlFor="department-select">5.1 - Departamento - Municipio</GeoLabel>
           <StyledSelect
@@ -162,8 +179,9 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
         </GeoContainer>
       )}
 
+
       {/* Si seleccionó otro país, mostrar la lista de países */}
-      {isOtherCountrySelected && (
+      {showCountrySelector && (
         <GeoContainer>
           <GeoLabel htmlFor="country-select">5.2 - País</GeoLabel>
           <StyledSelect
