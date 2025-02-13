@@ -326,16 +326,17 @@ export const TableRow = styled.div`
 `;
 
 export const Column = styled.div`
-  display: table-cell;
-  text-align: center;
-  padding: 0.5rem;
+  display: table-cell; /* Esto lo convierte en una celda de tabla */
+  text-align: left; /* Alinea el texto a la izquierda */
+  padding: 0.5rem; /* Añade un poco de padding */
 
+  /* Estilos responsivos */
   @media (max-width: 985px) {
-    display: flex;
+    display: flex; /* En pantallas pequeñas, usa flexbox */
     flex-direction: row;
-    
+    align-items: flex-start; /* Alinea los elementos verticalmente */
     padding: 0;
-    gap: 0.5rem;
+    gap: 0.5rem; /* Espacio entre elementos */
   }
 `;
 

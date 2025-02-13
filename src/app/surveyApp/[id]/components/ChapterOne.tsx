@@ -26,17 +26,11 @@ const ChapterOne: React.FC<ChapterProps> = ({
   handleOptionChange,
   chapterName,
 }) => {
-  // Estado local para almacenar la opción seleccionada
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (
     <>
       {/* Título del capítulo */}
       <ChapterTitle>{chapterName}</ChapterTitle>
-
-      {/* Debug */}
-      {console.log("IDs de Preguntas:", questions.map(q => q.id))}
-      {console.log("Lista completa de preguntas:", questions)}
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
