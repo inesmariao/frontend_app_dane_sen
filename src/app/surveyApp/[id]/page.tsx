@@ -44,7 +44,7 @@ const SurveyApp: React.FC = () => {
         // Validar si el error es una instancia de Error
         if (error instanceof Error) {
           console.error("Error al cargar la encuesta:", error.message);
-  
+
           // Validar mensaje de error y redirigir si es necesario
           if (error.message.includes("UNAUTHORIZED")) {
             router.push("/login");
@@ -70,27 +70,61 @@ const SurveyApp: React.FC = () => {
 
   const handleOptionChange = (questionId: string | number, value: string | number | number[]) => {
     setResponses((prev) => {
-        const questionKey = String(questionId);
+      const questionKey = String(questionId);
 
-        if (typeof questionId === "string" && questionId.startsWith("other_")) {
-          return { ...prev, [questionId]: value };
-      }
+      if (questionId === 11) {
+        const question11 = survey?.questions.find(q => q.id === 11);
 
-        const current = prev[questionId as number];
+        if (!question11 || !question11.options) return prev;
 
-        // Manejar selección múltiple
-        if (Array.isArray(current) && typeof value === "number") {
-          const updatedSelections = current.includes(value)
-              ? current.filter((id) => id !== value)
-              : [...current, value];
-          return { ...prev, [questionId]: updatedSelections };
+        const noDiscriminationOption = question11.options.find(option =>
+          option.text_option.trim().toLowerCase() === "no he sentido discriminación"
+        );
+
+        if (!noDiscriminationOption) return prev;
+        const noDiscriminationOptionId = noDiscriminationOption.id;
+
+        let updatedSelections: number[] = Array.isArray(prev[questionId])
+          ? [...(prev[questionId] as number[])]
+          : [];
+
+        if (typeof value === 'number') { // value es un número (ID de opción)
+          const isNoDiscrimination = value === noDiscriminationOptionId;
+
+          if (isNoDiscrimination) {
+            // Si se selecciona "No he sentido discriminación", limpiar las demás selecciones.
+            updatedSelections = [noDiscriminationOptionId];
+          } else {
+            // Si se selecciona otra opción y "No he sentido discriminación" está seleccionado, deseleccionarlo.
+            if (updatedSelections.includes(noDiscriminationOptionId)) {
+              updatedSelections = updatedSelections.filter(id => id !== noDiscriminationOptionId);
+            }
+
+            // Actualizar las selecciones normalmente.
+            if (updatedSelections.includes(value)) {
+              updatedSelections = updatedSelections.filter(id => id !== value);
+            } else {
+              updatedSelections.push(value);
+            }
+          }
+        } else if (Array.isArray(value)) { // value es un array (selecciones múltiples)
+          const noDiscriminationSelected = value.includes(noDiscriminationOptionId);
+
+          if (noDiscriminationSelected) {
+            // Si "No he sentido discriminación" está seleccionado, limpiar las demás selecciones.
+            updatedSelections = [noDiscriminationOptionId];
+          } else {
+            // Si se deselecciona "No he sentido discriminación", se permite seleccionar otras opciones.
+            updatedSelections = value.filter(id => id !== noDiscriminationOptionId);
+          }
         }
 
-        // Manejar selección única (radio buttons)
-        return { ...prev, [questionId]: value };
+        return { ...prev, [questionId]: updatedSelections };
+      }
+
+      return { ...prev, [questionId]: value };
     });
   };
-
 
 
   const handleNextChapter = () => {
@@ -115,42 +149,42 @@ const SurveyApp: React.FC = () => {
   const handleSubmit = async () => {
     // Verificar si hay preguntas sin responder.
     const unansweredQuestions = survey.questions.filter((q: Question) => {
-        const response = responses[q.id];
-        return (
-            response === undefined ||
-            (Array.isArray(response) && response.length === 0)
-        );
+      const response = responses[q.id];
+      return (
+        response === undefined ||
+        (Array.isArray(response) && response.length === 0)
+      );
     });
 
     if (unansweredQuestions.length > 0) {
-        alert("Por favor responde todas las preguntas.");
-        return;
+      alert("Por favor responde todas las preguntas.");
+      return;
     }
 
     // Formatear las respuestas antes de enviarlas al backend.
     const formattedResponses = Object.entries(responses).map(([key, value]) => {
-        const questionId = String(key); // Asegurar que questionId es un string
+      const questionId = String(key); // Asegurar que questionId es un string
 
-        if (questionId.startsWith("other_")) {
-            return {
-                question_id: parseInt(questionId.replace("other_", ""), 10),
-                other_response: value, // Enviar respuesta de "Otro" al backend
-            };
-        }
-
+      if (questionId.startsWith("other_")) {
         return {
-            question_id: parseInt(questionId, 10),
-            ...(Array.isArray(value)
-                ? { options_multiple_selected: value }
-                : { option_selected: value }),
+          question_id: parseInt(questionId.replace("other_", ""), 10),
+          other_response: value, // Enviar respuesta de "Otro" al backend
         };
+      }
+
+      return {
+        question_id: parseInt(questionId, 10),
+        ...(Array.isArray(value)
+          ? { options_multiple_selected: value }
+          : { option_selected: value }),
+      };
     });
 
     try {
-        const response = await submitResponses(formattedResponses);
-        console.log("Respuestas enviadas:", response);
+      const response = await submitResponses(formattedResponses);
+      console.log("Respuestas enviadas:", response);
     } catch (error: any) {
-        console.error("Error al enviar respuestas:", error.message);
+      console.error("Error al enviar respuestas:", error.message);
     }
   };
 
@@ -160,7 +194,7 @@ const SurveyApp: React.FC = () => {
     (q: Question) => q.chapter === 1
   );
   const chapterTwoQuestions = survey.questions.filter(
-    (q: Question) => q.chapter ===  2
+    (q: Question) => q.chapter === 2
   );
   const chapterThreeQuestions = survey.questions.filter(
     (q: Question) => q.chapter === 3
@@ -191,7 +225,7 @@ const SurveyApp: React.FC = () => {
           questions={chapterOneQuestions}
           responses={responses}
           handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdOne?.name|| "Capítulo 1"}
+          chapterName={chapterWithIdOne?.name || "Capítulo 1"}
         />
       )}
       {currentChapter === 2 && (
