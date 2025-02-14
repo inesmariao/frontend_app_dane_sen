@@ -237,6 +237,14 @@ export const OtherInputWrapper = styled.div`
       box-shadow: 0 0 8px rgba(45, 138, 136, 0.5);
     }
   }
+
+  /* Para pantallas pequeñas, ocupa toda la fila */
+  @media (max-width: 768px) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
 // Opciones de las preguntas tipo matrix con matrix_layout_type = column
@@ -244,6 +252,7 @@ export const OptionWrapper_Column = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+  gap: 8px;
 
   input[type="radio"] {
     min-width: 1.9rem;
@@ -262,6 +271,11 @@ export const OptionWrapper_Column = styled.div`
     &:checked {
       background-color: #2d8a88;
     }
+  }
+
+  /* Para pantallas pequeñas */
+  @media (max-width: 768px) {
+    gap: 12px;
   }
 `;
 
@@ -326,17 +340,17 @@ export const TableRow = styled.div`
 `;
 
 export const Column = styled.div`
-  display: table-cell; /* Esto lo convierte en una celda de tabla */
-  text-align: left; /* Alinea el texto a la izquierda */
-  padding: 0.5rem; /* Añade un poco de padding */
+  display: table-cell;
+  text-align: left;
+  padding: 0.5rem;
 
   /* Estilos responsivos */
   @media (max-width: 985px) {
-    display: flex; /* En pantallas pequeñas, usa flexbox */
+    display: flex;
     flex-direction: row;
-    align-items: flex-start; /* Alinea los elementos verticalmente */
+    align-items: flex-start;
     padding: 0;
-    gap: 0.5rem; /* Espacio entre elementos */
+    gap: 0.5rem;
   }
 `;
 
@@ -357,28 +371,50 @@ export const SubQuestionColumn = styled(Column)`
 
 export const OptionWrapper_Subquestions = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
   align-items: center;
+  justify-content: flex-start;
   gap: 1rem;
   padding: 0.5rem 0;
+  flex-wrap: wrap;
 
-  @media (max-width: 985px) {
+   /* Para pantallas medianas y grandes */
+   @media (min-width: 768px) {
     flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
     gap: 1rem;
-    justify-content: space-evenly;
-    align-items: flex-start;
+
+    .radio-options {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .option-container {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem; /* Asegura que cada radio tenga su etiqueta alineada */
+    }
   }
 
-  div {
-    display: flex;
-    flex-direction: row;
+  /* Para pantallas pequeñas */
+  @media (max-width: 767px) {
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    
-    @media (max-width: 985px) {
-      flex-direction: column;
-      gap: 0.2rem;
+
+    .radio-options {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      justify-items: center;
+      gap: 0.8rem;
+    }
+
+    .labels {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      justify-items: center;
+      gap: 0.4rem;
     }
   }
 
@@ -398,6 +434,7 @@ export const OptionWrapper_Subquestions = styled.div`
     }
   }
 `;
+
 
 
 // Contenedor del bloque de selección geográfica
