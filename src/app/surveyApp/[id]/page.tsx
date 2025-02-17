@@ -17,13 +17,17 @@ import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
 import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
 import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 
+interface Responses {
+  [key: string]: number | string | number[];
+}
+
 const SurveyApp: React.FC = () => {
 
   const params = useParams();
   const id = params?.id;
 
   const [survey, setSurvey] = useState<Survey | null>(null);
-  const [responses, setResponses] = useState<{ [key: number]: number | string | number[] }>({});
+  const [responses, setResponses] = useState<Responses>({});
   const [error, setError] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(1);
   const router = useRouter();
@@ -62,62 +66,97 @@ const SurveyApp: React.FC = () => {
   }
 
   const handleOptionChange = (questionId: string | number, value: string | number | number[]) => {
-    setResponses((prev) => {
-      const questionKey = String(questionId);
+    setResponses((prev: Responses) => {
+      const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
 
-      if (questionId === 11) {
-        const question11 = survey?.questions.find(q => q.id === 11);
-
-        if (!question11 || !question11.options) return prev;
-
-        const noDiscriminationOption = question11.options.find(option =>
-          option.text_option.trim().toLowerCase() === "no he sentido discriminación"
-        );
-
-        if (!noDiscriminationOption) return prev;
-        const noDiscriminationOptionId = noDiscriminationOption.id;
-
-        let updatedSelections: number[] = Array.isArray(prev[questionId])
-          ? [...(prev[questionId] as number[])]
-          : [];
-
-        if (typeof value === 'number') { // value es un número (ID de opción)
-          const isNoDiscrimination = value === noDiscriminationOptionId;
-
-          if (isNoDiscrimination) {
-            // Si se selecciona "No he sentido discriminación", limpiar las demás selecciones.
-            updatedSelections = [noDiscriminationOptionId];
-          } else {
-            // Si se selecciona otra opción y "No he sentido discriminación" está seleccionado, deseleccionarlo.
-            if (updatedSelections.includes(noDiscriminationOptionId)) {
-              updatedSelections = updatedSelections.filter(id => id !== noDiscriminationOptionId);
-            }
-
-            // Actualizar las selecciones normalmente.
-            if (updatedSelections.includes(value)) {
-              updatedSelections = updatedSelections.filter(id => id !== value);
-            } else {
-              updatedSelections.push(value);
-            }
-          }
-        } else if (Array.isArray(value)) { // value es un array (selecciones múltiples)
-          const noDiscriminationSelected = value.includes(noDiscriminationOptionId);
-
-          if (noDiscriminationSelected) {
-            // Si "No he sentido discriminación" está seleccionado, limpiar las demás selecciones.
-            updatedSelections = [noDiscriminationOptionId];
-          } else {
-            // Si se deselecciona "No he sentido discriminación", se permite seleccionar otras opciones.
-            updatedSelections = value.filter(id => id !== noDiscriminationOptionId);
-          }
-        }
-
-        return { ...prev, [questionId]: updatedSelections };
+      if (numericQuestionId === 11) {
+        return handleQuestion11Logic(prev, value);
+      } else if (numericQuestionId === 10) {
+        return handleQuestion10Logic(prev, value);
+      } else {
+        const updatedResponses = { ...prev };
+        updatedResponses[questionId] = value;
+        return updatedResponses;
       }
-
-      return { ...prev, [questionId]: value };
     });
   };
+  
+  const handleQuestion11Logic = (prevResponses: Responses, value: number | string | number[]) => {
+    const question11 = survey?.questions.find(q => q.id === 11);
+
+    if (!question11 || !question11.options) return prevResponses;
+
+    const noDiscriminationOption = question11.options.find(option =>
+      option.text_option.trim().toLowerCase() === "no he sentido discriminación"
+    );
+
+    if (!noDiscriminationOption) return prevResponses;
+    const noDiscriminationOptionId = noDiscriminationOption.id;
+
+    let updatedSelections: number[] = Array.isArray(prevResponses["11"])
+      ? [...(prevResponses["11"] as number[])]
+      : [];
+
+    if (typeof value === 'number') {
+      const isNoDiscrimination = value === noDiscriminationOptionId;
+
+      if (isNoDiscrimination) {
+        return { ...prevResponses, "11": [noDiscriminationOptionId] };
+      } else {
+        updatedSelections = updatedSelections.filter(id => id !== noDiscriminationOptionId);
+        return { ...prevResponses, "11": [value] };
+      }
+    } else if (Array.isArray(value)) {
+      const noDiscriminationSelected = value.includes(noDiscriminationOptionId);
+
+      if (noDiscriminationSelected) {
+        return { ...prevResponses, "11": [noDiscriminationOptionId] };
+      } else {
+        return { ...prevResponses, "11": value.filter(id => id !== noDiscriminationOptionId) };
+      }
+    }
+
+    return prevResponses;
+  };
+
+  const handleQuestion10Logic = (prevResponses: Responses, value: number | string | number[]) => {
+    const question10 = survey?.questions.find(q => q.id === 10);
+
+    if (!question10 || !question10.options) return prevResponses;
+
+    const noDisabilityOption = question10.options.find(option =>
+      option.text_option.trim().toLowerCase() === "no presento ningún tipo de discapacidad"
+    );
+
+    if (!noDisabilityOption) return prevResponses;
+    const noDisabilityOptionId = noDisabilityOption.id;
+
+    let updatedSelections: number[] = Array.isArray(prevResponses["10"])
+      ? [...(prevResponses["10"] as number[])]
+      : [];
+
+    if (typeof value === 'number') {
+      const isNoDisability = value === noDisabilityOptionId;
+
+      if (isNoDisability) {
+        return { ...prevResponses, "10": [noDisabilityOptionId] };
+      } else {
+        updatedSelections = updatedSelections.filter(id => id !== noDisabilityOptionId);
+        return { ...prevResponses, "10": [value] };
+      }
+    } else if (Array.isArray(value)) {
+      const noDisabilitySelected = value.includes(noDisabilityOptionId);
+
+      if (noDisabilitySelected) {
+        return { ...prevResponses, "10": [noDisabilityOptionId] };
+      } else {
+        return { ...prevResponses, "10": value.filter(id => id !== noDisabilityOptionId) };
+      }
+    }
+
+    return prevResponses;
+  };
+
 
 
   const handleNextChapter = () => {
