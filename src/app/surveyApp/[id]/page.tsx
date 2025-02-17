@@ -38,23 +38,16 @@ const SurveyApp: React.FC = () => {
         }
 
         const data = await getSurvey(Number(id));
+
+        if (!data) {
+          return;
+        }
+
         setSurvey(data);
 
       } catch (error: unknown) {
-        // Validar si el error es una instancia de Error
-        if (error instanceof Error) {
-          console.error("Error al cargar la encuesta:", error.message);
-
-          // Validar mensaje de error y redirigir si es necesario
-          if (error.message.includes("UNAUTHORIZED")) {
-            router.push("/login");
-          } else {
-            setError(true);
-          }
-        } else {
-          console.error("Error desconocido al cargar la encuesta");
-          setError(true);
-        }
+        console.error("Error inesperado al cargar la encuesta");
+        setError(true);
       }
     };
     loadSurvey();

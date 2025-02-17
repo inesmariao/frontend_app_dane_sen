@@ -15,30 +15,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authData, setAuthDataState] = useState<{ token: string | null; user: any } | null>(
     null
   );
-  const router = useRouter(); // Hook de redirección
+  const router = useRouter();
 
   useEffect(() => {
     // Cargar datos de autenticación desde localStorage al iniciar
     const token = localStorage.getItem("authToken");
     const user = localStorage.getItem("authUser");
   
-    if (token && user) {
-      try {
-        const parsedUser = JSON.parse(user); // Intenta analizar solo si el valor existe
-        setAuthDataState({ token, user: parsedUser });
-      } catch (error) {
-        console.error("Error al analizar el usuario desde localStorage. Se limpiará el estado:", error);
-        localStorage.removeItem("authToken"); // Limpia localStorage si está corrupto
-        localStorage.removeItem("authUser");
-      }
+    if (!token || !user) {
+      router.push("/login");
+      return;
     }
+
+    try {
+      const parsedUser = JSON.parse(user);
+      setAuthDataState({ token, user: parsedUser });
+    } catch (error) {
+      console.error("Error en localStorage. Redirigiendo al login...");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("authUser");
+      router.push("/login");
+    }
+
+    const handleLogout = () => {
+      console.warn("Evento de cierre de sesión recibido. Redirigiendo...");
+      router.push("/login");
+    };
+
+    window.addEventListener("auth:logout", handleLogout);
+
+    return () => {
+      window.removeEventListener("auth:logout", handleLogout);
+    };
   }, []);
 
   const setAuthData = (data: { token: string; user: any }) => {
-    if (!data.token || !data.user) {
-      console.error("Intento de guardar datos inválidos en localStorage");
-      return;
-    }
     localStorage.setItem("authToken", data.token);
     localStorage.setItem("authUser", JSON.stringify(data.user));
     setAuthDataState(data);
@@ -48,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
     setAuthDataState(null);
-    router.push("/login"); // Redirigir al login al cerrar sesión
+    router.push("/login");
   };
 
   const login = async (credentials: { identifier: string; password: string }) => {

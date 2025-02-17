@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken, clearAuthData } from "@/utils/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
@@ -8,6 +9,41 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// **Rutas públicas (NO requieren autenticación)**
+const publicEndpoints = ["/users/v1/register/", "/users/v1/login/"];
+
+// **Interceptor para agregar el token solo en solicitudes protegidas**
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+
+    // Si la URL NO está en `publicEndpoints`, agrega el token
+    if (token && !publicEndpoints.some((endpoint) => config.url?.includes(endpoint))) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// **Interceptor para manejar errores de autenticación y redirigir al login**
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      clearAuthData();
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:logout"));
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // Método para el registro de usuarios
 export const registerUser = async (userData: {
@@ -51,12 +87,16 @@ export const getSurvey = async (surveyId: number) => {
   try {
 
     if (!surveyId || isNaN(surveyId)) {
-      throw new Error("ID de la encuesta no válido.");
+      console.error("ID de la encuesta no válido.");
+      return null;
     }
 
     const token = localStorage.getItem("authToken");
     if (!token) {
-      throw new Error("No se encontró el token de autenticación.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:logout"));
+      }
+      return null;
     }
 
     const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`, {
@@ -67,13 +107,16 @@ export const getSurvey = async (surveyId: number) => {
 
     return response.data;
   } catch (error: any) {
-    console.error("Error en getSurvey:", error.message || error);
-
-    if (error.response?.status === 401) {
-      throw new Error("UNAUTHORIZED"); // Manejar el error de no autenticado
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.warn("Sesión expirada. Redirigiendo...");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:logout"));
+      }
+      return null;
     }
 
-    throw new Error(error.response?.data?.error || "Error al obtener la encuesta.");
+    console.error("Error en getSurvey:", error.message || error);
+    return null;
   }
 };
 
