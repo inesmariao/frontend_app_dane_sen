@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 
 import { getSurvey, submitResponses } from "@/utils/api";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
-import { Survey, Chapter, Question, Responses, GeographicResponse } from "@/types";
+import { Survey, Chapter, Question, Responses, GeographicResponse, SurveyResponse } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
@@ -22,27 +22,25 @@ import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 const SurveyApp: React.FC = () => {
 
   const params = useParams();
-  const id = params?.id;
+  const id = params?.id ? Number(params.id) : null;
+
 
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<Responses>({});
   const [error, setError] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(1);
-  const router = useRouter();
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
     const loadSurvey = async () => {
       try {
         if (!id) {
-          console.error("ID de la encuesta no definido.");
-          return;
+          throw new Error("ID de la encuesta no definido.");
         }
 
         const data = await getSurvey(Number(id));
-
         if (!data) {
-          return;
+          throw new Error("No se encontraron datos para esta encuesta.");
         }
 
         const surveyWithSubquestions = {
@@ -55,13 +53,13 @@ const SurveyApp: React.FC = () => {
 
         setSurvey(surveyWithSubquestions);
 
-      } catch (error: unknown) {
-        console.error("Error inesperado al cargar la encuesta");
+      } catch (error) {
+        console.error("Error al cargar la encuesta:", error);
         setError(true);
       }
     };
     loadSurvey();
-  }, [id, router]);
+  }, [id]);
 
   if (error) {
     return <p>Ocurrió un error al cargar la encuesta.</p>;
@@ -73,65 +71,63 @@ const SurveyApp: React.FC = () => {
 
   const handleOptionChange = (
     questionId: string | number,
-    value: string | number | number[] | GeographicResponse,
-    extraData?: { country?: number; department?: number; municipality?: number }
+    value: string | number | number[] | GeographicResponse
   ) => {
     setResponses((prev: Responses) => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
-
-      // Manejo especial para preguntas geográficas (IDs 5 y 7)
-      if (numericQuestionId === 5) {
-        return {
-          ...prev,
-          [numericQuestionId]: {
-            ...(prev[numericQuestionId] as GeographicResponse ?? {}),
-            option_selected: (value as GeographicResponse).option_selected ?? null,
-            country: (value as GeographicResponse).country ?? null,
-            department: (value as GeographicResponse).department ?? null,
-            municipality: (value as GeographicResponse).municipality ?? null,
-          } as GeographicResponse,
-        };
+  
+      switch (numericQuestionId) {
+        case 5: {
+          const geoValue = value as GeographicResponse;
+          return {
+            ...prev,
+            [numericQuestionId]: {
+              ...(prev[numericQuestionId] as GeographicResponse ?? {}),
+              option_selected: geoValue.option_selected ?? null,
+              country: geoValue.country ?? null,
+              department: geoValue.department ?? null,
+              municipality: geoValue.municipality ?? null,
+            } as GeographicResponse,
+          };
+        }
+  
+        case 7: {
+          const geoValue = value as GeographicResponse;
+          return {
+            ...prev,
+            [numericQuestionId]: {
+              ...(prev[numericQuestionId] as GeographicResponse ?? {}),
+              option_selected: geoValue.option_selected ?? null,
+              new_department: geoValue.new_department ?? null,
+              new_municipality: geoValue.new_municipality ?? null,
+            } as GeographicResponse,
+          };
+        }
+  
+        case 10:
+          return handleQuestion10Logic(prev, value);
+  
+        case 11:
+          return handleQuestion11Logic(prev, value);
+  
+        default:
+          if (Array.isArray(value)) {
+            // Preguntas con selección múltiple (checkbox)
+            return {
+              ...prev,
+              [numericQuestionId]: value.filter((v) => v !== null),
+            };
+          } else {
+            // Preguntas de selección única (radio buttons)
+            return {
+              ...prev,
+              [numericQuestionId]: value,
+            };
+          }
       }
-
-      if (numericQuestionId === 7) {
-        const geoValue = value as GeographicResponse;
-        return {
-          
-          ...prev,
-          [numericQuestionId]: {
-            ...(prev[numericQuestionId] as GeographicResponse ?? {}),
-            option_selected: geoValue.option_selected ?? null,
-            new_department: geoValue.new_department ?? null,
-            new_municipality: geoValue.new_municipality ?? null,
-          } as GeographicResponse,
-        };
-      }
-      
-      // Pregunta 11 (Discriminación)
-      if (numericQuestionId === 11) {
-        return handleQuestion11Logic(prev, value);
-      }
-
-      // Pregunta 10 (Discapacidad)
-      if (numericQuestionId === 10) {
-        return handleQuestion10Logic(prev, value);
-      }
-        
-      // Preguntas con opciones múltiples (checkbox)
-      if (Array.isArray(value)) {
-        return {
-          ...prev,
-          [numericQuestionId]: value.filter((v) => v !== null),
-        };
-      }
-
-      // Preguntas con opción única (radio buttons)
-      return {
-        ...prev,
-        [numericQuestionId]: value,
-      };
     });
   };
+
 
   const handleQuestion11Logic = (
     prevResponses: Responses,
@@ -149,9 +145,10 @@ const SurveyApp: React.FC = () => {
 
     const noDiscriminationOptionId = noDiscriminationOption.id;
 
-    let updatedSelections: number[] = Array.isArray(prevResponses["11"])
+    // Debug
+    /*let updatedSelections: number[] = Array.isArray(prevResponses["11"])
       ? [...(prevResponses["11"] as number[])]
-      : [];
+      : [];*/
 
       if (typeof value === "number") {
         return {
@@ -186,9 +183,10 @@ const SurveyApp: React.FC = () => {
 
     const noDisabilityOptionId = noDisabilityOption.id;
 
-    let updatedSelections: number[] = Array.isArray(prevResponses["10"])
+    // Debug
+    /*let updatedSelections: number[] = Array.isArray(prevResponses["10"])
       ? [...(prevResponses["10"] as number[])]
-      : [];
+      : [];*/
 
       if (typeof value === "number") {
         return {
@@ -210,10 +208,9 @@ const SurveyApp: React.FC = () => {
   const handleNextChapter = () => {
     if (currentChapter < 3) {
       setCurrentChapter((prev) => prev + 1);
-      window.scrollTo({
-        top: 0,
-        behavior: "auto",
-      });
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } else {
       handleSubmit();
     }
@@ -260,35 +257,34 @@ const SurveyApp: React.FC = () => {
     }
 
     // Formateo de respuestas
-    const formattedResponses = survey.questions.map((question) => {
+    const formattedResponses: SurveyResponse[] = survey.questions.map((question) => {
       const response = responses[question.id];
     
       // Preguntas tipo matriz (con subpreguntas)
       if (question.question_type === "matrix" && question.subquestions?.length) {
-        const subquestions = question.subquestions
-          .map((subq) => ({
+        return {
+          question_id: question.id,
+          subquestions: question.subquestions.map((subq) => ({
             subquestion_id: subq.id,
             option_selected: responses[subq.id] ?? null,
-          }))
-          .filter((subq) => subq.option_selected !== null);
-  
-        return { question_id: question.id, subquestions };
+          })),
+        };
       }
 
       // Asegura que la pregunta 7 envíe "new_department" y "new_municipality"
       if (question.id === 7) {
-        const geoResponse = response as GeographicResponse;
+        const geoResponse = response as GeographicResponse ?? {};
         return {
           question_id: question.id,
-          option_selected: geoResponse?.option_selected ?? null,
-          new_department: geoResponse?.new_department ?? null,
-          new_municipality: geoResponse?.new_municipality ?? null,
+          option_selected: geoResponse.option_selected ?? null,
+          new_department: geoResponse.new_department ?? null,
+          new_municipality: geoResponse.new_municipality ?? null,
         };
       }
     
       // Preguntas geográficas (con campos especiales como "country")
-      if (question.is_geographic && response && typeof response === "object" && !Array.isArray(response)) {
-        const geoResponse = response as GeographicResponse;
+      if (question.is_geographic && typeof response === "object" && !Array.isArray(response)) {
+        const geoResponse = response as GeographicResponse ?? {};
         return {
           question_id: question.id,
           option_selected: typeof geoResponse.option_selected === "number" ? geoResponse.option_selected : null,
@@ -298,34 +294,34 @@ const SurveyApp: React.FC = () => {
         };
       }
     
-      // ✅ Preguntas abiertas
+      // Preguntas abiertas
       if (question.question_type === "open") {
         return {
           question_id: question.id,
-          answer: typeof response === "string" ? response : response?.toString(),
+          answer: typeof response === "string" ? response : response?.toString() ?? null,
         };
       }
     
-      // ✅ Preguntas cerradas de selección múltiple
+      // Preguntas cerradas de selección múltiple
       if (question.question_type === "closed" && question.is_multiple) {
         return {
           question_id: question.id,
           options_multiple_selected: Array.isArray(response)
-            ? response.filter((id) => typeof id === "number") // ✅ Asegura que sean solo números
+            ? response.filter((id) => typeof id === "number")
             : [],
         };
       }
     
-      // ✅ Preguntas cerradas de selección única
+      // Preguntas cerradas de selección única
       if (question.question_type === "closed" && !question.is_multiple) {
         return {
           question_id: question.id,
-          option_selected: typeof response === "number" ? response : Number(response),
+          option_selected: typeof response === "number" ? response : null,
         };
       }
     
-      return null; // Ignora tipos de pregunta no reconocidos
-    }).filter(Boolean); // Elimina las respuestas nulas
+      return { question_id: question.id, option_selected: null };
+    });
 
     // ✅ Debug: Mostrar resumen antes de enviar
     console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
@@ -370,7 +366,7 @@ const SurveyApp: React.FC = () => {
       <SurveyHeader>
         <SurveyTitle>{survey.name}</SurveyTitle>
         <SurveyDescriptionName>
-          <strong>Definición de "discriminación":</strong> {survey.description_name.replace('Definición de "discriminación":', '')}
+        <strong>Definición de &quot;discriminación&quot;:</strong> {survey.description_name.replace(/Definición de\s?&quot;discriminación&quot;:/i, '')}
         </SurveyDescriptionName>
       </SurveyHeader>
 

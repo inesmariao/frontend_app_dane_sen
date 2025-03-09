@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChapterProps, Question, SubQuestion, Responses, GeographicResponse } from "@/types";
+import { ChapterProps, SubQuestion } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import {
@@ -101,7 +101,6 @@ const ChapterThree: React.FC<ChapterProps> = ({
                       option => Number(option.subquestion_id) === Number(subQuestion.id) && Number(option.question_id) === Number(question.id)
                     ) || [];
 
-                    const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
                     const isOtherSubQuestion = subQuestion.text_subquestion.toLowerCase().includes("otro");
 
@@ -117,7 +116,6 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             {filteredOptions.map((option, optionIndex) => {
                               const isChecked = responses[subQuestion.id] === option.id;
                               const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
-                              const isNoSeOption = option.text_option.toLowerCase().includes("no sé");
                               const isNumberOption = ["1", "2", "3", "4", "5"].includes(option.text_option);
 
                               return (

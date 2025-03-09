@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAuthToken, clearAuthData } from "@/utils/auth";
+import { SurveyResponse } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
@@ -55,12 +56,14 @@ export const registerUser = async (userData: {
   try {
     const response = await apiClient.post("/users/v1/register/", userData);
     return response.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(error.response.data.error || "Error al registrar usuario");
-    } else {
-      throw new Error("Error al conectar con el servidor");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data?.error || "Error al registrar usuario");
     }
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error al conectar con el servidor");
   }
 };
 
@@ -76,8 +79,14 @@ export const loginUser = async (credentials: { identifier: string; password: str
     }
 
     return { token: access_token, refreshToken: refresh_token, user };
-  } catch (error: any) {
-    throw new Error(error.response?.data?.error || "Error al iniciar sesión.");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data?.error || "Error al iniciar sesión.");
+    }
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error al conectar con el servidor durante el inicio de sesión.");
   }
 };
 
@@ -106,29 +115,37 @@ export const getSurvey = async (surveyId: number) => {
     });
 
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      console.warn("Sesión expirada. Redirigiendo...");
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("auth:logout"));
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 401 || error.response.status === 403) {
+        console.warn("Sesión expirada. Redirigiendo...");
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("auth:logout"));
+        }
+        return null;
       }
-      return null;
+      throw new Error(error.response.data?.error || "Error al obtener la encuesta.");
     }
-
-    console.error("Error en getSurvey:", error.message || error);
-    return null;
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error desconocido al obtener la encuesta.");
   }
 };
 
 // Método para enviar las respuestas al Backend
-export const submitResponses = async (responses: any) => {
+export const submitResponses = async (responses: SurveyResponse[]) => {
   try {
     const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
-
     return response.data;
-  } catch (error: any) {
-    console.error("Error al enviar las respuestas:", error.response?.data || error.message);
-    throw new Error("Error al enviar las respuestas. Por favor, intenta de nuevo.");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data?.error || "Error al enviar las respuestas.");
+    }
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error desconocido al enviar las respuestas.");
   }
 };
 

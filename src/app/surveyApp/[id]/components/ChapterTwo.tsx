@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChapterProps, SubQuestion, Question, Responses, GeographicResponse } from "@/types";
+import { ChapterProps, SubQuestion } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import {
@@ -112,7 +112,6 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                       option => Number(option.subquestion_id) === Number(subQuestion.id) && Number(option.question_id) === Number(question.id)
                     ) || [];
 
-                    const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
                     const isOtherSubQuestion = subQuestion.text_subquestion.toLowerCase().includes("otro");
 

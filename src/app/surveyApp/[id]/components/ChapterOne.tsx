@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { ChapterProps, Responses, GeographicResponse } from "@/types";
+import { ChapterProps, GeographicResponse } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import {
@@ -33,18 +32,17 @@ const ChapterOne: React.FC<ChapterProps> = ({
       <ChapterTitle>{chapterName}</ChapterTitle>
 
       {/* Renderizado de preguntas */}
-      {questions.map((question, questionIndex) => {
+      {questions.map((question) => {
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
         const isGeographic = question.is_geographic;
         const subQuestions = Array.isArray(question.subquestions) ? question.subquestions : [];
-        const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
 
         const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
-          <QuestionCard key={questionKey}>
+          <QuestionCard key={question.id}>
             {/* Texto de la pregunta */}
             <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
 

@@ -1,18 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/utils/api";
-
-interface AuthContextType {
-  authData: { token: string | null; user: any } | null;
-  setAuthData: (data: { token: string; user: any }) => void;
-  logout: () => void;
-  login: (credentials: { identifier: string; password: string }) => Promise<void>;
-}
+import { AuthContextType, User } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [authData, setAuthDataState] = useState<{ token: string | null; user: any } | null>(
+  const [authData, setAuthDataState] = useState<{ token: string | null; user: User } | null>(
     null
   );
   const router = useRouter();
@@ -30,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const parsedUser = JSON.parse(user);
       setAuthDataState({ token, user: parsedUser });
-    } catch (error) {
+    } catch {
       console.error("Error en localStorage. Redirigiendo al login...");
       localStorage.removeItem("authToken");
       localStorage.removeItem("authUser");
@@ -47,9 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       window.removeEventListener("auth:logout", handleLogout);
     };
-  }, []);
+  }, [router]);
 
-  const setAuthData = (data: { token: string; user: any }) => {
+  const setAuthData = (data: { token: string; user: User }) => {
     localStorage.setItem("authToken", data.token);
     localStorage.setItem("authUser", JSON.stringify(data.user));
     setAuthDataState(data);
@@ -71,9 +65,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       // Redirigir al usuario después del login
       router.push("/surveys");
-    } catch (error: any) {
-      console.error("Error al iniciar sesión:", error.message);
-      throw error; // Devolver el error para manejarlo en el componente
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error al iniciar sesión:", error.message);
+        throw error;
+      }
+      console.error("Error desconocido al iniciar sesión");
+      throw new Error("Error desconocido al iniciar sesión");
     }
   };
 

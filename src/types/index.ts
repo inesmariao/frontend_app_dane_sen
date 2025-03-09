@@ -1,3 +1,16 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthContextType {
+  authData: { token: string | null; user: User | null } | null;
+  setAuthData: (data: { token: string; user: User }) => void;
+  logout: () => void;
+  login: (credentials: { identifier: string; password: string }) => Promise<void>;
+}
+
 export interface Survey {
   id: number;
   name: string;
@@ -5,6 +18,24 @@ export interface Survey {
   description_title: string;
   chapters: Chapter[];
   questions: Question[];
+  createdAt?: string;
+}
+
+export interface SurveyContextType {
+  surveys: Survey[];
+  setSurveys: (surveys: Survey[]) => void;
+}
+
+export interface SurveyResponse {
+  question_id: number;
+  option_selected?: number | null;
+  options_multiple_selected?: number[];
+  answer?: string | null;
+  country?: number | null;
+  department?: number | null;
+  municipality?: number | null;
+  new_department?: number | null;
+  new_municipality?: number | null;
 }
 
 export interface Chapter {

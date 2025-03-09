@@ -1,14 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
-
-interface SurveyContextType {
-  surveys: any[];
-  setSurveys: (surveys: any[]) => void;
-}
+import { Survey, SurveyContextType } from "@/types";
 
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
 export const SurveyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [surveys, setSurveys] = useState<any[]>([]);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
 
   return (
     <SurveyContext.Provider value={{ surveys, setSurveys }}>

@@ -167,7 +167,6 @@ const RegisterForm: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -221,13 +220,17 @@ const RegisterForm: React.FC = () => {
 
     try {
       await registerUser(formData); // Llamada al API de registro
-      setSuccess("Usuario registrado exitosamente. Redirigiendo...");
+      setSuccessMessage("Usuario registrado exitosamente. Redirigiendo...");
 
       setTimeout(() => {
         router.push("/login"); // Redirigir al login después del éxito
       }, 2000); // Espera de 2 segundos para mostrar el mensaje
-    } catch (err: any) {
-      setErrors(err.message || "Error al registrar usuario.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrors(err.message);
+      } else {
+        setErrors("Error al registrar usuario.");
+      }
     }
   };
 

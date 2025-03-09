@@ -80,8 +80,12 @@ const LoginForm: React.FC = () => {
 
     try {
       await login(formData);
-    } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error al iniciar sesión.");
+      }
     }
   };
 
