@@ -45,7 +45,6 @@ const SurveyApp: React.FC = () => {
           return;
         }
 
-        // ✅ Sugerencia: Asegúrate de que todas las subpreguntas estén incluidas con sus respectivas preguntas.
         const surveyWithSubquestions = {
           ...data,
           questions: data.questions.map((q: Question) => ({
@@ -208,8 +207,6 @@ const SurveyApp: React.FC = () => {
     return prevResponses;
   };
 
-
-
   const handleNextChapter = () => {
     if (currentChapter < 3) {
       setCurrentChapter((prev) => prev + 1);
@@ -230,7 +227,7 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("📌 Estado actual de respuestas:", responses);
+    console.log("📌 Estado actual de respuestas:", responses); // Debug
 
     // Obtener todas las preguntas y subpreguntas
     const allQuestions = survey.questions.flatMap(q => {
@@ -255,17 +252,18 @@ const SurveyApp: React.FC = () => {
 
     if (unansweredQuestions.length > 0) {
         alert("Por favor responde todas las preguntas antes de continuar.");
+        // Debug
         console.log("❌ Preguntas sin responder:", 
             unansweredQuestions.map(q => "text_question" in q ? q.text_question : q.text_subquestion)
         );
         return;
     }
 
-    // 📝 REVISIÓN IMPORTANTE: Sección de formateo de respuestas
+    // Formateo de respuestas
     const formattedResponses = survey.questions.map((question) => {
       const response = responses[question.id];
     
-      // ✅ Preguntas tipo matriz (con subpreguntas)
+      // Preguntas tipo matriz (con subpreguntas)
       if (question.question_type === "matrix" && question.subquestions?.length) {
         const subquestions = question.subquestions
           .map((subq) => ({
@@ -276,8 +274,19 @@ const SurveyApp: React.FC = () => {
   
         return { question_id: question.id, subquestions };
       }
+
+      // Asegura que la pregunta 7 envíe "new_department" y "new_municipality"
+      if (question.id === 7) {
+        const geoResponse = response as GeographicResponse;
+        return {
+          question_id: question.id,
+          option_selected: geoResponse?.option_selected ?? null,
+          new_department: geoResponse?.new_department ?? null,
+          new_municipality: geoResponse?.new_municipality ?? null,
+        };
+      }
     
-      // ✅ Preguntas geográficas (con campos especiales como "country")
+      // Preguntas geográficas (con campos especiales como "country")
       if (question.is_geographic && response && typeof response === "object" && !Array.isArray(response)) {
         const geoResponse = response as GeographicResponse;
         return {
@@ -318,19 +327,19 @@ const SurveyApp: React.FC = () => {
       return null; // Ignora tipos de pregunta no reconocidos
     }).filter(Boolean); // Elimina las respuestas nulas
 
-    // ✅ DEJA: Mostrar resumen antes de enviar
+    // ✅ Debug: Mostrar resumen antes de enviar
     console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
     alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
-    // ✅ Debugg
+    // ✅ Debug
     console.log("✅ Datos a enviar:", JSON.stringify(formattedResponses, null, 2));
 
-    // 🚀 ENVIAR RESPUESTAS
+    // Enviar respuestas
     try {
-        const response = await submitResponses(formattedResponses); // ✅ DEJA: Llama a la API con las respuestas formateadas
+        const response = await submitResponses(formattedResponses); // Llama a la API con las respuestas formateadas
         console.log("✅ Respuestas enviadas con éxito:", response);
         alert("Respuestas enviadas correctamente. ¡Gracias por completar la encuesta!");
     } catch (error: unknown) {
-        console.error("❌ Error al enviar respuestas:", error); // 📝 Simplifica el manejo de errores
+        console.error("Error al enviar respuestas:", error);
         alert("Hubo un error al enviar las respuestas. Por favor, intenta de nuevo.");
     }
 };
