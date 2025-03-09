@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChapterProps, Question, SubQuestion } from "@/types";
+import { ChapterProps, Question, SubQuestion, Responses, GeographicResponse } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import {

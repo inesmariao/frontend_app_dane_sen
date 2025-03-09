@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { GeographicQuestionProps, GeographicResponse } from "@/types";
 import apiClient from "@/utils/api";
 import {
   OptionWrapper,
@@ -10,13 +11,6 @@ import {
   StyledSelect,
 } from "@/styles/components/StyledSurvey";
 
-interface GeographicQuestionProps {
-  questionId: number;
-  options: { id: number; text_option: string }[];
-  responses: { [key: string]: number | string | number[] };
-  handleOptionChange: (questionId: number | string, value: string | number | number[]) => void;
-}
-
 export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   questionId,
   options,
@@ -24,25 +18,34 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   handleOptionChange,
 }) => {
   // Estados para almacenar datos geográficos
+
+  // Determinar si la pregunta es la 5 o la 7
+  const isQuestionFive = questionId === 5;
+  const isQuestionSeven = questionId === 7;
+
   const [countries, setCountries] = useState<{ id: number; spanish_name: string }[]>([]);
   const [departments, setDepartments] = useState<{ id: number; name: string; code: number }[]>([]);
-  const [municipalities, setMunicipalities] = useState<{ code: number; name: string }[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
+  const [municipalities, setMunicipalities] = useState<{ id: number; name: string; code: number }[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState<boolean>(false);
-  const [selectedMunicipality, setSelectedMunicipality] = useState<number | null>(null);
+
+  const selectedCountry = (responses[questionId] as GeographicResponse)?.country ?? "";
+
+  const selectedDepartment = isQuestionSeven
+  ? (responses[questionId] as GeographicResponse)?.new_department ?? ""
+  : (responses[questionId] as GeographicResponse)?.department ?? "";
+
+  const selectedMunicipality = isQuestionSeven
+  ? (responses[questionId] as GeographicResponse)?.new_municipality ?? ""
+  : (responses[questionId] as GeographicResponse)?.municipality ?? "";
 
   // Encontrar las opciones de "Colombia" y "Otro país"
   const colombiaOption = options.find((option) => option.text_option.toLowerCase() === "colombia");
   const otherCountryOption = options.find((option) => option.text_option.toLowerCase() === "otro país");
   const yesOption = options.find((option) => option.text_option.toLowerCase() === "sí");
 
-  const isColombiaSelected = responses[questionId] === colombiaOption?.id;
-  const isOtherCountrySelected = responses[questionId] === otherCountryOption?.id;
-  const isYesSelected = responses[questionId] === yesOption?.id;
-
-  // Determinar si la pregunta es la 5 o la 7
-  const isQuestionFive = questionId === 5;
-  const isQuestionSeven = questionId === 7;
+  const isColombiaSelected = (responses[questionId] as GeographicResponse)?.option_selected === colombiaOption?.id;
+  const isOtherCountrySelected = (responses[questionId] as GeographicResponse)?.option_selected === otherCountryOption?.id;
+  const isYesSelected = (responses[questionId] as GeographicResponse)?.option_selected === yesOption?.id;
 
   // Mostrar el selector de departamento solo si:
   // - En la pregunta 5, la opción "Colombia" está seleccionada
@@ -55,7 +58,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const showCountrySelector = isQuestionFive && isOtherCountrySelected;
 
 
-  // Cargar países al inicio con Axios
+  // Cargar países al inicio
   useEffect(() => {
     apiClient.get("/geo/countries/")
       .then((res) => {
@@ -75,27 +78,88 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
 
   // Cargar municipios cuando se selecciona un departamento
   useEffect(() => {
-    if (selectedDepartment !== null) {
-      setLoadingMunicipalities(true);
-
-      const token = localStorage.getItem("authToken");
-
-      apiClient.get(`/geo/municipalities/by-department/${selectedDepartment}/`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      })
-      .then((res) => {
-        setMunicipalities(res.data.municipalities || []);
-      })
-      .catch((error) => {
-        console.error("Error al cargar municipios:", error);
-      })
-      .finally(() => setLoadingMunicipalities(false));
+    if (selectedDepartment) {
+      setLoadingMunicipalities(true); // Mostrar "Cargando..." mientras se obtienen municipios
+      apiClient.get(`/geo/municipalities/by-department/${selectedDepartment}/`)
+        .then((res) => setMunicipalities(res.data.municipalities ?? []))
+        .catch((error) => console.error("Error al cargar municipios:", error))
+        .finally(() => setLoadingMunicipalities(false));
+    } else {
+      setMunicipalities([]);
     }
   }, [selectedDepartment]);
+
+  // Manejo del cambio de opción principal (Colombia u Otro País)
+  const handleMainOptionChange = (optionId: number, optionText: string) => {
+    let countryId: number | undefined = undefined;
+
+    // Lógica para la pregunta 5 (Residencia actual)
+    if (isQuestionFive) {
+      if (optionText.toLowerCase() === "colombia") {
+        const colombiaCountry = countries.find((c) => c.spanish_name.toLowerCase() === "colombia");
+        countryId = colombiaCountry ? colombiaCountry.id : 0;
+
+        handleOptionChange(questionId, {
+          option_selected: optionId,
+          country: countryId,
+          department: undefined,
+          municipality: undefined,
+        });
+      } else if (optionText.toLowerCase() === "otro país") {
+        handleOptionChange(questionId, {
+          option_selected: optionId,
+          country: undefined,
+          department: undefined,
+          municipality: undefined,
+        });
+      }
+    }
+
+    // Lógica para la pregunta 7 (Cambio de residencia)
+    if (isQuestionSeven) {
+      handleOptionChange(questionId, {
+        option_selected: optionId,
+        new_department: null,
+        new_municipality: null,
+      });
+    }
+
+  };
+
+  const handleDepartmentChange = (departmentId: number) => {
+    if (isQuestionFive) {
+      handleOptionChange(questionId, {
+        option_selected: colombiaOption?.id ?? 0,
+        country: countries.find((c) => c.spanish_name.toLowerCase() === "colombia")?.id,
+        department: departmentId,
+        municipality: undefined,
+      });
+    }
+
+    if (isQuestionSeven) {
+      handleOptionChange(questionId, {
+        ...(responses[questionId] as GeographicResponse),
+        new_department: departmentId,
+        new_municipality: null,
+      });
+    }
+  };
+
+  const handleMunicipalityChange = (municipalityId: number) => {
+    if (isQuestionFive) {
+      handleOptionChange(questionId, {
+        ...(responses[questionId] as GeographicResponse),
+        municipality: municipalityId ?? null,
+      });
+    }
+
+    if (isQuestionSeven) {
+      handleOptionChange(questionId, {
+        ...(responses[questionId] as GeographicResponse),
+        new_municipality: municipalityId ?? null,
+      });
+    }
+  };
 
   return (
     <>
@@ -107,12 +171,8 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
             id={`option-${option.id}`}
             name={`question-${questionId}`}
             value={option.id}
-            checked={responses[questionId] === option.id}
-            onChange={() => {
-              handleOptionChange(questionId, option.id);
-              setSelectedDepartment(null);
-              setMunicipalities([]);
-            }}
+            checked={(responses[questionId] as GeographicResponse)?.option_selected === option.id}
+            onChange={() => handleMainOptionChange(option.id, option.text_option)}
           />
           <OptionLabel htmlFor={`option-${option.id}`}>{option.text_option}</OptionLabel>
         </OptionWrapper>
@@ -124,57 +184,40 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
           <GeoLabel htmlFor="department-select">5.1 - Departamento - Municipio</GeoLabel>
           <StyledSelect
             id="department-select"
-            value={selectedDepartment || ""}
-            onChange={(e) => {
-              const deptCode = Number(e.target.value);
-              setSelectedDepartment(deptCode);
-              setSelectedMunicipality(null);
-              setMunicipalities([]);
-              handleOptionChange("department", deptCode);
-            }}
+            value={selectedDepartment ?? ""}
+            onChange={(e) => handleDepartmentChange(Number(e.target.value))}
           >
             <option value="">- Selecciona un departamento -</option>
-            {Array.isArray(departments) ? (
-              departments.map((dept) => (
-                <option key={dept.id} value={dept.code}>
-                  {dept.name}
-                </option>
-              ))
-            ) : (
-              <option value="">No hay departamentos disponibles</option>
-            )}
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
           </StyledSelect>
 
-          {/* Mostrar municipios solo si hay un departamento seleccionado */}
-          {selectedDepartment && !loadingMunicipalities ? (
-            municipalities.length > 0 ? (
-              <div>
-                <label htmlFor="municipality">Seleccione un municipio:</label>
+          {/* Mostrar municipios cuando haya un departamento seleccionado */}
+          {selectedDepartment && (
+            <>
+
+            <label htmlFor="municipality">Seleccione un municipio:</label>
+              {loadingMunicipalities ? (
+                <p style={{ fontSize: "1rem", color: "#2d8a88" }}>Cargando municipios...</p>
+              ) : (
                 <StyledSelect
-                  id="municipality"
-                  value={selectedMunicipality || ""}
-                  onChange={(e) => {
-                    const muniCode = Number(e.target.value);
-                    setSelectedMunicipality(muniCode);
-                    handleOptionChange("municipality", muniCode);
-                  }}
+                  id="municipality-select"
+                  value={selectedMunicipality ?? ""}
+                  onChange={(e) => handleMunicipalityChange(Number(e.target.value))}
                 >
                   <option value="">-- Seleccione un municipio --</option>
                   {municipalities.map((municipality) => (
-                    <option key={municipality.code} value={municipality.code}>{municipality.name}</option>
+                    <option key={municipality.id} value={municipality.id}>
+                      {municipality.name}
+                    </option>
                   ))}
                 </StyledSelect>
-              </div>
-            ) : (
-              <p style={{ color: "red", fontSize: "1rem" }}>No hay municipios disponibles para este departamento.</p>
-            )
-          ) : null}
 
-          {/* Mensaje de carga si los municipios aún no se han cargado */}
-          {selectedDepartment && loadingMunicipalities && (
-            <p style={{ fontSize: "1rem", color: "#2d8a88", marginTop: "0.5rem" }}>
-              Cargando municipios...
-            </p>
+              )}
+            </>
           )}
         </GeoContainer>
       )}
@@ -186,15 +229,25 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
           <GeoLabel htmlFor="country-select">5.2 - País</GeoLabel>
           <StyledSelect
             id="country-select"
-            value={typeof responses["country"] === "number" ? responses["country"] : ""}
-            onChange={(e) => handleOptionChange("country", Number(e.target.value))}
+            value={selectedCountry}
+            onChange={(e) => {
+              const countryId = Number(e.target.value);
+              handleOptionChange(questionId, {
+                option_selected: otherCountryOption?.id ?? 0,
+                country: countryId,
+                department: undefined,
+                municipality: undefined,
+              });
+            }}
           >
             <option value="">- Selecciona un país -</option>
-            {countries.map((country) => (
-              <option key={country.id} value={country.id}>
-                {country.spanish_name}
-              </option>
-            ))}
+            {countries
+              .filter((country) => !(isOtherCountrySelected && country.spanish_name.toLowerCase() === "colombia")) // Excluye a Colombia
+              .map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.spanish_name}
+                </option>
+              ))}
           </StyledSelect>
         </GeoContainer>
       )}

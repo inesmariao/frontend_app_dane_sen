@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { getSurvey, submitResponses } from "@/utils/api";
 import { useRouter, useParams } from "next/navigation";
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
-import { Survey, Chapter, Question } from "@/types";
+import { Survey, Chapter, Question, Responses, GeographicResponse } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
@@ -17,9 +17,7 @@ import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
 import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
 import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 
-interface Responses {
-  [key: string]: number | string | number[];
-}
+
 
 const SurveyApp: React.FC = () => {
 
@@ -47,7 +45,16 @@ const SurveyApp: React.FC = () => {
           return;
         }
 
-        setSurvey(data);
+        // ✅ Sugerencia: Asegúrate de que todas las subpreguntas estén incluidas con sus respectivas preguntas.
+        const surveyWithSubquestions = {
+          ...data,
+          questions: data.questions.map((q: Question) => ({
+            ...q,
+            subquestions: q.subquestions ?? []
+          }))
+        };
+
+        setSurvey(surveyWithSubquestions);
 
       } catch (error: unknown) {
         console.error("Error inesperado al cargar la encuesta");
@@ -65,23 +72,72 @@ const SurveyApp: React.FC = () => {
     return <p>Cargando datos de la encuesta...</p>;
   }
 
-  const handleOptionChange = (questionId: string | number, value: string | number | number[]) => {
+  const handleOptionChange = (
+    questionId: string | number,
+    value: string | number | number[] | GeographicResponse,
+    extraData?: { country?: number; department?: number; municipality?: number }
+  ) => {
     setResponses((prev: Responses) => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
 
+      // Manejo especial para preguntas geográficas (IDs 5 y 7)
+      if (numericQuestionId === 5) {
+        return {
+          ...prev,
+          [numericQuestionId]: {
+            ...(prev[numericQuestionId] as GeographicResponse ?? {}),
+            option_selected: (value as GeographicResponse).option_selected ?? null,
+            country: (value as GeographicResponse).country ?? null,
+            department: (value as GeographicResponse).department ?? null,
+            municipality: (value as GeographicResponse).municipality ?? null,
+          } as GeographicResponse,
+        };
+      }
+
+      if (numericQuestionId === 7) {
+        const geoValue = value as GeographicResponse;
+        return {
+          
+          ...prev,
+          [numericQuestionId]: {
+            ...(prev[numericQuestionId] as GeographicResponse ?? {}),
+            option_selected: geoValue.option_selected ?? null,
+            new_department: geoValue.new_department ?? null,
+            new_municipality: geoValue.new_municipality ?? null,
+          } as GeographicResponse,
+        };
+      }
+      
+      // Pregunta 11 (Discriminación)
       if (numericQuestionId === 11) {
         return handleQuestion11Logic(prev, value);
-      } else if (numericQuestionId === 10) {
-        return handleQuestion10Logic(prev, value);
-      } else {
-        const updatedResponses = { ...prev };
-        updatedResponses[questionId] = value;
-        return updatedResponses;
       }
+
+      // Pregunta 10 (Discapacidad)
+      if (numericQuestionId === 10) {
+        return handleQuestion10Logic(prev, value);
+      }
+        
+      // Preguntas con opciones múltiples (checkbox)
+      if (Array.isArray(value)) {
+        return {
+          ...prev,
+          [numericQuestionId]: value.filter((v) => v !== null),
+        };
+      }
+
+      // Preguntas con opción única (radio buttons)
+      return {
+        ...prev,
+        [numericQuestionId]: value,
+      };
     });
   };
-  
-  const handleQuestion11Logic = (prevResponses: Responses, value: number | string | number[]) => {
+
+  const handleQuestion11Logic = (
+    prevResponses: Responses,
+    value: string | number | number[] | GeographicResponse
+  ) => {
     const question11 = survey?.questions.find(q => q.id === 11);
 
     if (!question11 || !question11.options) return prevResponses;
@@ -91,35 +147,34 @@ const SurveyApp: React.FC = () => {
     );
 
     if (!noDiscriminationOption) return prevResponses;
+
     const noDiscriminationOptionId = noDiscriminationOption.id;
 
     let updatedSelections: number[] = Array.isArray(prevResponses["11"])
       ? [...(prevResponses["11"] as number[])]
       : [];
 
-    if (typeof value === 'number') {
-      const isNoDiscrimination = value === noDiscriminationOptionId;
-
-      if (isNoDiscrimination) {
-        return { ...prevResponses, "11": [noDiscriminationOptionId] };
-      } else {
-        updatedSelections = updatedSelections.filter(id => id !== noDiscriminationOptionId);
-        return { ...prevResponses, "11": [value] };
+      if (typeof value === "number") {
+        return {
+          ...prevResponses,
+          "11": value === noDiscriminationOptionId ? [noDiscriminationOptionId] : [value],
+        };
+      } else if (Array.isArray(value)) {
+        return {
+          ...prevResponses,
+          "11": value.includes(noDiscriminationOptionId)
+            ? [noDiscriminationOptionId]
+            : value.filter(id => id !== noDiscriminationOptionId),
+        };
       }
-    } else if (Array.isArray(value)) {
-      const noDiscriminationSelected = value.includes(noDiscriminationOptionId);
-
-      if (noDiscriminationSelected) {
-        return { ...prevResponses, "11": [noDiscriminationOptionId] };
-      } else {
-        return { ...prevResponses, "11": value.filter(id => id !== noDiscriminationOptionId) };
-      }
-    }
 
     return prevResponses;
   };
 
-  const handleQuestion10Logic = (prevResponses: Responses, value: number | string | number[]) => {
+  const handleQuestion10Logic = (
+    prevResponses: Responses,
+    value: string | number | number[] | GeographicResponse
+  ) => {
     const question10 = survey?.questions.find(q => q.id === 10);
 
     if (!question10 || !question10.options) return prevResponses;
@@ -129,30 +184,26 @@ const SurveyApp: React.FC = () => {
     );
 
     if (!noDisabilityOption) return prevResponses;
+
     const noDisabilityOptionId = noDisabilityOption.id;
 
     let updatedSelections: number[] = Array.isArray(prevResponses["10"])
       ? [...(prevResponses["10"] as number[])]
       : [];
 
-    if (typeof value === 'number') {
-      const isNoDisability = value === noDisabilityOptionId;
-
-      if (isNoDisability) {
-        return { ...prevResponses, "10": [noDisabilityOptionId] };
-      } else {
-        updatedSelections = updatedSelections.filter(id => id !== noDisabilityOptionId);
-        return { ...prevResponses, "10": [value] };
+      if (typeof value === "number") {
+        return {
+          ...prevResponses,
+          "10": value === noDisabilityOptionId ? [noDisabilityOptionId] : [value],
+        };
+      } else if (Array.isArray(value)) {
+        return {
+          ...prevResponses,
+          "10": value.includes(noDisabilityOptionId)
+            ? [noDisabilityOptionId]
+            : value.filter(id => id !== noDisabilityOptionId),
+        };
       }
-    } else if (Array.isArray(value)) {
-      const noDisabilitySelected = value.includes(noDisabilityOptionId);
-
-      if (noDisabilitySelected) {
-        return { ...prevResponses, "10": [noDisabilityOptionId] };
-      } else {
-        return { ...prevResponses, "10": value.filter(id => id !== noDisabilityOptionId) };
-      }
-    }
 
     return prevResponses;
   };
@@ -179,48 +230,110 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // Verificar si hay preguntas sin responder.
-    const unansweredQuestions = survey.questions.filter((q: Question) => {
-      const response = responses[q.id];
-      return (
-        response === undefined ||
-        (Array.isArray(response) && response.length === 0)
-      );
+    console.log("📌 Estado actual de respuestas:", responses);
+
+    // Obtener todas las preguntas y subpreguntas
+    const allQuestions = survey.questions.flatMap(q => {
+        if (q.question_type === "matrix" && q.subquestions) {
+            return [q, ...q.subquestions]; // Incluir la pregunta matriz y sus subpreguntas
+        }
+        return q;
+    });
+
+    // Identificar preguntas sin responder
+    const unansweredQuestions = allQuestions.filter((q) => {
+        if ("subquestions" in q && q.subquestions?.length) {
+            return q.subquestions.some(sq => {
+                const response = responses[sq.id];
+                return response === undefined || (Array.isArray(response) && response.length === 0);
+            });
+        } else {
+            const response = responses[q.id];
+            return response === undefined || (Array.isArray(response) && response.length === 0);
+        }
     });
 
     if (unansweredQuestions.length > 0) {
-      alert("Por favor responde todas las preguntas.");
-      return;
+        alert("Por favor responde todas las preguntas antes de continuar.");
+        console.log("❌ Preguntas sin responder:", 
+            unansweredQuestions.map(q => "text_question" in q ? q.text_question : q.text_subquestion)
+        );
+        return;
     }
 
-    // Formatear las respuestas antes de enviarlas al backend.
-    const formattedResponses = Object.entries(responses).map(([key, value]) => {
-      const questionId = String(key); // Asegurar que questionId es un string
-
-      if (questionId.startsWith("other_")) {
+    // 📝 REVISIÓN IMPORTANTE: Sección de formateo de respuestas
+    const formattedResponses = survey.questions.map((question) => {
+      const response = responses[question.id];
+    
+      // ✅ Preguntas tipo matriz (con subpreguntas)
+      if (question.question_type === "matrix" && question.subquestions?.length) {
+        const subquestions = question.subquestions
+          .map((subq) => ({
+            subquestion_id: subq.id,
+            option_selected: responses[subq.id] ?? null,
+          }))
+          .filter((subq) => subq.option_selected !== null);
+  
+        return { question_id: question.id, subquestions };
+      }
+    
+      // ✅ Preguntas geográficas (con campos especiales como "country")
+      if (question.is_geographic && response && typeof response === "object" && !Array.isArray(response)) {
+        const geoResponse = response as GeographicResponse;
         return {
-          question_id: parseInt(questionId.replace("other_", ""), 10),
-          other_response: value, // Enviar respuesta de "Otro" al backend
+          question_id: question.id,
+          option_selected: typeof geoResponse.option_selected === "number" ? geoResponse.option_selected : null,
+          country: geoResponse.country ?? null,
+          department: geoResponse.department ?? null,
+          municipality: geoResponse.municipality ?? null,
         };
       }
+    
+      // ✅ Preguntas abiertas
+      if (question.question_type === "open") {
+        return {
+          question_id: question.id,
+          answer: typeof response === "string" ? response : response?.toString(),
+        };
+      }
+    
+      // ✅ Preguntas cerradas de selección múltiple
+      if (question.question_type === "closed" && question.is_multiple) {
+        return {
+          question_id: question.id,
+          options_multiple_selected: Array.isArray(response)
+            ? response.filter((id) => typeof id === "number") // ✅ Asegura que sean solo números
+            : [],
+        };
+      }
+    
+      // ✅ Preguntas cerradas de selección única
+      if (question.question_type === "closed" && !question.is_multiple) {
+        return {
+          question_id: question.id,
+          option_selected: typeof response === "number" ? response : Number(response),
+        };
+      }
+    
+      return null; // Ignora tipos de pregunta no reconocidos
+    }).filter(Boolean); // Elimina las respuestas nulas
 
-      return {
-        question_id: parseInt(questionId, 10),
-        ...(Array.isArray(value)
-          ? { options_multiple_selected: value }
-          : { option_selected: value }),
-      };
-    });
+    // ✅ DEJA: Mostrar resumen antes de enviar
+    console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
+    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
+    // ✅ Debugg
+    console.log("✅ Datos a enviar:", JSON.stringify(formattedResponses, null, 2));
 
+    // 🚀 ENVIAR RESPUESTAS
     try {
-      const response = await submitResponses(formattedResponses);
-      console.log("Respuestas enviadas:", response);
-    } catch (error: any) {
-      console.error("Error al enviar respuestas:", error.message);
+        const response = await submitResponses(formattedResponses); // ✅ DEJA: Llama a la API con las respuestas formateadas
+        console.log("✅ Respuestas enviadas con éxito:", response);
+        alert("Respuestas enviadas correctamente. ¡Gracias por completar la encuesta!");
+    } catch (error: unknown) {
+        console.error("❌ Error al enviar respuestas:", error); // 📝 Simplifica el manejo de errores
+        alert("Hubo un error al enviar las respuestas. Por favor, intenta de nuevo.");
     }
-  };
-
-
+};
 
   const chapterOneQuestions = survey.questions.filter(
     (q: Question) => q.chapter === 1

@@ -16,8 +16,12 @@ export interface Chapter {
 // Interfaz para las propiedades del capítulo
 export interface ChapterProps {
   questions: Question[];
-  responses: { [key: string]: string | number | number[] };
-  handleOptionChange: (questionId: string | number, value: string | number | number[]) => void;
+  responses: { [key: string]: string | number | number[] | GeographicResponse };
+  handleOptionChange: (
+    questionId: string | number,
+    value: string | number | number[] | GeographicResponse,
+    extraData?: { country?: number; department?: number; municipality?: number }
+  ) => void;
   chapterName: string;
 }
 
@@ -65,4 +69,29 @@ export interface Option {
   updated_at: string;
   order_option: number;
   subquestion_id: number;
+}
+
+export interface GeographicResponse {
+  option_selected: number;
+  country?: number;
+  department?: number | null;
+  municipality?: number | null;
+  new_department?: number | null;
+  new_municipality?: number | null;
+}
+
+export interface GeographicQuestionProps {
+  questionId: number;
+  options: Option[];
+  responses: { [key: string]: number | string | number[] | GeographicResponse };
+  handleOptionChange: (
+    questionId: number | string,
+    value: string | number | number[] | GeographicResponse,
+    extraData?: { country?: number; department?: number; municipality?: number }
+  ) => void;
+}
+
+
+export interface Responses {
+  [key: string]: string | number | number[] | GeographicResponse;
 }

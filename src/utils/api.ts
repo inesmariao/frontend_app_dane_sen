@@ -123,14 +123,12 @@ export const getSurvey = async (surveyId: number) => {
 // Método para enviar las respuestas al Backend
 export const submitResponses = async (responses: any) => {
   try {
-    const response = await axios.post(`${API_URL}/responses`, responses, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    });
+    const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
+
     return response.data;
-  } catch (error) {
-    throw new Error("Error al enviar las respuestas.");
+  } catch (error: any) {
+    console.error("Error al enviar las respuestas:", error.response?.data || error.message);
+    throw new Error("Error al enviar las respuestas. Por favor, intenta de nuevo.");
   }
 };
 

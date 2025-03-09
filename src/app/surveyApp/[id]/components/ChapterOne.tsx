@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChapterProps } from "@/types";
+import { ChapterProps, Responses, GeographicResponse } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import {
@@ -41,6 +41,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
         const subQuestions = Array.isArray(question.subquestions) ? question.subquestions : [];
         const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
 
+        const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
           <QuestionCard key={questionKey}>
@@ -53,6 +54,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
             )}
 
             {/* Si la pregunta es de tipo geográfico, se usa el nuevo componente */}
+
             { isGeographic ? (
               <GeographicQuestion
                 questionId={question.id}
@@ -60,7 +62,8 @@ const ChapterOne: React.FC<ChapterProps> = ({
                 responses={responses}
                 handleOptionChange={handleOptionChange}
               />
-            ) : question.id === 7 && responses[question.id] === "Sí" ? (
+
+            ) : question.id === 7 && yesOption && (responses[question.id] as GeographicResponse)?.option_selected === yesOption.id ? (
               <GeographicQuestion
                 questionId={question.id}
                 options={question.options ?? []}
@@ -99,7 +102,6 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     // Verificar si la subpregunta contiene las palabras clave para mostrar el input "Otro"
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
-
 
                     return (
                       <TableRow key={subQuestionKey}>
@@ -245,7 +247,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
                   })}
                 </div>
               )
-            ) : 
+            ) :
                 // Preguntas cerradas (checkbox o radiobutton)
                 Array.isArray(question.options) && question.options.length > 0 ? (
                   question.options?.map((option, optionIndex) => {
@@ -296,7 +298,6 @@ const ChapterOne: React.FC<ChapterProps> = ({
                               }
                             />
                           </OtherInputWrapper>
-                          
                         )}
                       </div>
                     );
