@@ -537,17 +537,19 @@ export const TooltipContainer = styled.div`
   max-width: 90vw;
   word-wrap: break-word;
 
-  @media (max-width: 320px) { // Estilos específicos para iPhone 5/SE y similares
-    font-size: 0.75rem; // Reduce el tamaño de la fuente
-    padding: 0.5rem; // Reduce el padding
-    max-width: 95vw; // Ajusta el ancho máximo
-    left: 50%; // Asegura que el tooltip se coloque en el centro horizontal
-    transform: translateX(-50%); // Centra el tooltip perfectamente
-    margin-left: 0.5rem; // Añade margen izquierdo
-    margin-right: 0.5rem; // Añade margen derecho
+  // Estilos específicos para iPhone 5/SE y similares
+  @media (max-width: 320px) {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+    max-width: 80vw;
+    left:5%;
+    transform: translateX(-70%);
+    margin-left: 0.5rem;
+    margin-right: 1rem;
   }
 
-  @media (max-width: 768px) {
+  // Estilos para móviles de mayor tamaño que el iPhone 5/SE y similares
+  @media (max-width: 768px) and (min-width: 321px) {
     top: auto;
     bottom: 100%;
     max-height: 50vh;

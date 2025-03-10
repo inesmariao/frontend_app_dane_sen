@@ -121,7 +121,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                               const isNumberOption = ["1", "2", "3", "4", "5"].includes(option.text_option);
 
                               return (
-                                <React.Fragment key={optionKey}>
+                                <TooltipOptionContainer key={optionKey}>
                                   <input
                                     type="radio"
                                     id={`option-${subQuestion.id}-${option.id}`}
@@ -130,10 +130,11 @@ const ChapterThree: React.FC<ChapterProps> = ({
                                     checked={isChecked}
                                     onChange={() => handleOptionChange(subQuestion.id, option.id)}
                                   />
+                                  {/* Etiqueta + el tooltip */}
                                   <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                     {option.text_option}
                                   </OptionLabel>
-
+                                  {option.note && <TooltipOption note={option.note} />}
                                   {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" y la opción es un número (1-5) */}
                                   {isOtherSubQuestion && isNumberOption && isChecked && (
                                     <OtherInputWrapper>
@@ -146,7 +147,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                                       />
                                     </OtherInputWrapper>
                                   )}
-                                </React.Fragment>
+                                </TooltipOptionContainer>
                               );
                             })}
                           </OptionWrapper_Subquestions>
@@ -175,7 +176,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
                             return (
-                              <div key={optionKey}>
+                              <TooltipOptionContainer key={optionKey}>
                                 <input
                                   type="radio"
                                   id={`option-${subQuestion.id}-${option.id}`}
@@ -187,7 +188,8 @@ const ChapterThree: React.FC<ChapterProps> = ({
                                 <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                   {option.text_option}
                                 </OptionLabel>
-                              </div>
+                                {option.note && <TooltipOption note={option.note} />}
+                              </TooltipOptionContainer>
                             );
                           })}
                           {/* Input "Otro" para la subpregunta */}
@@ -221,7 +223,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                   const optionKey = `option-${question.id}-${optionIndex}`;
 
                   return (
-                    <div key={optionKey}>
+                    <TooltipOptionContainer key={optionKey}>
                       <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                         <input
                           type={isMultiple ? "checkbox" : "radio"}
@@ -243,12 +245,10 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        {/* Texto de la opción */}
                         <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
                           {option.text_option}
                         </OptionLabel>
-                        {/* Ícono después del texto */}
-                        <TooltipOption note={option.note ?? ""} />
+                        {option.note && <TooltipOption note={option.note} />}
                       </OptionWrapper>
 
                       {/* Input de texto "Otro" */}
@@ -265,7 +265,7 @@ const ChapterThree: React.FC<ChapterProps> = ({
                           />
                         </OtherInputWrapper>
                       )}
-                    </div>
+                    </TooltipOptionContainer>
                   );
                 })
               ) : null

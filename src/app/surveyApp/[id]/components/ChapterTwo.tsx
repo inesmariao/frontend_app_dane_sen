@@ -135,7 +135,8 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                                     const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
                                     return (
-                                      <div key={optionKey} className="option-container">
+                                      <div key={optionKey} className="flex items-center space-x-3">
+                                        {/* Radio button */}
                                         <input
                                           type="radio"
                                           id={`option-${subQuestion.id}-${option.id}`}
@@ -152,9 +153,15 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                                 {/* Segunda fila: etiquetas debajo de los radio-buttons */}
                                 <div className="labels">
                                   {filteredOptions.map((option, optionIndex) => (
-                                    <OptionLabel key={`label-${optionIndex}`} htmlFor={`option-${subQuestion.id}-${option.id}`}>
-                                      {option.text_option}
-                                    </OptionLabel>
+                                    <>
+                                      {/* Contenedor para el texto y el tooltip */}
+                                      <TooltipOptionContainer>
+                                        <OptionLabel key={`label-${optionIndex}`} htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                          {option.text_option}
+                                        </OptionLabel>
+                                        {option.note && <TooltipOption note={option.note} />}
+                                      </TooltipOptionContainer>
+                                    </>
                                   ))}
                                 </div>
                               </>
@@ -174,9 +181,14 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                                       checked={isChecked}
                                       onChange={() => handleOptionChange(subQuestion.id, option.id)}
                                     />
-                                    <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
-                                      {option.text_option}
-                                    </OptionLabel>
+
+                                    {/* Contenedor para el texto y el tooltip */}
+                                    <TooltipOptionContainer>
+                                      <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                        {option.text_option}
+                                      </OptionLabel>
+                                      {option.note && <TooltipOption note={option.note} />}
+                                    </TooltipOptionContainer>
                                   </div>
                                 );
                               })
@@ -226,7 +238,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
                             return (
-                              <div key={optionKey}>
+                              <TooltipOptionContainer key={optionKey}>
                                 <input
                                   type="radio"
                                   id={`option-${subQuestion.id}-${option.id}`}
@@ -238,7 +250,8 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                                 <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                   {option.text_option}
                                 </OptionLabel>
-                              </div>
+                                {option.note && <TooltipOption note={option.note} />}
+                              </TooltipOptionContainer>
                             );
                           })}
                           {/* Input "Otro" para la subpregunta */}
@@ -294,12 +307,13 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        {/* Texto de la opción */}
-                        <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
-                          {option.text_option}
-                        </OptionLabel>
-                        {/* Ícono después del texto */}
-                        <TooltipOption note={option.note ?? ""} />
+                        {/* Contenedor para el texto y el tooltip */}
+                        <TooltipOptionContainer>
+                          <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
+                            {option.text_option}
+                          </OptionLabel>
+                          {option.note && <TooltipOption note={option.note} />}
+                        </TooltipOptionContainer>
                       </OptionWrapper>
 
                       {/* Input de texto "Otro" */}
