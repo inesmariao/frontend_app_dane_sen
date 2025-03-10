@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ChapterProps, SubQuestion } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
+import TooltipOption from "@/components/common/TooltipOption";
 import {
   ChapterTitle,
   QuestionCard,
@@ -18,7 +19,8 @@ import {
   Table,
   TableRow,
   NumericInputWrapper,
-  OtherInputWrapper
+  OtherInputWrapper,
+  TooltipOptionContainer
 } from "@/styles/components/StyledSurvey";
 
 const ChapterTwo: React.FC<ChapterProps> = ({
@@ -123,82 +125,82 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                           {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                         </SubQuestionColumn>
                         <Column>
-                        <OptionWrapper_Subquestions>
-  {isSmallScreen ? (
-    <>
-      {/* Primera fila: radio-buttons */}
-      <div className="radio-options">
-        {filteredOptions.map((option, optionIndex) => {
-          const isChecked = responses[subQuestion.id] === option.id;
-          const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
+                          <OptionWrapper_Subquestions>
+                            {isSmallScreen ? (
+                              <>
+                                {/* Primera fila: radio-buttons */}
+                                <div className="radio-options">
+                                  {filteredOptions.map((option, optionIndex) => {
+                                    const isChecked = responses[subQuestion.id] === option.id;
+                                    const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
-          return (
-            <div key={optionKey} className="option-container">
-              <input
-                type="radio"
-                id={`option-${subQuestion.id}-${option.id}`}
-                name={`subquestion-${question.id}-${subQuestion.id}`}
-                value={option.id}
-                checked={isChecked}
-                onChange={() => handleOptionChange(subQuestion.id, option.id)}
-              />
-            </div>
-          );
-        })}
-      </div>
+                                    return (
+                                      <div key={optionKey} className="option-container">
+                                        <input
+                                          type="radio"
+                                          id={`option-${subQuestion.id}-${option.id}`}
+                                          name={`subquestion-${question.id}-${subQuestion.id}`}
+                                          value={option.id}
+                                          checked={isChecked}
+                                          onChange={() => handleOptionChange(subQuestion.id, option.id)}
+                                        />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
 
-      {/* Segunda fila: etiquetas debajo de los radio-buttons */}
-      <div className="labels">
-        {filteredOptions.map((option, optionIndex) => (
-          <OptionLabel key={`label-${optionIndex}`} htmlFor={`option-${subQuestion.id}-${option.id}`}>
-            {option.text_option}
-          </OptionLabel>
-        ))}
-      </div>
-    </>
-  ) : (
-    /* Para pantallas medianas y grandes: Radio button y opción en la misma línea */
-    filteredOptions.map((option, optionIndex) => {
-      const isChecked = responses[subQuestion.id] === option.id;
-      const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
+                                {/* Segunda fila: etiquetas debajo de los radio-buttons */}
+                                <div className="labels">
+                                  {filteredOptions.map((option, optionIndex) => (
+                                    <OptionLabel key={`label-${optionIndex}`} htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                      {option.text_option}
+                                    </OptionLabel>
+                                  ))}
+                                </div>
+                              </>
+                            ) : (
+                              /* Para pantallas medianas y grandes: Radio button y opción en la misma línea */
+                              filteredOptions.map((option, optionIndex) => {
+                                const isChecked = responses[subQuestion.id] === option.id;
+                                const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
 
-      return (
-        <div key={optionKey} className="option-container">
-          <input
-            type="radio"
-            id={`option-${subQuestion.id}-${option.id}`}
-            name={`subquestion-${question.id}-${subQuestion.id}`}
-            value={option.id}
-            checked={isChecked}
-            onChange={() => handleOptionChange(subQuestion.id, option.id)}
-          />
-          <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
-            {option.text_option}
-          </OptionLabel>
-        </div>
-      );
-    })
-  )}
+                                return (
+                                  <div key={optionKey} className="option-container">
+                                    <input
+                                      type="radio"
+                                      id={`option-${subQuestion.id}-${option.id}`}
+                                      name={`subquestion-${question.id}-${subQuestion.id}`}
+                                      value={option.id}
+                                      checked={isChecked}
+                                      onChange={() => handleOptionChange(subQuestion.id, option.id)}
+                                    />
+                                    <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                      {option.text_option}
+                                    </OptionLabel>
+                                  </div>
+                                );
+                              })
+                            )}
 
-  {/* Tercera fila: Input "Otro, ¿cuál?" */}
-  {isOtherSubQuestion &&
-    responses[subQuestion.id] &&
-    !filteredOptions.some(
-      (option) => option.id === responses[subQuestion.id] && option.text_option.toLowerCase().includes("no sé")
-    ) && (
-      <div className="other-input">
-        <OtherInputWrapper>
-          <input
-            type="text"
-            id={`other-input-${subQuestion.id}`}
-            placeholder="Otro, ¿cuál?" 
-            value={String(responses[`other_${subQuestion.id}`] || "")}
-            onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-          />
-        </OtherInputWrapper>
-      </div>
-    )}
-</OptionWrapper_Subquestions>
+                            {/* Tercera fila: Input "Otro, ¿cuál?" */}
+                            {isOtherSubQuestion &&
+                              responses[subQuestion.id] &&
+                              !filteredOptions.some(
+                                (option) => option.id === responses[subQuestion.id] && option.text_option.toLowerCase().includes("no sé")
+                              ) && (
+                                <div className="other-input">
+                                  <OtherInputWrapper>
+                                    <input
+                                      type="text"
+                                      id={`other-input-${subQuestion.id}`}
+                                      placeholder="Otro, ¿cuál?"
+                                      value={String(responses[`other_${subQuestion.id}`] || "")}
+                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                    />
+                                  </OtherInputWrapper>
+                                </div>
+                              )}
+                          </OptionWrapper_Subquestions>
                         </Column>
                       </TableRow>
                     );
@@ -292,7 +294,12 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        <OptionLabel htmlFor={`option-${option.id}`}>{option.text_option}</OptionLabel>
+                        {/* Texto de la opción */}
+                        <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        {/* Ícono después del texto */}
+                        <TooltipOption note={option.note ?? ""} />
                       </OptionWrapper>
 
                       {/* Input de texto "Otro" */}
@@ -308,7 +315,6 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             }
                           />
                         </OtherInputWrapper>
-
                       )}
                     </div>
                   );

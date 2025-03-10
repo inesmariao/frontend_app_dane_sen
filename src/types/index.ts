@@ -122,7 +122,10 @@ export interface GeographicQuestionProps {
   ) => void;
 }
 
-
 export interface Responses {
   [key: string]: string | number | number[] | GeographicResponse;
+}
+
+export interface TooltipOptionProps {
+  note?: string;
 }

@@ -3,6 +3,7 @@
 import { ChapterProps, GeographicResponse } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
+import TooltipOption from "@/components/common/TooltipOption";
 import {
   ChapterTitle,
   QuestionCard,
@@ -17,6 +18,7 @@ import {
   TableRow,
   NumericInputWrapper,
   OtherInputWrapper,
+  TooltipOptionContainer,
 } from "@/styles/components/StyledSurvey";
 
 const ChapterOne: React.FC<ChapterProps> = ({
@@ -251,6 +253,8 @@ const ChapterOne: React.FC<ChapterProps> = ({
                   question.options?.map((option, optionIndex) => {
                     if (!option || typeof option.id !== "number") return null;
 
+                    console.log(`Option: ${option.text_option}, Note:`, option.note); // Debug
+
                     const isChecked = isMultiple
                       ? Array.isArray(responses[question.id]) &&
                       (responses[question.id] as number[]).includes(option.id)
@@ -258,7 +262,7 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     const optionKey = `option-${question.id}-${optionIndex}`;
 
                     return (
-                      <div key={optionKey}>
+                      <div key={optionKey} className="flex items-center space-x-3">
                       <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                         <input
                           type={isMultiple ? "checkbox" : "radio"}
@@ -280,7 +284,13 @@ const ChapterOne: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        <OptionLabel htmlFor={`option-${option.id}`}>{option.text_option}</OptionLabel>
+                        {/* Contenedor para el texto y el tooltip */}
+                      <TooltipOptionContainer> {/* Usa el componente estilizado */}
+                        <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        <TooltipOption note={option.note ?? ""} />
+                      </TooltipOptionContainer>
                       </OptionWrapper>
 
                         {/* Input de texto "Otro" */}

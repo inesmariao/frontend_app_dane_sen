@@ -4,6 +4,7 @@ import React from "react";
 import { ChapterProps, SubQuestion } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
+import TooltipOption from "@/components/common/TooltipOption";
 import {
   ChapterTitle,
   QuestionCard,
@@ -18,7 +19,8 @@ import {
   Table,
   TableRow,
   NumericInputWrapper,
-  OtherInputWrapper
+  OtherInputWrapper,
+  TooltipOptionContainer
 } from "@/styles/components/StyledSurvey";
 
 const ChapterThree: React.FC<ChapterProps> = ({
@@ -241,7 +243,12 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        <OptionLabel htmlFor={`option-${option.id}`}>{option.text_option}</OptionLabel>
+                        {/* Texto de la opción */}
+                        <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        {/* Ícono después del texto */}
+                        <TooltipOption note={option.note ?? ""} />
                       </OptionWrapper>
 
                       {/* Input de texto "Otro" */}
@@ -257,7 +264,6 @@ const ChapterThree: React.FC<ChapterProps> = ({
                             }
                           />
                         </OtherInputWrapper>
-
                       )}
                     </div>
                   );

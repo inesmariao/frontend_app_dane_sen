@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 interface OptionWrapperProps {
   isCheckbox?: boolean;
@@ -435,8 +436,6 @@ export const OptionWrapper_Subquestions = styled.div`
   }
 `;
 
-
-
 // Contenedor del bloque de selección geográfica
 export const GeoContainer = styled.div`
   margin-top: 1rem;
@@ -479,5 +478,81 @@ export const StyledSelect = styled.select`
 
   @media (max-width: 985px) {
     font-size: 1.1rem;
+  }
+`;
+
+// Estilos para los Tooltips
+
+export const TooltipWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+export const TooltipOptionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const TooltipButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+`;
+
+export const TooltipInfoIconWrapper = styled.div`
+  width: 1.5rem;
+  height: 1.8rem;
+  border-radius: 0.3rem;
+  background-color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const TooltipInfoIcon = styled(AiOutlineInfoCircle)`
+  width: 1.2rem;
+  height: 1.2rem;
+  color: white;
+`;
+
+export const TooltipContainer = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.25rem;
+  width: 16rem;
+  padding: 0.75rem;
+  background-color: #1d4ed8;
+  color: white;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  max-width: 90vw;
+  word-wrap: break-word;
+
+  @media (max-width: 320px) { // Estilos específicos para iPhone 5/SE y similares
+    font-size: 0.75rem; // Reduce el tamaño de la fuente
+    padding: 0.5rem; // Reduce el padding
+    max-width: 95vw; // Ajusta el ancho máximo
+    left: 50%; // Asegura que el tooltip se coloque en el centro horizontal
+    transform: translateX(-50%); // Centra el tooltip perfectamente
+    margin-left: 0.5rem; // Añade margen izquierdo
+    margin-right: 0.5rem; // Añade margen derecho
+  }
+
+  @media (max-width: 768px) {
+    top: auto;
+    bottom: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 `;
