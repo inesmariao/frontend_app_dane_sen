@@ -45,8 +45,14 @@ const ChapterOne: React.FC<ChapterProps> = ({
 
         return (
           <QuestionCard key={question.id}>
-            {/* Texto de la pregunta */}
-            <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+
+            {/* Contenedor para la pregunta y el tooltip en la misma fila */}
+            <TooltipOptionContainer>
+                <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+                {question.note && (
+                    <TooltipOption note={question.note} />
+                )}
+              </TooltipOptionContainer>
 
             {/* Instrucciones */}
             {question.instruction && (
@@ -106,10 +112,19 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     return (
                       <TableRow key={subQuestionKey}>
                         <SubQuestionColumn>
-                          {subQuestion.custom_identifier
-                            ? `${subQuestion.custom_identifier} - `
-                            : ""}
-                          {subQuestion.text_subquestion}
+                          {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
+                          <TooltipOptionContainer>
+                            {subQuestion.custom_identifier
+                              ? `${subQuestion.custom_identifier} - `
+                              : ""}
+                            {subQuestion.text_subquestion}
+
+                            {/* Tooltip para la subpregunta si tiene una nota */}
+                            {subQuestion.note && (
+                                <TooltipOption note={subQuestion.note} />
+                            )}
+                          </TooltipOptionContainer>
+
                           {subQuestion.instruction && (
                             <QuestionInstructions>
                               {subQuestion.instruction}
@@ -175,15 +190,25 @@ const ChapterOne: React.FC<ChapterProps> = ({
                     const isChecked = responses[subQuestion.id] !== undefined;
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
 
-
                     return (
                       <div key={subQuestionKey}>
                         {/* Subpregunta en formato columna */}
+
                         <SubQuestionColumn>
-                          {subQuestion.custom_identifier
-                            ? `${subQuestion.custom_identifier} - `
-                            : ""}
-                          {subQuestion.text_subquestion}
+
+                          {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
+                          <TooltipOptionContainer>
+                            {subQuestion.custom_identifier
+                              ? `${subQuestion.custom_identifier} - `
+                              : ""}
+                            {subQuestion.text_subquestion}
+
+                            {/* Tooltip para la subpregunta si tiene una nota */}
+                            {subQuestion.note && (
+                                <TooltipOption note={subQuestion.note} />
+                            )}
+                          </TooltipOptionContainer>
+                          {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                         </SubQuestionColumn>
 
                         {subQuestion.instruction && (
@@ -256,8 +281,6 @@ const ChapterOne: React.FC<ChapterProps> = ({
               Array.isArray(question.options) && question.options.length > 0 ? (
                 question.options?.map((option, optionIndex) => {
                   if (!option || typeof option.id !== "number") return null;
-
-                  console.log(`Option: ${option.text_option}, Note:`, option.note); // Debug
 
                   const isChecked = isMultiple
                     ? Array.isArray(responses[question.id]) &&

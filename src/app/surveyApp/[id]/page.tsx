@@ -16,6 +16,7 @@ import {
 import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
 import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
 import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
+import ChapterFour from "@/app/surveyApp/[id]/components/ChapterFour";
 
 
 
@@ -77,7 +78,7 @@ const SurveyApp: React.FC = () => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
   
       switch (numericQuestionId) {
-        case 5: {
+        case 6: {
           const geoValue = value as GeographicResponse;
           return {
             ...prev,
@@ -91,7 +92,7 @@ const SurveyApp: React.FC = () => {
           };
         }
   
-        case 7: {
+        case 8: {
           const geoValue = value as GeographicResponse;
           return {
             ...prev,
@@ -104,11 +105,11 @@ const SurveyApp: React.FC = () => {
           };
         }
   
-        case 10:
-          return handleQuestion10Logic(prev, value);
-  
         case 11:
           return handleQuestion11Logic(prev, value);
+  
+        case 12:
+          return handleQuestion12Logic(prev, value);
   
         default:
           if (Array.isArray(value)) {
@@ -129,15 +130,15 @@ const SurveyApp: React.FC = () => {
   };
 
 
-  const handleQuestion11Logic = (
+  const handleQuestion12Logic = (
     prevResponses: Responses,
     value: string | number | number[] | GeographicResponse
   ) => {
-    const question11 = survey?.questions.find(q => q.id === 11);
+    const question12 = survey?.questions.find(q => q.id === 12);
 
-    if (!question11 || !question11.options) return prevResponses;
+    if (!question12 || !question12.options) return prevResponses;
 
-    const noDiscriminationOption = question11.options.find(option =>
+    const noDiscriminationOption = question12.options.find(option =>
       option.text_option.trim().toLowerCase() === "no he sentido discriminación"
     );
 
@@ -153,12 +154,12 @@ const SurveyApp: React.FC = () => {
       if (typeof value === "number") {
         return {
           ...prevResponses,
-          "11": value === noDiscriminationOptionId ? [noDiscriminationOptionId] : [value],
+          "12": value === noDiscriminationOptionId ? [noDiscriminationOptionId] : [value],
         };
       } else if (Array.isArray(value)) {
         return {
           ...prevResponses,
-          "11": value.includes(noDiscriminationOptionId)
+          "12": value.includes(noDiscriminationOptionId)
             ? [noDiscriminationOptionId]
             : value.filter(id => id !== noDiscriminationOptionId),
         };
@@ -167,15 +168,15 @@ const SurveyApp: React.FC = () => {
     return prevResponses;
   };
 
-  const handleQuestion10Logic = (
+  const handleQuestion11Logic = (
     prevResponses: Responses,
     value: string | number | number[] | GeographicResponse
   ) => {
-    const question10 = survey?.questions.find(q => q.id === 10);
+    const question11 = survey?.questions.find(q => q.id === 11);
 
-    if (!question10 || !question10.options) return prevResponses;
+    if (!question11 || !question11.options) return prevResponses;
 
-    const noDisabilityOption = question10.options.find(option =>
+    const noDisabilityOption = question11.options.find(option =>
       option.text_option.trim().toLowerCase() === "no presento ningún tipo de discapacidad"
     );
 
@@ -183,30 +184,25 @@ const SurveyApp: React.FC = () => {
 
     const noDisabilityOptionId = noDisabilityOption.id;
 
-    // Debug
-    /*let updatedSelections: number[] = Array.isArray(prevResponses["10"])
-      ? [...(prevResponses["10"] as number[])]
-      : [];*/
-
-      if (typeof value === "number") {
-        return {
-          ...prevResponses,
-          "10": value === noDisabilityOptionId ? [noDisabilityOptionId] : [value],
-        };
-      } else if (Array.isArray(value)) {
-        return {
-          ...prevResponses,
-          "10": value.includes(noDisabilityOptionId)
-            ? [noDisabilityOptionId]
-            : value.filter(id => id !== noDisabilityOptionId),
-        };
-      }
+    if (typeof value === "number") {
+      return {
+        ...prevResponses,
+        "11": value === noDisabilityOptionId ? [noDisabilityOptionId] : [value],
+      };
+    } else if (Array.isArray(value)) {
+      return {
+        ...prevResponses,
+        "11": value.includes(noDisabilityOptionId)
+          ? [noDisabilityOptionId]
+          : value.filter(id => id !== noDisabilityOptionId),
+      };
+    }
 
     return prevResponses;
   };
 
   const handleNextChapter = () => {
-    if (currentChapter < 3) {
+    if (currentChapter < 4) {
       setCurrentChapter((prev) => prev + 1);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -224,7 +220,7 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("📌 Estado actual de respuestas:", responses); // Debug
+    console.log("📌 Enviando respuestas:", responses); // Debug
 
     // Obtener todas las preguntas y subpreguntas
     const allQuestions = survey.questions.flatMap(q => {
@@ -271,8 +267,8 @@ const SurveyApp: React.FC = () => {
         };
       }
 
-      // Asegura que la pregunta 7 envíe "new_department" y "new_municipality"
-      if (question.id === 7) {
+      // Asegura que la pregunta 8 envíe "new_department" y "new_municipality"
+      if (question.id === 8) {
         const geoResponse = response as GeographicResponse ?? {};
         return {
           question_id: question.id,
@@ -340,6 +336,7 @@ const SurveyApp: React.FC = () => {
     }
 };
 
+ // Filtrar preguntas por capítulo
   const chapterOneQuestions = survey.questions.filter(
     (q: Question) => q.chapter === 1
   );
@@ -349,8 +346,11 @@ const SurveyApp: React.FC = () => {
   const chapterThreeQuestions = survey.questions.filter(
     (q: Question) => q.chapter === 3
   );
+  const chapterFourQuestions = survey.questions.filter(
+    (q: Question) => q.chapter === 4
+  );
 
-
+  // Obtener nombres de capítulos
   const chapterWithIdOne = (survey.chapters as Chapter[]).find(
     (chapter) => chapter.id === 1
   );
@@ -359,6 +359,9 @@ const SurveyApp: React.FC = () => {
   );
   const chapterWithIdThree = (survey.chapters as Chapter[]).find(
     (chapter) => chapter.id === 3
+  );
+  const chapterWithIdFour = (survey.chapters as Chapter[]).find(
+    (chapter) => chapter.id === 4
   );
 
   return (
@@ -394,7 +397,16 @@ const SurveyApp: React.FC = () => {
           chapterName={chapterWithIdThree?.name || "Capítulo 3"}
         />
       )}
+      {currentChapter === 4 && (
+        <ChapterFour
+          questions={chapterFourQuestions}
+          responses={responses}
+          handleOptionChange={() => {}}
+          chapterName={chapterWithIdFour?.name || "Capítulo 4"}
+        />
+      )}
 
+    {/* Botones de navegación */}
       <ButtonContainer>
         {currentChapter > 1 && (
           <LargeStyledButton onClick={handlePrevChapter} style={{ marginRight: "1rem" }} >
@@ -403,7 +415,7 @@ const SurveyApp: React.FC = () => {
         )}
 
         <LargeStyledButton onClick={handleNextChapter}>
-          {currentChapter < 3 ? "Siguiente →" : "Enviar y Finalizar"}
+          {currentChapter < 4 ? "Siguiente →" : "Enviar y Finalizar"}
         </LargeStyledButton>
       </ButtonContainer>
     </SurveyContainer>

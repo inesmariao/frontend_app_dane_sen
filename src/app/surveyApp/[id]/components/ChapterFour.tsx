@@ -14,8 +14,8 @@ import {
   OptionWrapper_Subquestions,
   OptionWrapper_Column,
   OptionLabel,
-  Column,
   SubQuestionColumn,
+  Column,
   Table,
   TableRow,
   NumericInputWrapper,
@@ -23,7 +23,7 @@ import {
   TooltipOptionContainer
 } from "@/styles/components/StyledSurvey";
 
-const ChapterTwo: React.FC<ChapterProps> = ({
+const ChapterFour: React.FC<ChapterProps> = ({
   questions,
   responses,
   handleOptionChange,
@@ -59,8 +59,8 @@ const ChapterTwo: React.FC<ChapterProps> = ({
         return (
           <QuestionCard key={questionKey}>
 
-              {/* Contenedor para la pregunta y el tooltip en la misma fila */}
-              <TooltipOptionContainer>
+            {/* Contenedor para la pregunta y el tooltip en la misma fila */}
+            <TooltipOptionContainer>
                 <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
                 {question.note && (
                     <TooltipOption note={question.note} />
@@ -240,6 +240,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
               ) : ( // Renderizado para "column"
                 <div>
                   {subQuestions.map((subQuestion, subQuestionIndex) => {
+
                     const filteredOptions = question.options?.filter(option => option.subquestion_id === subQuestion.id) || [];
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
@@ -373,5 +374,4 @@ const ChapterTwo: React.FC<ChapterProps> = ({
   );
 };
 
-
-export default ChapterTwo;
+export default ChapterFour;

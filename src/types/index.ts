@@ -61,6 +61,7 @@ export interface Question {
   text_question: string;
   order_question: number;
   instruction?: string;
+  note?: string;
   question_type: "open" | "closed" | "matrix";
   matrix_layout_type?: "row" | "column";
   is_required?: boolean;
@@ -80,6 +81,7 @@ export interface SubQuestion {
   parent_question: number;
   subquestion_order: number;
   text_subquestion: string;
+  note?: string;
   instruction?: string;
   subquestion_type: string;
   min_value?: number;

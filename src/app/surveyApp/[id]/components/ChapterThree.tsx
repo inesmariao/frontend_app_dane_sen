@@ -47,8 +47,14 @@ const ChapterThree: React.FC<ChapterProps> = ({
 
         return (
           <QuestionCard key={questionKey}>
-            {/* Texto de la pregunta */}
-            <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+
+            {/* Contenedor para la pregunta y el tooltip en la misma fila */}
+            <TooltipOptionContainer>
+                <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+                {question.note && (
+                    <TooltipOption note={question.note} />
+                )}
+              </TooltipOptionContainer>
 
             {/* Instrucciones */}
             {question.instruction && (
@@ -108,9 +114,22 @@ const ChapterThree: React.FC<ChapterProps> = ({
 
                     return (
                       <TableRow key={subQuestionKey}>
+                        {/* Subpregunta en formato columna */}
                         <SubQuestionColumn>
-                          {subQuestion.custom_identifier ? `${subQuestion.custom_identifier} - ` : ""}
-                          {subQuestion.text_subquestion}
+
+                          {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
+                          <TooltipOptionContainer>
+                            {subQuestion.custom_identifier
+                              ? `${subQuestion.custom_identifier} - `
+                              : ""}
+                            {subQuestion.text_subquestion}
+
+                            {/* Tooltip para la subpregunta si tiene una nota */}
+                            {subQuestion.note && (
+                                <TooltipOption note={subQuestion.note} />
+                            )}
+                          </TooltipOptionContainer>
+
                           {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                         </SubQuestionColumn>
                         <Column>
@@ -159,6 +178,9 @@ const ChapterThree: React.FC<ChapterProps> = ({
               ) : ( // Renderizado para "column"
                 <div>
                   {subQuestions.map((subQuestion, subQuestionIndex) => {
+
+                    console.log("Subpregunta:", subQuestion.text_subquestion, "Note:", subQuestion.note); // Debug
+
                     const filteredOptions = question.options?.filter(option => option.subquestion_id === subQuestion.id) || [];
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
@@ -166,9 +188,21 @@ const ChapterThree: React.FC<ChapterProps> = ({
                     return (
                       <div key={subQuestionKey}>
                         <SubQuestionColumn>
-                          {subQuestion.custom_identifier ? `${subQuestion.custom_identifier} - ` : ""}
-                          {subQuestion.text_subquestion}
-                          {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
+
+                          {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
+                          <TooltipOptionContainer>
+                            {subQuestion.custom_identifier
+                              ? `${subQuestion.custom_identifier} - `
+                              : ""}
+                            {subQuestion.text_subquestion}
+
+                            {/* Tooltip para la subpregunta si tiene una nota */}
+                            {subQuestion.note && (
+                                <TooltipOption note={subQuestion.note} />
+                            )}
+                          </TooltipOptionContainer>
+
+                        {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                         </SubQuestionColumn>
                         <OptionWrapper_Column>
                           {filteredOptions.map((option, optionIndex) => {
