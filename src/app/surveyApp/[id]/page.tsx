@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { getSurvey, submitResponses } from "@/utils/api";
 import { useParams } from "next/navigation";
 import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
-import { Survey, Chapter, Question, Responses, GeographicResponse, SurveyResponse } from "@/types";
+import { Survey, Question, Responses, GeographicResponse, SurveyResponse } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
@@ -13,12 +13,7 @@ import {
   SurveyDescriptionName,
   ButtonContainer
 } from "@/styles/components/StyledSurvey";
-import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
-import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
-import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
-import ChapterFour from "@/app/surveyApp/[id]/components/ChapterFour";
-
-
+import ChapterQuestions from "@/app/surveyApp/[id]/components/ChapterQuestions";
 
 const SurveyApp: React.FC = () => {
 
@@ -62,13 +57,9 @@ const SurveyApp: React.FC = () => {
     loadSurvey();
   }, [id]);
 
-  if (error) {
-    return <p>Ocurrió un error al cargar la encuesta.</p>;
-  }
+  if (error) return <p>Ocurrió un error al cargar la encuesta.</p>;
 
-  if (!survey) {
-    return <p>Cargando datos de la encuesta...</p>;
-  }
+  if (!survey) return <p>Cargando datos de la encuesta...</p>;
 
   const handleOptionChange = (
     questionId: string | number,
@@ -202,7 +193,7 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleNextChapter = () => {
-    if (currentChapter < 4) {
+    if (currentChapter < survey.chapters.length) {
       setCurrentChapter((prev) => prev + 1);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -336,33 +327,8 @@ const SurveyApp: React.FC = () => {
     }
 };
 
- // Filtrar preguntas por capítulo
-  const chapterOneQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 1
-  );
-  const chapterTwoQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 2
-  );
-  const chapterThreeQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 3
-  );
-  const chapterFourQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 4
-  );
-
-  // Obtener nombres de capítulos
-  const chapterWithIdOne = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 1
-  );
-  const chapterWithIdTwo = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 2
-  );
-  const chapterWithIdThree = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 3
-  );
-  const chapterWithIdFour = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 4
-  );
+const currentChapterData = survey.chapters.find((ch) => ch.id === currentChapter);
+const chapterQuestions = survey.questions.filter((q) => q.chapter === currentChapter);
 
   return (
     <SurveyContainer>
@@ -373,38 +339,12 @@ const SurveyApp: React.FC = () => {
         </SurveyDescriptionName>
       </SurveyHeader>
 
-      {currentChapter === 1 && (
-        <ChapterOne
-          questions={chapterOneQuestions}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdOne?.name || "Capítulo 1"}
-        />
-      )}
-      {currentChapter === 2 && (
-        <ChapterTwo
-          questions={chapterTwoQuestions}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdTwo?.name || "Capítulo 2"}
-        />
-      )}
-      {currentChapter === 3 && (
-        <ChapterThree
-          questions={chapterThreeQuestions}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdThree?.name || "Capítulo 3"}
-        />
-      )}
-      {currentChapter === 4 && (
-        <ChapterFour
-          questions={chapterFourQuestions}
-          responses={responses}
-          handleOptionChange={() => {}}
-          chapterName={chapterWithIdFour?.name || "Capítulo 4"}
-        />
-      )}
+      <ChapterQuestions
+        questions={chapterQuestions}
+        responses={responses}
+        handleOptionChange={handleOptionChange}
+        chapterName={currentChapterData?.name || `Capítulo ${currentChapter}`}
+      />
 
     {/* Botones de navegación */}
       <ButtonContainer>

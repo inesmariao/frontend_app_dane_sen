@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChapterProps, SubQuestion } from "@/types";
+import { ChapterProps, GeographicResponse } from "@/types";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import TooltipOption from "@/components/common/TooltipOption";
@@ -14,8 +14,8 @@ import {
   OptionWrapper_Subquestions,
   OptionWrapper_Column,
   OptionLabel,
-  Column,
   SubQuestionColumn,
+  Column,
   Table,
   TableRow,
   NumericInputWrapper,
@@ -23,7 +23,7 @@ import {
   TooltipOptionContainer
 } from "@/styles/components/StyledSurvey";
 
-const ChapterTwo: React.FC<ChapterProps> = ({
+const ChapterQuestions: React.FC<ChapterProps> = ({
   questions,
   responses,
   handleOptionChange,
@@ -38,7 +38,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  },);
 
   return (
     <>
@@ -51,39 +51,32 @@ const ChapterTwo: React.FC<ChapterProps> = ({
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
         const isGeographic = question.is_geographic;
-        const subQuestions: SubQuestion[] = Array.isArray(question.subquestions) ? question.subquestions : [];
+        const subQuestions = Array.isArray(question.subquestions) ? question.subquestions : [];
         const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
         const isRowLayout = question.matrix_layout_type === "row";
-
+        const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
           <QuestionCard key={questionKey}>
 
-              {/* Contenedor para la pregunta y el tooltip en la misma fila */}
-              <TooltipOptionContainer>
-                <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
-                {question.note && (
-                    <TooltipOption note={question.note} />
-                )}
-              </TooltipOptionContainer>
+            {/* Contenedor para la pregunta y el tooltip en la misma fila */}
+            <TooltipOptionContainer>
+              <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+              {question.note && (
+                <TooltipOption note={question.note} />
+              )}
+            </TooltipOptionContainer>
 
             {/* Instrucciones */}
             {question.instruction && (
               <QuestionInstructions>{question.instruction}</QuestionInstructions>
             )}
 
-            {/* Si la pregunta es de tipo geográfico, se usa el nuevo componente */}
-            {isGeographic ? (
+            {/* Lógica para preguntas geográficas */}
+            {isGeographic || (question.id === 7 && yesOption && (responses[question.id] as GeographicResponse)?.option_selected === yesOption.id) ? (
               <GeographicQuestion
                 questionId={question.id}
-                options={question.options ?? []}
-                responses={responses}
-                handleOptionChange={handleOptionChange}
-              />
-            ) : question.id === 7 && responses[question.id] === "Sí" ? (
-              <GeographicQuestion
-                questionId={question.id}
-                options={question.options ?? []}
+                options={question.options ??[]}
                 responses={responses}
                 handleOptionChange={handleOptionChange}
               />
@@ -113,23 +106,20 @@ const ChapterTwo: React.FC<ChapterProps> = ({
             {isMatrix && subQuestions?.length > 0 ? (
               isRowLayout ? ( // Renderizado para "row"
                 <Table>
-                  {subQuestions.map((subQuestion, subQuestionIndex) => {
-
-                    // Aplicar el filtro a las opciones
+                  {subQuestions.map((subQuestion) => {
                     const filteredOptions = question.options?.filter(
                       option => Number(option.subquestion_id) === Number(subQuestion.id) && Number(option.question_id) === Number(question.id)
                     ) || [];
 
-                    const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
+                    const subQuestionKey = `subquestion-${question.id}-${subQuestion.id}`;
                     const isOtherSubQuestion = subQuestion.text_subquestion.toLowerCase().includes("otro");
 
                     return (
                       <TableRow key={subQuestionKey}>
                         {/* Subpregunta en formato columna */}
                         <SubQuestionColumn>
-
                           {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
-                          <TooltipOptionContainer>
+                          <TooltipOptionContainer key={`tooltip-${subQuestionKey}`}>
                             {subQuestion.custom_identifier
                               ? `${subQuestion.custom_identifier} - `
                               : ""}
@@ -137,7 +127,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 
                             {/* Tooltip para la subpregunta si tiene una nota */}
                             {subQuestion.note && (
-                                <TooltipOption note={subQuestion.note} />
+                              <TooltipOption note={subQuestion.note} />
                             )}
                           </TooltipOptionContainer>
 
@@ -149,17 +139,17 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                               <>
                                 {/* Primera fila: radio-buttons */}
                                 <div className="radio-options">
-                                  {filteredOptions.map((option, optionIndex) => {
+                                  {filteredOptions.map((option) => {
                                     const isChecked = responses[subQuestion.id] === option.id;
-                                    const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
+                                    const optionKey = `option-q-${question.id}-sq-${subQuestion.id}-opt-${option.id}`;
 
                                     return (
                                       <div key={optionKey} className="flex items-center space-x-3">
                                         {/* Radio button */}
                                         <input
                                           type="radio"
-                                          id={`option-${subQuestion.id}-${option.id}`}
-                                          name={`subquestion-${question.id}-${subQuestion.id}`}
+                                          id={`option-${subQuestion.id}-opt-${option.id}`}
+                                          name={`subquestion-q-${question.id}-sq-${subQuestion.id}`}
                                           value={option.id}
                                           checked={isChecked}
                                           onChange={() => handleOptionChange(subQuestion.id, option.id)}
@@ -171,42 +161,53 @@ const ChapterTwo: React.FC<ChapterProps> = ({
 
                                 {/* Segunda fila: etiquetas debajo de los radio-buttons */}
                                 <div className="labels">
-                                  {filteredOptions.map((option, optionIndex) => (
-                                    <>
-                                      {/* Contenedor para el texto y el tooltip */}
-                                      <TooltipOptionContainer>
-                                        <OptionLabel key={`label-${optionIndex}`} htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                  {filteredOptions.map((option) => (
+                                      <TooltipOptionContainer key={`label-${question.id}-${subQuestion.id}-${option.id}`}>
+                                        <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                           {option.text_option}
                                         </OptionLabel>
                                         {option.note && <TooltipOption note={option.note} />}
                                       </TooltipOptionContainer>
-                                    </>
                                   ))}
                                 </div>
                               </>
                             ) : (
                               /* Para pantallas medianas y grandes: Radio button y opción en la misma línea */
-                              filteredOptions.map((option, optionIndex) => {
+                              filteredOptions.map((option) => {
                                 const isChecked = responses[subQuestion.id] === option.id;
-                                const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
+                                const optionKey = `option-q-${question.id}-sq-${subQuestion.id}-opt-${option.id}`;
+                                const isNumberOption = ["1", "2", "3", "4", "5"].includes(option.text_option);
 
                                 return (
                                   <div key={optionKey} className="option-container">
                                     <input
                                       type="radio"
-                                      id={`option-${subQuestion.id}-${option.id}`}
-                                      name={`subquestion-${question.id}-${subQuestion.id}`}
+                                      id={`option-sq-${subQuestion.id}-opt-${option.id}`}
+                                      name={`subquestion-q-${question.id}-sq-${subQuestion.id}`}
                                       value={option.id}
                                       checked={isChecked}
                                       onChange={() => handleOptionChange(subQuestion.id, option.id)}
                                     />
 
                                     {/* Contenedor para el texto y el tooltip */}
-                                    <TooltipOptionContainer>
-                                      <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                    <TooltipOptionContainer key={`tooltip-q-${question.id}-sq-${subQuestion.id}-opt-${option.id}`}>
+                                      <OptionLabel htmlFor={`option-sq-${subQuestion.id}-opt-${option.id}`}>
                                         {option.text_option}
                                       </OptionLabel>
                                       {option.note && <TooltipOption note={option.note} />}
+
+                                      {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" y la opción es un número (1-5) */}
+                                      {isOtherSubQuestion && isNumberOption && isChecked && (
+                                        <OtherInputWrapper>
+                                          <input
+                                            type="text"
+                                            id={`other-input-sq-${subQuestion.id}`}
+                                            placeholder="Otro, ¿cuál?"
+                                            value={String(responses[`other_${subQuestion.id}`] || "")}
+                                            onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                          />
+                                        </OtherInputWrapper>
+                                      )}
                                     </TooltipOptionContainer>
                                   </div>
                                 );
@@ -239,17 +240,20 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                 </Table>
               ) : ( // Renderizado para "column"
                 <div>
-                  {subQuestions.map((subQuestion, subQuestionIndex) => {
+                  {subQuestions.map((subQuestion) => {
+
+                    console.log("Subpregunta:", subQuestion.text_subquestion, "Note:", subQuestion.note); // Debug
+
                     const filteredOptions = question.options?.filter(option => option.subquestion_id === subQuestion.id) || [];
                     const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
-                    const subQuestionKey = `subquestion-${question.id}-${subQuestionIndex}`;
+                    const subQuestionKey = `subquestion-q-${question.id}-sq-${subQuestion.id}`;
 
                     return (
                       <div key={subQuestionKey}>
                         <SubQuestionColumn>
 
                           {/* Contenedor para la subpregunta y el tooltip en la misma fila */}
-                          <TooltipOptionContainer>
+                          <TooltipOptionContainer key={`tooltip-${subQuestionKey}`}>
                             {subQuestion.custom_identifier
                               ? `${subQuestion.custom_identifier} - `
                               : ""}
@@ -264,21 +268,21 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                           {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                         </SubQuestionColumn>
                         <OptionWrapper_Column>
-                          {filteredOptions.map((option, optionIndex) => {
+                          {filteredOptions.map((option) => {
                             const isChecked = responses[subQuestion.id] === option.id;
-                            const optionKey = `option-${question.id}-sub-${subQuestion.id}-${optionIndex}`;
+                            const optionKey = `option-q-${question.id}-sq-${subQuestion.id}-opt-${option.id}`;
 
                             return (
                               <TooltipOptionContainer key={optionKey}>
                                 <input
                                   type="radio"
-                                  id={`option-${subQuestion.id}-${option.id}`}
-                                  name={`subquestion-${subQuestion.id}`}
+                                  id={`option-sq-${subQuestion.id}-opt-${option.id}`}
+                                  name={`subquestion-q-${question.id}-sq-${subQuestion.id}`}
                                   value={option.id}
                                   checked={isChecked}
                                   onChange={() => handleOptionChange(subQuestion.id, option.id)}
                                 />
-                                <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                <OptionLabel htmlFor={`option-sq-${subQuestion.id}-opt-${option.id}`}>
                                   {option.text_option}
                                 </OptionLabel>
                                 {option.note && <TooltipOption note={option.note} />}
@@ -290,7 +294,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             <OtherInputWrapper>
                               <input
                                 type="text"
-                                id={`other-input-${subQuestion.id}`}
+                                id={`other-input-sq-${subQuestion.id}`}
                                 placeholder="Otro, ¿cuál?"
                                 value={String(responses[`other_${subQuestion.id}`] || "")}
                                 onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
@@ -306,22 +310,23 @@ const ChapterTwo: React.FC<ChapterProps> = ({
             ) :
               // Preguntas cerradas (checkbox o radiobutton)
               Array.isArray(question.options) && question.options.length > 0 ? (
-                question.options?.map((option, optionIndex) => {
+                question.options?.map((option) => {
                   if (!option || typeof option.id !== "number") return null;
 
                   const isChecked = isMultiple
                     ? Array.isArray(responses[question.id]) &&
                     (responses[question.id] as number[]).includes(option.id)
                     : responses[question.id] === option.id;
-                  const optionKey = `option-${question.id}-${optionIndex}`;
+                    const optionKey = `option-q-${question.id}-opt-${option.id}`;
+
 
                   return (
-                    <div key={optionKey}>
+                    <TooltipOptionContainer key={optionKey}>
                       <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                         <input
                           type={isMultiple ? "checkbox" : "radio"}
-                          id={`option-${option.id}`}
-                          name={`question-${question.id}`}
+                          id={`option-q-${question.id}-opt-${option.id}`}
+                          name={`question-q-${question.id}`}
                           value={option.id}
                           checked={isChecked}
                           onChange={() => {
@@ -338,13 +343,10 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                             }
                           }}
                         />
-                        {/* Contenedor para el texto y el tooltip */}
-                        <TooltipOptionContainer>
-                          <OptionLabel htmlFor={`option-${option.id}`} className="flex items-center">
-                            {option.text_option}
-                          </OptionLabel>
-                          {option.note && <TooltipOption note={option.note} />}
-                        </TooltipOptionContainer>
+                        <OptionLabel htmlFor={`option-q-${question.id}-opt-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        {option.note && <TooltipOption note={option.note} />}
                       </OptionWrapper>
 
                       {/* Input de texto "Otro" */}
@@ -352,7 +354,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                         <OtherInputWrapper>
                           <input
                             type="text"
-                            id={`other-input-${question.id}`}
+                            id={`other-input-q-${question.id}`}
                             placeholder="Otro, ¿cuál?"
                             value={String(responses[`other_${question.id}`] || "")}
                             onChange={(e) =>
@@ -361,7 +363,7 @@ const ChapterTwo: React.FC<ChapterProps> = ({
                           />
                         </OtherInputWrapper>
                       )}
-                    </div>
+                    </TooltipOptionContainer>
                   );
                 })
               ) : null
@@ -373,5 +375,4 @@ const ChapterTwo: React.FC<ChapterProps> = ({
   );
 };
 
-
-export default ChapterTwo;
+export default ChapterQuestions;
