@@ -27,6 +27,7 @@ export interface SurveyContextType {
 }
 
 export interface SurveyResponse {
+  survey_id?: number;
   question_id: number;
   option_selected?: number | null;
   options_multiple_selected?: number[];
@@ -46,14 +47,15 @@ export interface Chapter {
 
 // Interfaz para las propiedades del capítulo
 export interface ChapterProps {
+  chapter: Chapter;
   questions: Question[];
   responses: { [key: string]: string | number | number[] | GeographicResponse };
-  handleOptionChange: (
-    questionId: string | number,
-    value: string | number | number[] | GeographicResponse,
-    extraData?: { country?: number; department?: number; municipality?: number }
-  ) => void;
+  handleOptionChange: (questionId: string | number, value: string | number | number[] | GeographicResponse) => void;
   chapterName: string;
+  handleNextChapter: () => void;
+  handlePrevChapter: () => void;
+  isFirstChapter: boolean;
+  isLastChapter: boolean;
 }
 
 export interface Question {
@@ -62,7 +64,7 @@ export interface Question {
   order_question: number;
   instruction?: string;
   note?: string;
-  question_type: "open" | "closed" | "matrix";
+  question_type: "open" | "closed" | "matrix" | "birth_date";
   matrix_layout_type?: "row" | "column";
   is_required?: boolean;
   is_multiple?: boolean;
@@ -130,4 +132,9 @@ export interface Responses {
 
 export interface TooltipOptionProps {
   note?: string;
+}
+
+export interface DateSelectorProps {
+  questionId: number;
+  onChange: (questionId: number, value: string) => void;
 }

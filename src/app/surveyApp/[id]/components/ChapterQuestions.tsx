@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { ChapterProps, GeographicResponse } from "@/types";
+import DateSelector from "@/components/common/DateSelector";
 import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import TooltipOption from "@/components/common/TooltipOption";
 import {
-  ChapterTitle,
   QuestionCard,
   QuestionText,
   QuestionInstructions,
@@ -43,7 +43,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
   return (
     <>
       {/* Título del capítulo */}
-      <ChapterTitle>{chapterName}</ChapterTitle>
+      
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
@@ -72,8 +72,12 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               <QuestionInstructions>{question.instruction}</QuestionInstructions>
             )}
 
-            {/* Lógica para preguntas geográficas */}
-            {isGeographic || (question.id === 7 && yesOption && (responses[question.id] as GeographicResponse)?.option_selected === yesOption.id) ? (
+            {question.question_type === "birth_date" ? (
+              <DateSelector
+                questionId={question.id}
+                onChange={handleOptionChange}
+              />
+            ) : isGeographic || (question.id === 7 && yesOption && (responses[question.id] as GeographicResponse)?.option_selected === yesOption.id) ? (
               <GeographicQuestion
                 questionId={question.id}
                 options={question.options ??[]}

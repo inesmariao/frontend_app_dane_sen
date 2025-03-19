@@ -1,30 +1,31 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
+import { useParams, useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { getSurvey, submitResponses } from "@/utils/api";
-import { useParams } from "next/navigation";
-import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
+import Chapter from "./components/Chapter";
 import { Survey, Question, Responses, GeographicResponse, SurveyResponse } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
   SurveyTitle,
   SurveyDescriptionName,
-  ButtonContainer
 } from "@/styles/components/StyledSurvey";
-import ChapterQuestions from "@/app/surveyApp/[id]/components/ChapterQuestions";
+
 
 const SurveyApp: React.FC = () => {
 
+  const router = useRouter();
   const params = useParams();
   const id = params?.id ? Number(params.id) : null;
-
 
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<Responses>({});
   const [error, setError] = useState(false);
-  const [currentChapter, setCurrentChapter] = useState(1);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
+  const [showSecondQuestion, setShowSecondQuestion] = useState(false);
+  const [birthDate, setBirthDate] = useState<string>("");
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
@@ -67,7 +68,9 @@ const SurveyApp: React.FC = () => {
   ) => {
     setResponses((prev: Responses) => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
-  
+
+      if (questionId === 2) setBirthDate(value as string);
+
       switch (numericQuestionId) {
         case 6: {
           const geoValue = value as GeographicResponse;
@@ -82,7 +85,7 @@ const SurveyApp: React.FC = () => {
             } as GeographicResponse,
           };
         }
-  
+
         case 8: {
           const geoValue = value as GeographicResponse;
           return {
@@ -95,13 +98,13 @@ const SurveyApp: React.FC = () => {
             } as GeographicResponse,
           };
         }
-  
+
         case 11:
           return handleQuestion11Logic(prev, value);
-  
+
         case 12:
           return handleQuestion12Logic(prev, value);
-  
+
         default:
           if (Array.isArray(value)) {
             // Preguntas con selección múltiple (checkbox)
@@ -119,6 +122,171 @@ const SurveyApp: React.FC = () => {
       }
     });
   };
+
+  const handleFirstQuestionSubmit = async () => {
+    // Captura la respuesta de la pregunta 1
+    const firstQuestionResponse = responses[1];
+
+    if (!survey?.id) {
+        console.error("Error: No se encontró el ID de la encuesta.");
+        Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
+        return;
+    }
+
+    if (!firstQuestionResponse) {
+      Swal.fire({
+          icon: "warning",
+          title: "Debe responder la primera pregunta",
+          text: "Por favor indique si ha vivido en Colombia antes de continuar.",
+      });
+      return;
+  }
+
+    if (firstQuestionResponse === 2) {
+        try {
+            // Guardar intento en la BD antes de mostrar la alerta
+            const response = await submitResponses([
+                {
+                    survey_id: survey.id,
+                    question_id: 1,
+                    option_selected: 2
+                }
+            ]);
+
+            if (response?.rejected) {
+                showRejectionMessage1();
+                return;
+            }
+
+        } catch (error) {
+            showRejectionMessage1();
+            return;
+        }
+    }
+
+    if (firstQuestionResponse === 1) {
+
+        // Guardar en el estado para enviarlo junto con la segunda pregunta
+        setResponses((prev) => ({
+            ...prev,
+            1: firstQuestionResponse,
+        }));
+
+      // Si responde SÍ, mostrar la pregunta de fecha de nacimiento
+        setShowSecondQuestion(true);
+    }
+};
+
+// Método para mostrar el mensaje de rechazo para la pregunta 1 y redirigir
+const showRejectionMessage1 = () => {
+    Swal.fire({
+        icon: "error",
+        title: "No puedes continuar",
+        html: `
+        <p style="text-align: justify;">
+            Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas que residan en Colombia en los últimos 5 años.
+        </p>
+        <br>
+        <p style="text-align: justify;">
+            Le invitamos a participar en futuras encuestas que puedan ser de su interés.
+        </p>
+        <br>
+        <p><strong>Gracias por su comprensión.</strong></p>
+        `,
+        confirmButtonText: "Aceptar",
+    }).then(() => {
+        router.push("/surveys");
+    });
+};
+
+
+const handleBirthDateSubmit = async () => {
+  if (!birthDate) {
+      Swal.fire({
+          icon: "warning",
+          title: "Fecha de nacimiento requerida",
+          text: "Debes seleccionar tu fecha de nacimiento antes de continuar.",
+      });
+      return;
+  }
+
+  if (!survey?.id) {
+      console.error("Error: No se encontró el ID de la encuesta.");
+      Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
+      return;
+  }
+
+  // Calcular la edad
+  const birthYear = parseInt(birthDate.split("-")[0], 10);
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - birthYear;
+
+  // Asegurar que la respuesta de la pregunta 1 se incluya
+  const firstQuestionResponse = responses[1];
+
+  if (!firstQuestionResponse) {
+    console.error("Error: La pregunta 1 no tiene respuesta registrada.");
+    Swal.fire("Error", "Debe responder si ha vivido en Colombia antes de continuar.", "error");
+    return;
+  }
+
+  // Enviar ambas respuestas al backend
+  const responsesToSubmit = [
+    {
+        survey_id: survey.id,
+        question_id: 1,
+        option_selected: typeof responses[1] === "number" ? responses[1] : null,
+    },
+    {
+        survey_id: survey.id,
+        question_id: 2,
+        answer: birthDate,
+    },
+  ] as SurveyResponse[];
+
+  if (age < 18) {
+    try {
+        const response = await submitResponses(responsesToSubmit);
+
+        if (response?.rejected) {
+            showRejectionMessage2();
+            return;
+        }
+
+    } catch (error) {
+        console.error("Error al registrar intento de encuesta:", error);
+        showRejectionMessage2();
+        return;
+    }
+  }
+
+  // Solo avanza si la edad es >= 18
+  setCurrentChapterIndex(1);
+};
+
+
+
+const showRejectionMessage2 = () => {
+  Swal.fire({
+      icon: "error",
+      title: "No puedes continuar",
+      html: `
+      <p style="text-align: justify;">
+          Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas mayores de 18 años que residan en Colombia en los últimos 5 años.
+      </p>
+      <br>
+      <p style="text-align: justify;">
+          Le invitamos a participar en futuras encuestas que puedan ser de su interés.
+      </p>
+      <br>
+      <p><strong>Gracias por su comprensión.</strong></p>
+      `,
+      confirmButtonText: "Aceptar",
+  }).then(() => {
+      router.push("/surveys");
+  });
+};
+
 
 
   const handleQuestion12Logic = (
@@ -142,19 +310,19 @@ const SurveyApp: React.FC = () => {
       ? [...(prevResponses["11"] as number[])]
       : [];*/
 
-      if (typeof value === "number") {
-        return {
-          ...prevResponses,
-          "12": value === noDiscriminationOptionId ? [noDiscriminationOptionId] : [value],
-        };
-      } else if (Array.isArray(value)) {
-        return {
-          ...prevResponses,
-          "12": value.includes(noDiscriminationOptionId)
-            ? [noDiscriminationOptionId]
-            : value.filter(id => id !== noDiscriminationOptionId),
-        };
-      }
+    if (typeof value === "number") {
+      return {
+        ...prevResponses,
+        "12": value === noDiscriminationOptionId ? [noDiscriminationOptionId] : [value],
+      };
+    } else if (Array.isArray(value)) {
+      return {
+        ...prevResponses,
+        "12": value.includes(noDiscriminationOptionId)
+          ? [noDiscriminationOptionId]
+          : value.filter(id => id !== noDiscriminationOptionId),
+      };
+    }
 
     return prevResponses;
   };
@@ -193,8 +361,8 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleNextChapter = () => {
-    if (currentChapter < survey.chapters.length) {
-      setCurrentChapter((prev) => prev + 1);
+    if (currentChapterIndex < survey.chapters.length) {
+      setCurrentChapterIndex((prev) => prev + 1);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -204,8 +372,8 @@ const SurveyApp: React.FC = () => {
   };
 
   const handlePrevChapter = () => {
-    if (currentChapter > 1) {
-      setCurrentChapter((prev) => prev - 1);
+    if (currentChapterIndex > 1) {
+      setCurrentChapterIndex((prev) => prev - 1);
       window.scrollTo({ top: 0, behavior: "auto" });
     }
   };
@@ -215,38 +383,38 @@ const SurveyApp: React.FC = () => {
 
     // Obtener todas las preguntas y subpreguntas
     const allQuestions = survey.questions.flatMap(q => {
-        if (q.question_type === "matrix" && q.subquestions) {
-            return [q, ...q.subquestions]; // Incluir la pregunta matriz y sus subpreguntas
-        }
-        return q;
+      if (q.question_type === "matrix" && q.subquestions) {
+        return [q, ...q.subquestions]; // Incluir la pregunta matriz y sus subpreguntas
+      }
+      return q;
     });
 
     // Identificar preguntas sin responder
     const unansweredQuestions = allQuestions.filter((q) => {
-        if ("subquestions" in q && q.subquestions?.length) {
-            return q.subquestions.some(sq => {
-                const response = responses[sq.id];
-                return response === undefined || (Array.isArray(response) && response.length === 0);
-            });
-        } else {
-            const response = responses[q.id];
-            return response === undefined || (Array.isArray(response) && response.length === 0);
-        }
+      if ("subquestions" in q && q.subquestions?.length) {
+        return q.subquestions.some(sq => {
+          const response = responses[sq.id];
+          return response === undefined || (Array.isArray(response) && response.length === 0);
+        });
+      } else {
+        const response = responses[q.id];
+        return response === undefined || (Array.isArray(response) && response.length === 0);
+      }
     });
 
     if (unansweredQuestions.length > 0) {
-        alert("Por favor responde todas las preguntas antes de continuar.");
-        // Debug
-        console.log("❌ Preguntas sin responder:", 
-            unansweredQuestions.map(q => "text_question" in q ? q.text_question : q.text_subquestion)
-        );
-        return;
+      alert("Por favor responde todas las preguntas antes de continuar.");
+      // Debug
+      console.log("❌ Preguntas sin responder:",
+        unansweredQuestions.map(q => "text_question" in q ? q.text_question : q.text_subquestion)
+      );
+      return;
     }
 
     // Formateo de respuestas
     const formattedResponses: SurveyResponse[] = survey.questions.map((question) => {
       const response = responses[question.id];
-    
+
       // Preguntas tipo matriz (con subpreguntas)
       if (question.question_type === "matrix" && question.subquestions?.length) {
         return {
@@ -268,7 +436,7 @@ const SurveyApp: React.FC = () => {
           new_municipality: geoResponse.new_municipality ?? null,
         };
       }
-    
+
       // Preguntas geográficas (con campos especiales como "country")
       if (question.is_geographic && typeof response === "object" && !Array.isArray(response)) {
         const geoResponse = response as GeographicResponse ?? {};
@@ -280,7 +448,7 @@ const SurveyApp: React.FC = () => {
           municipality: geoResponse.municipality ?? null,
         };
       }
-    
+
       // Preguntas abiertas
       if (question.question_type === "open") {
         return {
@@ -288,7 +456,7 @@ const SurveyApp: React.FC = () => {
           answer: typeof response === "string" ? response : response?.toString() ?? null,
         };
       }
-    
+
       // Preguntas cerradas de selección múltiple
       if (question.question_type === "closed" && question.is_multiple) {
         return {
@@ -298,7 +466,7 @@ const SurveyApp: React.FC = () => {
             : [],
         };
       }
-    
+
       // Preguntas cerradas de selección única
       if (question.question_type === "closed" && !question.is_multiple) {
         return {
@@ -306,7 +474,7 @@ const SurveyApp: React.FC = () => {
           option_selected: typeof response === "number" ? response : null,
         };
       }
-    
+
       return { question_id: question.id, option_selected: null };
     });
 
@@ -318,46 +486,79 @@ const SurveyApp: React.FC = () => {
 
     // Enviar respuestas
     try {
-        const response = await submitResponses(formattedResponses); // Llama a la API con las respuestas formateadas
-        console.log("✅ Respuestas enviadas con éxito:", response);
-        alert("Respuestas enviadas correctamente. ¡Gracias por completar la encuesta!");
-    } catch (error: unknown) {
-        console.error("Error al enviar respuestas:", error);
-        alert("Hubo un error al enviar las respuestas. Por favor, intenta de nuevo.");
+      await submitResponses(formattedResponses);
+      Swal.fire("¡Gracias!", "Tus respuestas han sido enviadas con éxito.", "success").then(() =>
+        router.push("/surveys")
+      );
+    } catch (error) {
+      console.error("Error al enviar respuestas:", error);
+      Swal.fire("Error", "Hubo un problema al enviar tus respuestas. Intenta de nuevo.", "error");
     }
-};
+  };
 
-const currentChapterData = survey.chapters.find((ch) => ch.id === currentChapter);
-const chapterQuestions = survey.questions.filter((q) => q.chapter === currentChapter);
+  const currentChapter = survey.chapters?.[currentChapterIndex] ?? null;
+  const chapterQuestions = survey.questions.filter((q) => q.chapter === currentChapter.id);
+
 
   return (
     <SurveyContainer>
       <SurveyHeader>
         <SurveyTitle>{survey.name}</SurveyTitle>
-        <SurveyDescriptionName>
-        <strong>Definición de &quot;discriminación&quot;:</strong> {survey.description_name.replace(/Definición de\s?&quot;discriminación&quot;:/i, '')}
+        <SurveyDescriptionName className="space-y-2">
+          <span className="block font-bold">{survey.description_title}</span>
+        </SurveyDescriptionName>
+        <SurveyDescriptionName className="space-y-2">
+          <span>
+            <strong>Definición de "discriminación":</strong>
+            {survey.description_name.replace(/Definición de\s?[“”"]?discriminación[“”"]?:/i, '')}
+          </span>
         </SurveyDescriptionName>
       </SurveyHeader>
 
-      <ChapterQuestions
-        questions={chapterQuestions}
-        responses={responses}
-        handleOptionChange={handleOptionChange}
-        chapterName={currentChapterData?.name || `Capítulo ${currentChapter}`}
-      />
+      {/* Pregunta 1 - Residencia en Colombia */}
+      {currentChapterIndex === 0 && !showSecondQuestion && (
+        <Chapter
+          chapter={currentChapter}
+          chapterName={currentChapter.name}
+          questions={survey.questions.filter((q) => q.id === 1)}
+          responses={responses}
+          handleOptionChange={handleOptionChange}
+          handleNextChapter={handleFirstQuestionSubmit}
+          handlePrevChapter={handlePrevChapter}
+          isFirstChapter={true}
+          isLastChapter={false}
+        />
+      )}
 
-    {/* Botones de navegación */}
-      <ButtonContainer>
-        {currentChapter > 1 && (
-          <LargeStyledButton onClick={handlePrevChapter} style={{ marginRight: "1rem" }} >
-            ← Retroceder
-          </LargeStyledButton>
-        )}
+      {/* Pregunta 2 - Fecha de nacimiento */}
+      {currentChapterIndex === 0 && showSecondQuestion && (
+        <Chapter
+          chapter={currentChapter}
+          chapterName={currentChapter.name}
+          questions={survey.questions.filter((q) => q.id === 2)}
+          responses={responses}
+          handleOptionChange={handleOptionChange}
+          handleNextChapter={handleBirthDateSubmit}
+          handlePrevChapter={handlePrevChapter}
+          isFirstChapter={true}
+          isLastChapter={false}
+        />
+      )}
 
-        <LargeStyledButton onClick={handleNextChapter}>
-          {currentChapter < 4 ? "Siguiente →" : "Enviar y Finalizar"}
-        </LargeStyledButton>
-      </ButtonContainer>
+      {/* Resto de capítulos */}
+      {currentChapterIndex > 0 && (
+        <Chapter
+          chapter={currentChapter}
+          chapterName={currentChapter.name}
+          questions={chapterQuestions}
+          responses={responses}
+          handleOptionChange={handleOptionChange}
+          handleNextChapter={handleNextChapter}
+          handlePrevChapter={handlePrevChapter}
+          isFirstChapter={currentChapterIndex === 1}
+          isLastChapter={currentChapterIndex === survey.chapters.length - 1}
+        />
+      )}
     </SurveyContainer>
   );
 };

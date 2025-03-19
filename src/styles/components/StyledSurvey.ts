@@ -558,3 +558,40 @@ export const TooltipContainer = styled.div`
     transform: translateX(-50%);
   }
 `;
+
+// Estilos para el selector de la Fecha
+
+// Estilos para los selects
+export const DateSelectWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`;
+
+export const DateStyledSelect = styled.select`
+  width: 100%;
+  max-width: 120px;
+  padding: 0.8rem;
+  border: 2px solid #2d8a88;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-family: "Poppins", sans-serif;
+  background: white;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #1a6563;
+    outline: none;
+    box-shadow: 0 0 5px rgba(45, 138, 136, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    max-width: 100px;
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 90px;
+    font-size: 1rem;
+  }
+`;

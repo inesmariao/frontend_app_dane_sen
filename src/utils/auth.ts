@@ -2,7 +2,8 @@ import { User } from "@/types";
 
 // Obtener el token almacenado en localStorage
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem("authToken");
+  const token = localStorage.getItem("authToken");
+  return token;
 };
 
 // Guardar el token y usuario en localStorage

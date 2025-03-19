@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthToken, clearAuthData } from "@/utils/auth";
+import { getAuthToken, clearAuthData, setAuthData } from "@/utils/auth";
 import { SurveyResponse } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
@@ -34,11 +34,15 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
 
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       clearAuthData();
-
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("auth:logout"));
+      }
+    } else if (error.response?.status === 403) {
+      // Verifica si el error es debido a la respuesta del usuario y no debe cerrar sesión
+      if (error.response.data?.message?.includes("No cumple con los requisitos")) {
+        return Promise.reject(error);
       }
     }
 
@@ -77,6 +81,8 @@ export const loginUser = async (credentials: { identifier: string; password: str
     if (!access_token || !user) {
       throw new Error("Respuesta inválida del backend.");
     }
+
+    setAuthData(access_token, user);
 
     return { token: access_token, refreshToken: refresh_token, user };
   } catch (error: unknown) {
@@ -136,17 +142,21 @@ export const getSurvey = async (surveyId: number) => {
 // Método para enviar las respuestas al Backend
 export const submitResponses = async (responses: SurveyResponse[]) => {
   try {
-    const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
-    return response.data;
+      const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
+      return response.data;
   } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data?.error || "Error al enviar las respuestas.");
-    }
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error("Error desconocido al enviar las respuestas.");
+      if (axios.isAxiosError(error) && error.response) {
+
+          if (error.response.status === 403 || error.response.status === 400) {
+              return { rejected: true, message: error.response.data?.message || "No puede continuar con la encuesta." };
+          }
+
+          return { error: true, message: error.response.data?.error || "Error al enviar las respuestas." };
+      }
+      return { error: true, message: "Error desconocido al enviar las respuestas." };
   }
 };
+
+
 
 export default apiClient;
