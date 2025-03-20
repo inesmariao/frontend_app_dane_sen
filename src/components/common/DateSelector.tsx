@@ -40,14 +40,16 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
   useEffect(() => {
     if (year && month) {
       let daysInSelectedMonth = new Date(Number(year), Number(month), 0).getDate();
-
+  
       // Si el usuario selecciona el año y mes actual, solo mostrar los días pasados
       if (year === currentYear.toString() && Number(month) === currentMonth) {
         daysInSelectedMonth = currentDay;
       }
-
+  
       setDaysInMonth(Array.from({ length: daysInSelectedMonth }, (_, i) => i + 1));
-      setDay(""); // Reiniciar el día cuando cambia el mes o el año
+      setDay(""); // Importante: Resetear el día al cambiar año o mes
+  
+      console.log(`📆 Año seleccionado: ${year}, Mes seleccionado: ${month}, Días en mes: ${daysInSelectedMonth}`); // Debug
     }
   }, [year, month]);
 
@@ -55,6 +57,8 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
   useEffect(() => {
     if (year && month && day) {
       const formattedDate = `${year}-${month}-${day.padStart(2, "0")}`;
+      
+      console.log("📆 Fecha formateada antes de envío:", formattedDate); // Debug
       onChange(questionId, formattedDate);
     }
   }, [year, month, day]);

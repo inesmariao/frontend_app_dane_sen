@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { ChapterProps, GeographicResponse } from "@/types";
 import DateSelector from "@/components/common/DateSelector";
-import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import TooltipOption from "@/components/common/TooltipOption";
 import {
@@ -30,7 +29,11 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
   handleOptionChange,
   chapterName,
 }) => {
+
+  console.log("ChapterQuestions renderizado"); // Debug
+
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(window.innerWidth < 768);
+  const [showGeographicSelectors, setShowGeographicSelectors] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -39,15 +42,34 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  },);
+  }, []);
+
+  const handleOptionChangeQuestion8 = (question: any, questionId: number, optionId: number) => {
+    handleOptionChange(questionId, optionId);
+
+    console.log(`🔄 Opción seleccionada en pregunta 8: ${optionId}`); // Debug
+    console.log("📊 Estado actual de showGeographicSelectors:", showGeographicSelectors); // Debug
+
+
+    // Si la opción seleccionada es "Sí", muestra los selectores geográficos
+    const selectedOption = question.options?.find((opt: { id: number }) => opt.id === optionId);
+    if (selectedOption?.text_option.toLowerCase() === "sí") {
+      setShowGeographicSelectors(true);
+    } else {
+      setShowGeographicSelectors(false);
+    }
+  };
 
   return (
     <>
       {/* Título del capítulo */}
-      
+
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
+
+        console.log(`🔍 Renderizando pregunta ${question.id}: ${question.text_question}`); // Debug
+
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
@@ -58,6 +80,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
         const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
+          
           <QuestionCard key={questionKey}>
 
             {/* Contenedor para la pregunta y el tooltip en la misma fila */}
@@ -78,14 +101,65 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                 questionId={question.id}
                 onChange={handleOptionChange}
               />
-            ) : isGeographic || (question.id === 7 && yesOption && (responses[question.id] as GeographicResponse)?.option_selected === yesOption.id) ? (
+            ) : null}
+
+            {/* Renderizar GeographicQuestion directamente para la pregunta 6 */}
+            {question.id === 6 && (
               <GeographicQuestion
                 questionId={question.id}
-                options={question.options ??[]}
+                options={question.options ?? []}
                 responses={responses}
                 handleOptionChange={handleOptionChange}
               />
-            ) : isNumeric ? (
+            )}
+
+            {question.id === 8 && (
+              <>
+                {question.options?.map((option) => {
+
+                console.log(`🛠 Renderizando opción ${option.id} para la pregunta 8: ${option.text_option}`); // Debug
+
+
+                  if (!option || typeof option.id !== "number") return null;
+
+                  const isChecked = responses[question.id] === option.id;
+                  const optionKey = `option-q-${question.id}-opt-${option.id}`;
+
+                  return (
+                    <TooltipOptionContainer key={optionKey}>
+                      <OptionWrapper isCheckbox={false} className="flex items-start w-full">
+                        <input
+                          type="radio"
+                          id={`option-q-${question.id}-opt-${option.id}`}
+                          name={`question-q-${question.id}`}
+                          value={option.id}
+                          checked={isChecked}
+                          onChange={() => handleOptionChangeQuestion8(question, question.id, option.id)}
+                        />
+                        <OptionLabel htmlFor={`option-q-${question.id}-opt-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        {option.note && <TooltipOption note={option.note} />}
+                      </OptionWrapper>
+                    </TooltipOptionContainer>
+                  );
+                })}
+
+                {/* Renderizar selectores de departamento y municipio solo si seleccionó "Sí" */}
+                {console.log("📌 Renderizando GeographicQuestion en pregunta 8:", { showGeographicSelectors, responses }) /* Debug */ }
+                {showGeographicSelectors && (
+                  
+                  <GeographicQuestion
+                    questionId={question.id}
+                    options={[]}
+                    responses={responses}
+                    handleOptionChange={handleOptionChange}
+                  />
+                )}
+              </>
+            )}
+
+            {isNumeric && question.question_type !== "birth_date" ? (
               <NumericInputWrapper>
                 <input
                   type="number"
@@ -196,12 +270,12 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                                 {/* Segunda fila: etiquetas debajo de los radio-buttons */}
                                 <div className="labels">
                                   {filteredOptions.map((option) => (
-                                      <TooltipOptionContainer key={`label-${question.id}-${subQuestion.id}-${option.id}`}>
-                                        <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
-                                          {option.text_option}
-                                        </OptionLabel>
-                                        {option.note && <TooltipOption note={option.note} />}
-                                      </TooltipOptionContainer>
+                                    <TooltipOptionContainer key={`label-${question.id}-${subQuestion.id}-${option.id}`}>
+                                      <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                        {option.text_option}
+                                      </OptionLabel>
+                                      {option.note && <TooltipOption note={option.note} />}
+                                    </TooltipOptionContainer>
                                   ))}
                                 </div>
                               </>
@@ -228,22 +302,19 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                                         {option.text_option}
                                       </OptionLabel>
                                       {option.note && <TooltipOption note={option.note} />}
-                                      </TooltipOptionContainer>
-                                      {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" */}
-                                      {isOtherSubQuestion && (
-
-                                        <OtherInputWrapper>
-                                          <input
-                                            type="text"
-                                            id={`other-input-sq-${subQuestion.id}`}
-                                            placeholder="Otro, ¿cuál?"
-                                            value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                            onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                                          />
-                                        </OtherInputWrapper>
-  
-                                      )}
-
+                                    </TooltipOptionContainer>
+                                    {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" */}
+                                    {isOtherSubQuestion && (
+                                      <OtherInputWrapper>
+                                        <input
+                                          type="text"
+                                          id={`other-input-sq-${subQuestion.id}`}
+                                          placeholder="Otro, ¿cuál?"
+                                          value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                          onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                        />
+                                      </OtherInputWrapper>
+                                    )}
                                   </div>
                                 );
                               })
@@ -256,15 +327,15 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                                 (option) => option.id === responses[subQuestion.id] && option.text_option.toLowerCase().includes("no sé")
                               ) && (
 
-                                  <OtherInputWrapper>
-                                    <input
-                                      type="text"
-                                      id={`other-input-${subQuestion.id}`}
-                                      placeholder="Otro, ¿cuál?"
-                                      value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                                    />
-                                  </OtherInputWrapper>
+                                <OtherInputWrapper>
+                                  <input
+                                    type="text"
+                                    id={`other-input-${subQuestion.id}`}
+                                    placeholder="Otro, ¿cuál?"
+                                    value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                    onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                  />
+                                </OtherInputWrapper>
 
                               )}
                           </OptionWrapper_Subquestions>
@@ -323,7 +394,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 
                             {/* Tooltip para la subpregunta si tiene una nota */}
                             {subQuestion.note && (
-                                <TooltipOption note={subQuestion.note} />
+                              <TooltipOption note={subQuestion.note} />
                             )}
                           </TooltipOptionContainer>
 
@@ -395,7 +466,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                     ? Array.isArray(responses[question.id]) &&
                     (responses[question.id] as number[]).includes(option.id)
                     : responses[question.id] === option.id;
-                    const optionKey = `option-q-${question.id}-opt-${option.id}`;
+                  const optionKey = `option-q-${question.id}-opt-${option.id}`;
 
 
                   return (

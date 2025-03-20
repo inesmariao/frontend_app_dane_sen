@@ -118,7 +118,7 @@ export interface GeographicResponse {
 
 export interface GeographicQuestionProps {
   questionId: number;
-  options: Option[];
+  options?: Option[];
   responses: { [key: string]: number | string | number[] | GeographicResponse };
   handleOptionChange: (
     questionId: number | string,

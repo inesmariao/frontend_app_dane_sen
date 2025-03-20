@@ -30,6 +30,10 @@ const SurveyApp: React.FC = () => {
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
     const loadSurvey = async () => {
+
+      console.log("📊 Encuesta cargada:", survey); // Debug
+
+
       try {
         if (!id) {
           throw new Error("ID de la encuesta no definido.");
@@ -68,6 +72,8 @@ const SurveyApp: React.FC = () => {
   ) => {
     setResponses((prev: Responses) => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
+      console.log(`✅ Guardando respuesta para pregunta ${questionId}:`, value); // Debug
+
 
       // Manejo especial para las respuestas tipo "Otro"
       if (typeof questionId === "string" && questionId.startsWith("other_")) {
@@ -77,7 +83,16 @@ const SurveyApp: React.FC = () => {
         };
       }
 
-      if (questionId === 2) setBirthDate(value as string);
+      if (questionId === 2) {
+        console.log("📌 Respuesta de la pregunta 2 (antes de formatear):", value); // Debug
+        if (typeof value === "string" || typeof value === "number") {
+          const formattedDate = new Date(value).toISOString().split("T")[0];
+          console.log(`📆 Fecha formateada en 'handleOptionChange':`, formattedDate); // Debug
+          setBirthDate(formattedDate);
+        } else {
+          console.error("❌ Error: El valor recibido para la fecha no es válido:", value); // Debug
+        }
+      }
 
       switch (numericQuestionId) {
         case 6: {
