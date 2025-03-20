@@ -36,8 +36,8 @@ export const AccessibilityButton = styled.button<AccessibilityProps>`
   width: 48px;
   height: 48px;
 
-  background: ${({ $isContrast }) => ($isContrast ? "#d39d3f" : "#2d8a88")};
-  color: ${({ $isContrast }) => ($isContrast ? "black" : "white")};
+  background: ${({ $isContrast }) => ($isContrast ? "#004aad" : "#2d8a88")};
+  color: ${({ $isContrast }) => ($isContrast ? "white" : "white")};
 
   border: none;
   border-radius: 8px;
@@ -51,14 +51,14 @@ export const AccessibilityButton = styled.button<AccessibilityProps>`
 
   &:hover {
     width: 220px;
-    background: ${({ $isContrast }) => ($isContrast ? "#b3812d" : "#227a7a")};
+    background: ${({ $isContrast }) => ($isContrast ? "#003b82" : "#227a7a")};
     box-shadow: 0 0.375rem 0.5rem rgba(0, 0, 0, 0.2);
   }
 
   svg {
     font-size: 24px !important;
     font-weight: bold;
-    color: ${({ $isContrast }) => ($isContrast ? "black" : "white")} !important;
+    color: ${({ $isContrast }) => ($isContrast ? "white" : "white")} !important;
     margin-right: 8px;
     flex-shrink: 0;
     position: absolute;

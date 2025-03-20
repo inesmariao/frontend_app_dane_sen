@@ -19,13 +19,28 @@ const AccessibilityButtons = () => {
 
   const [isContrast, setIsContrast] = useState(false);
 
-  useEffect(() => {
-    setIsContrast(document.body.classList.contains("contrast"));
-  }, []);
+    // Detecta cambios en la clase "contrast" y actualiza el estado
+    useEffect(() => {
+      const updateContrastState = () => {
+        const contrastEnabled = document.body.classList.contains("contrast");
+        setIsContrast(contrastEnabled);
+      };
+  
+      updateContrastState();
+  
+      // Escuchamos cambios en el atributo de clase del body
+      const observer = new MutationObserver(updateContrastState);
+      observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  
+      return () => observer.disconnect();
+    }, []);
 
   return (
     <AccessibilityBar $isContrast={isContrast}>
-      <AccessibilityButton onClick={toggleContrast} $isContrast={isContrast}>
+      <AccessibilityButton onClick={() => {
+        toggleContrast();
+        setIsContrast(document.body.classList.contains("contrast"));
+      }} $isContrast={isContrast}>
         <AiOutlineBgColors />
         <span>Alto Contraste</span>
       </AccessibilityButton>
