@@ -181,7 +181,7 @@ const SurveyApp: React.FC = () => {
 const showRejectionMessage1 = () => {
     Swal.fire({
         icon: "error",
-        title: "No puedes continuar",
+        title: "No puede continuar",
         html: `
         <p style="text-align: justify;">
             Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas que residan en Colombia en los últimos 5 años.
@@ -205,7 +205,7 @@ const handleBirthDateSubmit = async () => {
       Swal.fire({
           icon: "warning",
           title: "Fecha de nacimiento requerida",
-          text: "Debes seleccionar tu fecha de nacimiento antes de continuar.",
+          text: "Debe seleccionar su fecha de nacimiento antes de continuar.",
       });
       return;
   }
@@ -269,7 +269,7 @@ const handleBirthDateSubmit = async () => {
 const showRejectionMessage2 = () => {
   Swal.fire({
       icon: "error",
-      title: "No puedes continuar",
+      title: "No puede continuar",
       html: `
       <p style="text-align: justify;">
           Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas mayores de 18 años que residan en Colombia en los últimos 5 años.
@@ -304,11 +304,6 @@ const showRejectionMessage2 = () => {
     if (!noDiscriminationOption) return prevResponses;
 
     const noDiscriminationOptionId = noDiscriminationOption.id;
-
-    // Debug
-    /*let updatedSelections: number[] = Array.isArray(prevResponses["11"])
-      ? [...(prevResponses["11"] as number[])]
-      : [];*/
 
     if (typeof value === "number") {
       return {

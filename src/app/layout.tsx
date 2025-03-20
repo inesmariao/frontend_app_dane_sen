@@ -1,5 +1,8 @@
 "use client";
 
+import AccessibilityButtons from "@/components/common/AccessibilityButtons";
+import { useAccessibility } from "@/hooks/useAccessibility";
+import "@/app/globals.css";
 import Head from "next/head";
 import StyledComponentsRegistry from "@/lib/styled-components-registry";
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
@@ -46,6 +49,7 @@ const MainContent = styled.main`
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const { fontSize } = useAccessibility();
 
   return (
     <html lang="es">
@@ -57,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StyledComponentsRegistry>
           <ThemeProvider>
-            <StyledThemeProvider theme={theme}>
+            <StyledThemeProvider theme={{ ...theme, fontSize: fontSize }}> {/* Cambia aquí */}
               <AuthProvider>
                 <GlobalStyles />
                 <LayoutWrapper>
@@ -66,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <MainContent>{children}</MainContent>
                   <Footer />
                 </LayoutWrapper>
+                <AccessibilityButtons />
               </AuthProvider>
             </StyledThemeProvider>
           </ThemeProvider>

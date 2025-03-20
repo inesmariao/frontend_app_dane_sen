@@ -530,7 +530,7 @@ export const TooltipContainer = styled.div`
   padding: 0.75rem;
   background-color: #1d4ed8;
   color: white;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
@@ -539,7 +539,7 @@ export const TooltipContainer = styled.div`
 
   // Estilos específicos para iPhone 5/SE y similares
   @media (max-width: 320px) {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     padding: 0.5rem;
     max-width: 80vw;
     left:5%;
@@ -556,6 +556,20 @@ export const TooltipContainer = styled.div`
     overflow-y: auto;
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  // Estilos específicos para modo de contraste
+  .contrast & {
+    font-weight: normal;
+  }
+
+  // Estilos específicos para modo de contraste en pantallas medianas y pequeñas
+  @media (max-width: 768px) {
+    .contrast & {
+      font-size: 1rem;
+      font-weight: normal;
+      padding: 0.5rem;
+    }
   }
 `;
 
