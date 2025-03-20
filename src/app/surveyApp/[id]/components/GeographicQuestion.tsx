@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { GeographicQuestionProps, GeographicResponse } from "@/types";
 import apiClient from "@/utils/api";
 import {
-  OptionWrapper,
-  OptionLabel,
   GeoContainer,
   GeoLabel,
   StyledSelect,
@@ -23,7 +21,6 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const isQuestionSix = questionId === 6;
   const isQuestionEight = questionId === 8;
 
-  const [countries, setCountries] = useState<{ id: number; spanish_name: string }[]>([]);
   const [departments, setDepartments] = useState<{ id: number; name: string; code: number }[]>([]);
   const [municipalities, setMunicipalities] = useState<{ id: number; name: string; code: number }[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState<boolean>(false);
@@ -36,6 +33,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   ? (responses[questionId] as GeographicResponse)?.new_municipality ?? ""
   : (responses[questionId] as GeographicResponse)?.municipality ?? "";
 
+  // Verificar si la opción seleccionada es "Sí" (solo para pregunta 8)
   const yesOption = options?.find((option) => option.text_option.toLowerCase() === "sí");
   const isYesSelected = (responses[questionId] as GeographicResponse)?.option_selected === yesOption?.id;
 
@@ -44,22 +42,12 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   // - En la pregunta 8, la opción "Sí" está seleccionada
   const showDepartmentSelectorQS = isQuestionSix;
   const showDepartmentSelectorQE = (isQuestionEight && isYesSelected);
-  
 
-
-  // Cargar países al inicio
-  useEffect(() => {
-    apiClient.get("/geo/countries/")
-      .then((res) => {
-        setCountries(res.data);
-      })
-      .catch((error) => console.error("Error al cargar países:", error));
-  }, []);
+   // Determinar si se deben mostrar los selectores de departamento y municipio
+   const showSelectors = isQuestionSix || (isQuestionEight && isYesSelected);
 
   // Cargar departamentos
   useEffect(() => {
-    console.log(`📥 Cargando departamentos para la pregunta ${questionId}, seleccionado: ${selectedDepartment}`); // Debug
-
     apiClient.get("/geo/departments/")
       .then((res) => {
         setDepartments(res.data);
@@ -69,9 +57,6 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
 
   // Cargar municipios cuando se selecciona un departamento
   useEffect(() => {
-    console.log(`📥 Cargando municipios para la pregunta ${questionId}, departamento seleccionado: ${selectedDepartment}`); // Debug
-
-    
     if (selectedDepartment) {
       setLoadingMunicipalities(true); // Mostrar "Cargando..." mientras se obtienen municipios
       apiClient.get(`/geo/municipalities/by-department/${selectedDepartment}/`)
@@ -83,63 +68,43 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
     }
   }, [selectedDepartment]);
 
-  // Manejo del cambio de opción principal (Colombia u Otro País)
-  const handleMainOptionChange = (optionId: number, optionText: string) => {
-
-    // Lógica para la pregunta 8 (Cambio de residencia)
-    if (isQuestionEight) {
-      handleOptionChange(questionId, {
-        option_selected: optionId,
-        new_department: null,
-        new_municipality: null,
-      });
-    }
+  // Manejo de opciones Sí/No
+  const handleMainOptionChange = (optionId: number) => {
+    handleOptionChange(questionId, {
+      option_selected: optionId,
+      new_department: null,
+      new_municipality: null,
+    });
   };
 
+  // Manejadores de cambio en selectores
   const handleDepartmentChange = (departmentId: number) => {
-    if (isQuestionSix) {
-      const geographicResponse: GeographicResponse = {
-        option_selected: (responses[questionId] as GeographicResponse)?.option_selected ?? 0,
-        country: 572,
-        department: departmentId,
-        municipality: null,
-      };
-      handleOptionChange(questionId, geographicResponse);
-    } else if (isQuestionEight) {
-      const geographicResponse: GeographicResponse = {
-        option_selected: (responses[questionId] as GeographicResponse)?.option_selected ?? 0,
-        country: 572,
-        new_department: departmentId,
-        new_municipality: null,
-      };
-      handleOptionChange(questionId, geographicResponse);
-    }
+    const updatedResponse: GeographicResponse = {
+      ...(responses[questionId] as GeographicResponse),
+      department: isQuestionSix ? departmentId : undefined,
+      municipality: null,
+      new_department: isQuestionEight ? departmentId : undefined,
+      new_municipality: null,
+    };
+    handleOptionChange(questionId, updatedResponse);
   };
 
   const handleMunicipalityChange = (municipalityId: number) => {
-    if (isQuestionSix) {
-      handleOptionChange(questionId, {
-        ...(responses[questionId] as GeographicResponse),
-        municipality: municipalityId ?? null,
-      });
-    } else if (isQuestionEight) {
-      handleOptionChange(questionId, {
-        ...(responses[questionId] as GeographicResponse),
-        new_municipality: municipalityId ?? null,
-      });
-    }
+    const updatedResponse: GeographicResponse = {
+      ...(responses[questionId] as GeographicResponse),
+      municipality: isQuestionSix ? municipalityId : undefined,
+      new_municipality: isQuestionEight ? municipalityId : undefined,
+    };
+    handleOptionChange(questionId, updatedResponse);
   };
-
-  console.log(`🗺 GeographicQuestion renderizada para la pregunta ${questionId}`); // Debug
-  console.log("📊 Estado de responses en GeographicQuestion:", responses); // Debug
-
 
   return (
     <>
-      {/* Si seleccionó Pregunta 6, mostrar departamentos y municipios */}
-      {showDepartmentSelectorQS && (
+      {showSelectors && (
         <GeoContainer>
-          <GeoLabel htmlFor="department-select">6.1 - Departamento - Municipio</GeoLabel>
+          <GeoLabel htmlFor="department-select">
+            {isQuestionSix ? "6.1 - Departamento" : "8.1 - Nuevo Departamento"}
+          </GeoLabel>
           <StyledSelect
             id="department-select"
             value={selectedDepartment ?? ""}
@@ -156,7 +121,6 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
           {/* Mostrar municipios cuando haya un departamento seleccionado */}
           {selectedDepartment && (
             <>
-
             <label htmlFor="municipality-select">Seleccione un municipio:</label>
               {loadingMunicipalities ? (
                 <p style={{ fontSize: "1rem", color: "#2d8a88" }}>Cargando municipios...</p>
@@ -173,7 +137,6 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
                     </option>
                   ))}
                 </StyledSelect>
-
               )}
             </>
           )}

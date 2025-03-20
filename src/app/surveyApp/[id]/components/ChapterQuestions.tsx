@@ -30,8 +30,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
   chapterName,
 }) => {
 
-  console.log("ChapterQuestions renderizado"); // Debug
-
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(window.innerWidth < 768);
   const [showGeographicSelectors, setShowGeographicSelectors] = useState(false);
 
@@ -44,21 +42,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleOptionChangeQuestion8 = (question: any, questionId: number, optionId: number) => {
-    handleOptionChange(questionId, optionId);
-
-    console.log(`🔄 Opción seleccionada en pregunta 8: ${optionId}`); // Debug
-    console.log("📊 Estado actual de showGeographicSelectors:", showGeographicSelectors); // Debug
-
-
-    // Si la opción seleccionada es "Sí", muestra los selectores geográficos
-    const selectedOption = question.options?.find((opt: { id: number }) => opt.id === optionId);
-    if (selectedOption?.text_option.toLowerCase() === "sí") {
-      setShowGeographicSelectors(true);
-    } else {
-      setShowGeographicSelectors(false);
-    }
-  };
 
   return (
     <>
@@ -67,8 +50,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
-
-        console.log(`🔍 Renderizando pregunta ${question.id}: ${question.text_question}`); // Debug
 
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
@@ -80,7 +61,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
         const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
-          
+
           <QuestionCard key={questionKey}>
 
             {/* Contenedor para la pregunta y el tooltip en la misma fila */}
@@ -113,52 +94,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               />
             )}
 
-            {question.id === 8 && (
-              <>
-                {question.options?.map((option) => {
-
-                console.log(`🛠 Renderizando opción ${option.id} para la pregunta 8: ${option.text_option}`); // Debug
-
-
-                  if (!option || typeof option.id !== "number") return null;
-
-                  const isChecked = responses[question.id] === option.id;
-                  const optionKey = `option-q-${question.id}-opt-${option.id}`;
-
-                  return (
-                    <TooltipOptionContainer key={optionKey}>
-                      <OptionWrapper isCheckbox={false} className="flex items-start w-full">
-                        <input
-                          type="radio"
-                          id={`option-q-${question.id}-opt-${option.id}`}
-                          name={`question-q-${question.id}`}
-                          value={option.id}
-                          checked={isChecked}
-                          onChange={() => handleOptionChangeQuestion8(question, question.id, option.id)}
-                        />
-                        <OptionLabel htmlFor={`option-q-${question.id}-opt-${option.id}`} className="flex items-center">
-                          {option.text_option}
-                        </OptionLabel>
-                        {option.note && <TooltipOption note={option.note} />}
-                      </OptionWrapper>
-                    </TooltipOptionContainer>
-                  );
-                })}
-
-                {/* Renderizar selectores de departamento y municipio solo si seleccionó "Sí" */}
-                {console.log("📌 Renderizando GeographicQuestion en pregunta 8:", { showGeographicSelectors, responses }) /* Debug */ }
-                {showGeographicSelectors && (
-                  
-                  <GeographicQuestion
-                    questionId={question.id}
-                    options={[]}
-                    responses={responses}
-                    handleOptionChange={handleOptionChange}
-                  />
-                )}
-              </>
-            )}
-
             {isNumeric && question.question_type !== "birth_date" ? (
               <NumericInputWrapper>
                 <input
@@ -186,8 +121,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               isRowLayout ? ( // Renderizado para "row"
                 <Table>
                   {subQuestions.map((subQuestion) => {
-
-                    console.log("Subpregunta recibida:", subQuestion.text_subquestion, "is_other:", subQuestion.is_other); // Debug
 
                     const filteredOptions = question.options?.filter(
                       option => Number(option.subquestion_id) === Number(subQuestion.id) && Number(option.question_id) === Number(question.id)
@@ -348,8 +281,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                 <div>
                   {subQuestions.map((subQuestion) => {
 
-                    console.log("Subpregunta:", subQuestion.text_subquestion, "Note:", subQuestion.note); // Debug
-
                     const filteredOptions = question.options?.filter(option => option.subquestion_id === subQuestion.id) || [];
                     const subQuestionKey = `subquestion-q-${question.id}-sq-${subQuestion.id}`;
                     const isOtherSubQuestion = Boolean(subQuestion.is_other) && subQuestion.subquestion_type === "open";
@@ -458,7 +389,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               )
             ) :
               // Preguntas cerradas (checkbox o radiobutton)
-              Array.isArray(question.options) && question.options.length > 0 ? (
+              Array.isArray(question.options) && question.options.length > 0 && question.id !== 8 ? (
                 question.options?.map((option) => {
                   if (!option || typeof option.id !== "number") return null;
 
@@ -467,7 +398,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                     (responses[question.id] as number[]).includes(option.id)
                     : responses[question.id] === option.id;
                   const optionKey = `option-q-${question.id}-opt-${option.id}`;
-
 
                   return (
                     <TooltipOptionContainer key={optionKey}>
@@ -500,7 +430,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 
                       {/* Input de texto "Otro" */}
                       {option.is_other && isChecked && (
-
                         <OtherInputWrapper>
                           <input
                             type="text"
@@ -512,13 +441,53 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                             }
                           />
                         </OtherInputWrapper>
-
                       )}
                     </TooltipOptionContainer>
                   );
                 })
-              ) : null
-            }
+              ) : null}
+            {/* 🔹 Lógica especial para la pregunta 8 */}
+            {question.id === 8 && (
+              <>
+                {question.options?.map((option) => {
+                  if (!option || typeof option.id !== "number") return null;
+
+                  const isChecked =
+                    (responses[question.id] as GeographicResponse)?.option_selected === option.id;
+
+                  return (
+                    <TooltipOptionContainer key={`option-q8-opt-${option.id}`}>
+                      <OptionWrapper isCheckbox={false} className="flex items-start w-full">
+                        <input
+                          type="radio"
+                          id={`option-q8-opt-${option.id}`}
+                          name={`question-q8`}
+                          value={option.id}
+                          checked={isChecked}
+                          onChange={() =>
+                            handleOptionChange(question.id, { option_selected: option.id })
+                          }
+                        />
+                        <OptionLabel htmlFor={`option-q8-opt-${option.id}`} className="flex items-center">
+                          {option.text_option}
+                        </OptionLabel>
+                        {option.note && <TooltipOption note={option.note} />}
+                      </OptionWrapper>
+                    </TooltipOptionContainer>
+                  );
+                })}
+                {/* Renderizar selectores solo si se eligió 'Sí' en la pregunta 8 */}
+                {(responses[8] as GeographicResponse)?.option_selected ===
+                  question.options?.find((opt) => opt.text_option.toLowerCase() === "sí")?.id && (
+                    <GeographicQuestion
+                      questionId={question.id}
+                      options={question.options ?? []}
+                      responses={responses}
+                      handleOptionChange={handleOptionChange}
+                    />
+                  )}
+              </>
+            )}
           </QuestionCard>
         );
       })}
