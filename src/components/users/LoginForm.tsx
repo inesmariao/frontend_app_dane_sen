@@ -126,7 +126,7 @@ const LoginForm: React.FC = () => {
       <RegisterLink>
         ¿No tienes una cuenta?{" "}
           <a onClick={handleGoToRegister} role="button" tabIndex={0}>
-            Regístrate aquí
+            Regístrese aquí
           </a>
       </RegisterLink>
     </LoginFormContainer>

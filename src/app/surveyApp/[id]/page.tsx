@@ -69,6 +69,14 @@ const SurveyApp: React.FC = () => {
     setResponses((prev: Responses) => {
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
 
+      // Manejo especial para las respuestas tipo "Otro"
+      if (typeof questionId === "string" && questionId.startsWith("other_")) {
+        return {
+          ...prev,
+          [questionId]: value,
+        };
+      }
+
       if (questionId === 2) setBirthDate(value as string);
 
       switch (numericQuestionId) {

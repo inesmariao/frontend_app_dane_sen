@@ -84,6 +84,7 @@ export interface SubQuestion {
   subquestion_order: number;
   text_subquestion: string;
   note?: string;
+  is_other: boolean;
   instruction?: string;
   subquestion_type: string;
   min_value?: number;

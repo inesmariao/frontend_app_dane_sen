@@ -318,7 +318,7 @@ const RegisterForm: React.FC = () => {
       <LoginLink>
         ¿Ya tienes una cuenta?{" "}
         <a onClick={handleLoginRedirect} role="button" tabIndex={0}>
-          Inicia sesión aquí
+          Inicie sesión aquí
         </a>
       </LoginLink>
     </RegisterFormContainer>

@@ -7,6 +7,7 @@ import { shouldEnableOtherInput } from "@/utils/stringUtils";
 import { GeographicQuestion } from "./GeographicQuestion";
 import TooltipOption from "@/components/common/TooltipOption";
 import {
+
   QuestionCard,
   QuestionText,
   QuestionInstructions,
@@ -111,13 +112,42 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               isRowLayout ? ( // Renderizado para "row"
                 <Table>
                   {subQuestions.map((subQuestion) => {
+
+                    console.log("Subpregunta recibida:", subQuestion.text_subquestion, "is_other:", subQuestion.is_other); // Debug
+
                     const filteredOptions = question.options?.filter(
                       option => Number(option.subquestion_id) === Number(subQuestion.id) && Number(option.question_id) === Number(question.id)
                     ) || [];
 
                     const subQuestionKey = `subquestion-${question.id}-${subQuestion.id}`;
-                    const isOtherSubQuestion = subQuestion.text_subquestion.toLowerCase().includes("otro");
+                    const isOtherSubQuestion = Boolean(subQuestion.is_other) && subQuestion.subquestion_type === "open";
 
+                    // Condición especial para la subpregunta 1410
+                    if (subQuestion.id === 1410) {
+                      return (
+                        <TableRow key={subQuestionKey}>
+                          <SubQuestionColumn>
+                            <TooltipOptionContainer key={`tooltip-${subQuestionKey}`}>
+                              {subQuestion.custom_identifier ? `${subQuestion.custom_identifier} - ` : ""}
+                              {subQuestion.text_subquestion}
+                              {subQuestion.note && <TooltipOption note={subQuestion.note} />}
+                            </TooltipOptionContainer>
+                            {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
+                          </SubQuestionColumn>
+                          <Column>
+                            <OtherInputWrapper>
+                              <input
+                                type="text"
+                                id={`other-input-sq-${subQuestion.id}`}
+                                placeholder="Otro, ¿cuál?"
+                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                              />
+                            </OtherInputWrapper>
+                          </Column>
+                        </TableRow>
+                      );
+                    }
                     return (
                       <TableRow key={subQuestionKey}>
                         {/* Subpregunta en formato columna */}
@@ -180,7 +210,6 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                               filteredOptions.map((option) => {
                                 const isChecked = responses[subQuestion.id] === option.id;
                                 const optionKey = `option-q-${question.id}-sq-${subQuestion.id}-opt-${option.id}`;
-                                const isNumberOption = ["1", "2", "3", "4", "5"].includes(option.text_option);
 
                                 return (
                                   <div key={optionKey} className="option-container">
@@ -199,20 +228,22 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                                         {option.text_option}
                                       </OptionLabel>
                                       {option.note && <TooltipOption note={option.note} />}
+                                      </TooltipOptionContainer>
+                                      {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" */}
+                                      {isOtherSubQuestion && (
 
-                                      {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" y la opción es un número (1-5) */}
-                                      {isOtherSubQuestion && isNumberOption && isChecked && (
                                         <OtherInputWrapper>
                                           <input
                                             type="text"
                                             id={`other-input-sq-${subQuestion.id}`}
                                             placeholder="Otro, ¿cuál?"
-                                            value={String(responses[`other_${subQuestion.id}`] || "")}
+                                            value={String(responses[`other_${subQuestion.id}`] ?? "")}
                                             onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
                                           />
                                         </OtherInputWrapper>
+  
                                       )}
-                                    </TooltipOptionContainer>
+
                                   </div>
                                 );
                               })
@@ -224,17 +255,17 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                               !filteredOptions.some(
                                 (option) => option.id === responses[subQuestion.id] && option.text_option.toLowerCase().includes("no sé")
                               ) && (
-                                <div className="other-input">
+
                                   <OtherInputWrapper>
                                     <input
                                       type="text"
                                       id={`other-input-${subQuestion.id}`}
                                       placeholder="Otro, ¿cuál?"
-                                      value={String(responses[`other_${subQuestion.id}`] || "")}
+                                      value={String(responses[`other_${subQuestion.id}`] ?? "")}
                                       onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
                                     />
                                   </OtherInputWrapper>
-                                </div>
+
                               )}
                           </OptionWrapper_Subquestions>
                         </Column>
@@ -249,8 +280,35 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                     console.log("Subpregunta:", subQuestion.text_subquestion, "Note:", subQuestion.note); // Debug
 
                     const filteredOptions = question.options?.filter(option => option.subquestion_id === subQuestion.id) || [];
-                    const enableOther = shouldEnableOtherInput(subQuestion.text_subquestion);
                     const subQuestionKey = `subquestion-q-${question.id}-sq-${subQuestion.id}`;
+                    const isOtherSubQuestion = Boolean(subQuestion.is_other) && subQuestion.subquestion_type === "open";
+
+                    // Condición especial para la subpregunta 1410
+                    if (subQuestion.id === 1410) {
+                      return (
+                        <div key={subQuestionKey}>
+                          <SubQuestionColumn>
+                            <TooltipOptionContainer key={`tooltip-${subQuestionKey}`}>
+                              {subQuestion.custom_identifier ? `${subQuestion.custom_identifier} - ` : ""}
+                              {subQuestion.text_subquestion}
+                              {subQuestion.note && <TooltipOption note={subQuestion.note} />}
+                            </TooltipOptionContainer>
+                            {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
+                          </SubQuestionColumn>
+                          <OptionWrapper_Column>
+                            <OtherInputWrapper>
+                              <input
+                                type="text"
+                                id={`other-input-sq-${subQuestion.id}`}
+                                placeholder="Otro, ¿cuál?"
+                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                              />
+                            </OtherInputWrapper>
+                          </OptionWrapper_Column>
+                        </div>
+                      );
+                    }
 
                     return (
                       <div key={subQuestionKey}>
@@ -290,20 +348,36 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                                   {option.text_option}
                                 </OptionLabel>
                                 {option.note && <TooltipOption note={option.note} />}
+                                {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" y si la opción está seleccionada */}
+                                {isOtherSubQuestion && (
+
+                                  <OtherInputWrapper>
+                                    <input
+                                      type="text"
+                                      id={`other-input-sq-${subQuestion.id}`}
+                                      placeholder="Otro, ¿cuál?"
+                                      value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                    />
+                                  </OtherInputWrapper>
+
+                                )}
                               </TooltipOptionContainer>
                             );
                           })}
                           {/* Input "Otro" para la subpregunta */}
-                          {enableOther && responses[subQuestion.id] && !question.options?.find(opt => opt.id === responses[subQuestion.id])?.text_option.toLowerCase().includes("no sé") && (
+                          {isOtherSubQuestion && (
+
                             <OtherInputWrapper>
                               <input
                                 type="text"
                                 id={`other-input-sq-${subQuestion.id}`}
                                 placeholder="Otro, ¿cuál?"
-                                value={String(responses[`other_${subQuestion.id}`] || "")}
+                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
                                 onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
                               />
                             </OtherInputWrapper>
+
                           )}
                         </OptionWrapper_Column>
                       </div>
@@ -355,17 +429,19 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 
                       {/* Input de texto "Otro" */}
                       {option.is_other && isChecked && (
+
                         <OtherInputWrapper>
                           <input
                             type="text"
                             id={`other-input-q-${question.id}`}
                             placeholder="Otro, ¿cuál?"
-                            value={String(responses[`other_${question.id}`] || "")}
+                            value={String(responses[`other_${question.id}`] ?? "")}
                             onChange={(e) =>
                               handleOptionChange(`other_${question.id}`, e.target.value)
                             }
                           />
                         </OtherInputWrapper>
+
                       )}
                     </TooltipOptionContainer>
                   );

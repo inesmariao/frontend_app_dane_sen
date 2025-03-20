@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StyledComponentsRegistry>
           <ThemeProvider>
-            <StyledThemeProvider theme={{ ...theme, fontSize: fontSize }}> {/* Cambia aquí */}
+            <StyledThemeProvider theme={{ ...theme, fontSize: fontSize }}>
               <AuthProvider>
                 <GlobalStyles />
                 <LayoutWrapper>
