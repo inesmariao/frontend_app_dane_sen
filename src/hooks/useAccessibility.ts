@@ -1,3 +1,4 @@
+import { applyFontSize } from "@/styles/accessibilityStyles";
 import { useEffect, useState } from "react";
 
 const fontSizeArray = ["14px", "16px", "18px", "20px", "24px"];
@@ -7,35 +8,41 @@ export function useAccessibility() {
   const [fontSizeIndex, setFontSizeIndex] = useState(1); // Por defecto en 16px
 
   useEffect(() => {
-    const savedContrast = localStorage.getItem("contrast") === "true";
-    const savedFontSize = localStorage.getItem("fontsize")
-      ? parseInt(localStorage.getItem("fontsize") as string, 10)
-      : 1;
+    if (typeof window !== "undefined") {
+      const savedContrast = localStorage.getItem("contrast") === "true";
+      const savedFontSize = localStorage.getItem("fontsize")
+        ? parseInt(localStorage.getItem("fontsize") as string, 10)
+        : 1;
 
-    setContrast(savedContrast);
-    setFontSizeIndex(savedFontSize);
+      setContrast(savedContrast);
+      setFontSizeIndex(savedFontSize);
 
-    // Aplica la clase de contraste al body
-    document.body.classList.toggle("contrast", savedContrast);
+      document.body.classList.toggle("contrast", savedContrast);
+      applyFontSize(fontSizeArray[savedFontSize]);
+    }
   }, []);
 
   useEffect(() => {
-    // Aplica el estilo de fuente al body
-    document.body.style.fontSize = fontSizeArray[fontSizeIndex];
+    if (typeof window !== "undefined") {
+      applyFontSize(fontSizeArray[fontSizeIndex]);
+    }
   }, [fontSizeIndex]);
 
   const toggleContrast = () => {
-    const newContrast = !contrast;
-    setContrast(newContrast);
-    localStorage.setItem("contrast", newContrast.toString());
-
-    // Aplica o remueve la clase de alto contraste
-    document.body.classList.toggle("contrast", newContrast);
+    if (typeof window !== "undefined") {
+      const newContrast = !contrast;
+      setContrast(newContrast);
+      localStorage.setItem("contrast", newContrast.toString());
+      document.body.classList.toggle("contrast", newContrast);
+    }
   };
 
   const updateFontSize = (newIndex: number) => {
-    setFontSizeIndex(newIndex);
-    localStorage.setItem("fontsize", newIndex.toString());
+    if (typeof window !== "undefined") {
+      setFontSizeIndex(newIndex);
+      localStorage.setItem("fontsize", newIndex.toString());
+      applyFontSize(fontSizeArray[newIndex]);
+    }
   };
 
   const increaseFontSize = () => {
@@ -51,14 +58,16 @@ export function useAccessibility() {
   };
 
   const resetAccessibility = () => {
-    setContrast(false);
-    setFontSizeIndex(1);
+    if (typeof window !== "undefined") {
+      setContrast(false);
+      setFontSizeIndex(1);
 
-    localStorage.setItem("contrast", "false");
-    localStorage.setItem("fontsize", "1");
+      localStorage.setItem("contrast", "false");
+      localStorage.setItem("fontsize", "1");
 
-    document.body.classList.remove("contrast");
-    document.body.style.fontSize = fontSizeArray[1];
+      document.body.classList.remove("contrast");
+      applyFontSize(fontSizeArray[1]);
+    }
   };
 
   return {

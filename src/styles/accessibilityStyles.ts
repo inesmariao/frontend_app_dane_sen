@@ -84,3 +84,10 @@ export const AccessibilityButton = styled.button<AccessibilityProps>`
 export const AccessibilityLink = styled(AccessibilityButton).attrs({ as: "a" })<AccessibilityProps>`
   text-decoration: none;
 `;
+
+export const applyFontSize = (size: string) => {
+  if (typeof window !== "undefined") {
+    document.body.style.fontSize = size;
+    document.documentElement.style.fontSize = size;
+  }
+};
