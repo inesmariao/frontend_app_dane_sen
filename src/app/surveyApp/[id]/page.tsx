@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback, memo  } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { handleError } from "@/utils/errorHandling";
 import Swal from "sweetalert2";
@@ -16,7 +16,7 @@ import {
 } from "@/styles/components/StyledSurvey";
 
 
-const SurveyApp: React.FC = () => {
+const SurveyApp = memo(() => {
 
   const router = useRouter();
   const params = useParams();
@@ -29,6 +29,7 @@ const SurveyApp: React.FC = () => {
   const [showSecondQuestion, setShowSecondQuestion] = useState(false);
   const [birthDate, setBirthDate] = useState<string>("");
 
+  
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
@@ -90,18 +91,53 @@ const SurveyApp: React.FC = () => {
 
   if (!survey) return <p>Cargando datos de la encuesta...</p>;
 
+  const currentChapter = (survey.chapters && currentChapterIndex < survey.chapters.length)
+  ? survey.chapters[currentChapterIndex]
+  : null;
 
+
+  if (!currentChapter) {
+    handleError("Error: currentChapter es null o undefined");
+
+    Swal.fire({
+      icon: "error",
+      title: "Error al cargar el capítulo",
+      text: "No se pudo cargar el capítulo. Por favor, recarga la página.",
+      confirmButtonText: "Aceptar"
+    }).then(() => {
+      router.push("/surveys");
+    });
+  
+    return null;
+  }
+
+  let chapterQuestions: Question[] = [];
+
+  if (survey?.questions && currentChapter?.id) {
+    try {
+      chapterQuestions = survey.questions.filter((q: Question) => q.chapter === currentChapter.id);
+    } catch (error) {
+      handleError("Error al filtrar preguntas por capítulo:", error);
+    }
+  }
+
+  console.log("survey.chapters:", survey?.chapters); // Debug
+  
   const handleOptionChange = (
     questionId: string | number,
     value: string | number | number[] | GeographicResponse
   ) => {
     setResponses((prev: Responses) => {
+
+      console.log(`🔄 Actualizando responses[${questionId}]:`, value); // Debug
+
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
       console.log(`✅ Guardando respuesta para pregunta ${questionId}:`, value); // Debug
 
 
       // Manejo especial para las respuestas tipo "Otro"
       if (typeof questionId === "string" && questionId.startsWith("other_")) {
+        console.log(`✅ Guardando respuesta "Otro" para ${questionId}:`, value); // Debug
         return {
           ...prev,
           [questionId]: value,
@@ -409,7 +445,7 @@ const SurveyApp: React.FC = () => {
   };
 
   const handleNextChapter = () => {
-    if (currentChapterIndex < survey.chapters.length) {
+    if (currentChapterIndex < survey.chapters.length - 1) {
       setCurrentChapterIndex((prev) => prev + 1);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -445,15 +481,28 @@ const SurveyApp: React.FC = () => {
     alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
 
     // Identificar preguntas sin responder
-    const unansweredQuestions = allQuestions.filter((q: Question) => {
-      if (q.subquestions && q.subquestions.length > 0) {
+    const unansweredQuestions = allQuestions.filter((q) => {
+      if (q.question_type === "matrix" && Array.isArray(q.subquestions) && q.subquestions.length > 0) {
+        // Verificar que todas las subpreguntas tengan respuestas
         return q.subquestions.some((sq: SubQuestion) => {
+
+          // Ignora campos "Otro" opcionales (usando is_other)
+          if (sq.is_other) {
+            return false;
+          }
           const response = responses[sq.id];
-          return response === undefined || (Array.isArray(response) && response.length === 0);
+
+          console.log(`🔍 Verificando respuesta para subpregunta ${sq.id}:`, response); // Debug
+
+          return response === undefined || response === null;
         });
       } else {
+        // Para preguntas normales, verifica la pregunta principal
         const response = responses[q.id];
-        return response === undefined || (Array.isArray(response) && response.length === 0);
+
+        console.log(`🔍 Verificando respuesta para pregunta ${q.id}:`, response); // Debug
+
+        return response === undefined || response === null || (Array.isArray(response) && response.length === 0);
       }
     });
 
@@ -496,54 +545,10 @@ const SurveyApp: React.FC = () => {
       handleError("Error al enviar respuestas:", error);
       Swal.fire("Error", "Hubo un problema al enviar las respuestas. Intente de nuevo.", "error");
     }
-
-    // ✅ Debug: Mostrar resumen antes de enviar
-    console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
-    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
-    // ✅ Debug
-    console.log("✅ Datos a enviar:", JSON.stringify(formattedResponses, null, 2));
-
-    // Enviar respuestas al backend
-    try {
-      await submitResponses(formattedResponses);
-      Swal.fire({
-        icon: "success",
-        title: "¡Gracias por hacer parte de la App Diversa!",
-        html: `
-          <p style="text-align: justify;">
-            Su participación es fundamental para generar un impacto positivo en la lucha contra la discriminación.
-            Con sus respuestas, podremos identificar los desafíos que enfrentan diferentes grupos y trabajar en soluciones
-            que hagan de nuestra sociedad un lugar más justo e inclusivo para todos.
-          </p>
-          <br>
-          <p style="text-align: justify;">
-            Si tiene algún comentario adicional o quiere seguir siendo parte de esta iniciativa, no dudes en contactarnos (mjvargasm@dane.gov.co).
-          </p>
-        `,
-        confirmButtonText: "Aceptar"
-      }).then(() => {
-        router.push("/surveys");
-      });
-    } catch (error) {
-      handleError("Error al enviar respuestas:", error);
-      Swal.fire("Error", "Hubo un problema al enviar las respuestas. Intente de nuevo.", "error");
-    }
   };
 
-
-
-  const currentChapter = survey.chapters?.[currentChapterIndex] ?? null;
-
-  let chapterQuestions: Question[] = [];
-
-  try {
-    chapterQuestions = survey?.questions
-      ? survey.questions.filter((q: Question) => q.chapter === currentChapter?.id)
-      : [];
-  } catch (error) {
-    handleError("Error al filtrar preguntas por capítulo:", error);
-  }
-
+  console.log("currentChapterIndex:", currentChapterIndex); // Debug
+  console.log("showSecondQuestion:", showSecondQuestion); // Debug
 
   return (
     <SurveyContainer>
@@ -561,10 +566,10 @@ const SurveyApp: React.FC = () => {
       </SurveyHeader>
 
       {/* Pregunta 1 - Residencia en Colombia */}
-      {currentChapterIndex === 0 && !showSecondQuestion && (
+      {currentChapterIndex === 0 && !showSecondQuestion && currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter.name}
+          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={survey.questions.filter((q) => q.id === 1)}
           responses={responses}
           handleOptionChange={handleOptionChange}
@@ -576,10 +581,10 @@ const SurveyApp: React.FC = () => {
       )}
 
       {/* Pregunta 2 - Fecha de nacimiento */}
-      {currentChapterIndex === 0 && showSecondQuestion && (
+      {currentChapterIndex === 0 && showSecondQuestion && currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter.name}
+          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={survey.questions.filter((q) => q.id === 2)}
           responses={responses}
           handleOptionChange={handleOptionChange}
@@ -591,10 +596,10 @@ const SurveyApp: React.FC = () => {
       )}
 
       {/* Resto de capítulos */}
-      {currentChapterIndex && (
+      {currentChapterIndex &&  currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter.name}
+          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={chapterQuestions}
           responses={responses}
           handleOptionChange={handleOptionChange}
@@ -606,6 +611,6 @@ const SurveyApp: React.FC = () => {
       )}
     </SurveyContainer>
   );
-};
+});
 
 export default SurveyApp;

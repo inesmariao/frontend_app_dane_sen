@@ -16,9 +16,12 @@ const Chapter: React.FC<ChapterProps> = ({
   isLastChapter,
   isFirstChapter,
 }) => {
+
+  console.log("Chapter prop:", chapter);// Debug
+
   return (
     <>
-      <ChapterTitle>{chapter.name}</ChapterTitle>
+      <ChapterTitle>{chapter?.name}</ChapterTitle>
 
       {/* Renderizar las preguntas del capítulo */}
       <ChapterQuestions
@@ -26,7 +29,7 @@ const Chapter: React.FC<ChapterProps> = ({
         questions={questions}
         responses={responses}
         handleOptionChange={handleOptionChange}
-        chapterName={chapter.name}
+        chapterName={chapter?.name}
         handleNextChapter={handleNextChapter}
         handlePrevChapter={handlePrevChapter}
         isFirstChapter={isFirstChapter}

@@ -21,22 +21,32 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
         answer: typeof response === "string" ? response : null,
       });
     } else if (question.question_type === "matrix" && question.subquestions?.length) {
-      console.log("// DEBUG - question.subquestions:", question.subquestions);
-      question.subquestions.forEach((subq) => {
-        console.log("// DEBUG - subq.id:", subq.id);
-        const subResponse = responses[subq.id];
-        console.log("// DEBUG - responses[subq.id]:", subResponse); 
-        const otherText = responses[`other_${subq.id}`] ?? undefined;
+        question.subquestions.forEach((subq) => {
+          const subResponse = responses[subq.id];
+          let otherText = responses[`other_${subq.id}`] ?? "";
 
-        if (typeof subResponse === "number") {
+          // Debug Asegurar que subpregunta 1410 siempre tenga valor por defecto "SQ1410" en other_text
+          if (subq.id === 1410 && !responses[`other_${subq.id}`]) {
+              otherText = "SQ1410";
+          }
+
           formattedResponses.push({
-            survey_id: survey.id,
-            question_id: question.id,
-            subquestion_id: subq.id,
-            option_selected: subResponse,
-            other_text: otherText ?? undefined,
-          } as SurveyResponse);
-        }
+              survey_id: survey.id,
+              question_id: question.id,
+              subquestion_id: subq.id,
+              option_selected: typeof subResponse === "number" ? subResponse : 135,
+              other_text: otherText as string,
+          });
+      });
+    } else if (question.id === 6) {
+      const geo = response as GeographicResponse ?? {};
+      formattedResponses.push({
+          survey_id: survey.id,
+          question_id: question.id,
+          option_selected: geo.option_selected ?? 135,
+          country: geo.country ?? null,
+          department: geo.department ?? null,
+          municipality: geo.municipality ?? null,
       });
     } else if (question.id === 8) {
       const geo = response as GeographicResponse ?? {};
