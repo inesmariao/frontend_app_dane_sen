@@ -37,6 +37,8 @@ export interface SurveyResponse {
   municipality?: number | null;
   new_department?: number | null;
   new_municipality?: number | null;
+  subquestion_id?: number;
+  other_text?: string | null;
 }
 
 export interface Chapter {
