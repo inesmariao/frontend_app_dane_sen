@@ -1,13 +1,11 @@
 import { Responses, Survey, SurveyResponse, GeographicResponse } from "@/types";
 
 export function prepareAnswersForSubmit(survey: Survey, responses: Responses): SurveyResponse[] {
-  console.log("// DEBUG - survey.questions:", survey.questions); 
   const formattedResponses: SurveyResponse[] = [];
 
   survey.questions.forEach((question) => {
     const response = responses[question.id];
 
-    // Manejo de la primera pregunta y fecha de nacimiento
     if (question.id === 1) {
       formattedResponses.push({
         survey_id: survey.id,
@@ -21,58 +19,44 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
         answer: typeof response === "string" ? response : null,
       });
     } else if (question.question_type === "matrix" && question.subquestions?.length) {
-        question.subquestions.forEach((subq) => {
-          const subResponse = responses[subq.id];
-          let otherText = responses[`other_${subq.id}`] ?? "";
-
-          // Debug Asegurar que subpregunta 1410 siempre tenga valor por defecto "SQ1410" en other_text
-          if (subq.id === 1410 && !responses[`other_${subq.id}`]) {
-              otherText = "SQ1410";
-          }
-
+      question.subquestions.forEach((subq) => {
+        const subResponse = responses[subq.id];
+        let otherText = responses[`other_${subq.id}`] ?? "";
+        if (typeof otherText !== "string") {
+          otherText = otherText?.toString() ?? "";
+        }
+        if (subq.is_other) {
           formattedResponses.push({
-              survey_id: survey.id,
-              question_id: question.id,
-              subquestion_id: subq.id,
-              option_selected: typeof subResponse === "number" ? subResponse : 135,
-              other_text: otherText as string,
+            survey_id: survey.id,
+            question_id: question.id,
+            subquestion_id: subq.id,
+            other_text: otherText || "Is_Other",
           });
+        } else {
+          formattedResponses.push({
+            survey_id: survey.id,
+            question_id: question.id,
+            subquestion_id: subq.id,
+            option_selected: typeof subResponse === "number" ? subResponse : null,
+            other_text: otherText || "",
+          });
+        }
       });
-    } else if (question.id === 6) {
+    } else if (question.id === 6 || question.id === 8) {
       const geo = response as GeographicResponse ?? {};
-      formattedResponses.push({
-          survey_id: survey.id,
-          question_id: question.id,
-          option_selected: geo.option_selected ?? 135,
-          country: geo.country ?? null,
-          department: geo.department ?? null,
-          municipality: geo.municipality ?? null,
-      });
-    } else if (question.id === 8) {
-      const geo = response as GeographicResponse ?? {};
-      formattedResponses.push({
-        survey_id: survey.id,
-        question_id: question.id,
-        option_selected: geo.option_selected ?? null,
-        department: geo.department ?? null,
-        municipality: geo.municipality ?? null,
-      });
-    } else if (question.is_geographic && typeof response === "object" && response !== null) {
-      const geo = response as GeographicResponse;
       formattedResponses.push({
         survey_id: survey.id,
         question_id: question.id,
         option_selected: geo.option_selected ?? null,
         country: geo.country ?? null,
-        department: geo.department ?? null,
+        department: typeof geo.department === "number" ? geo.department : null,
         municipality: geo.municipality ?? null,
       });
     } else if (question.question_type === "open") {
-      console.log("// DEBUG - responses[question.id]:", responses[question.id]);
       formattedResponses.push({
         survey_id: survey.id,
         question_id: question.id,
-        answer: typeof response === "string" ? response : response?.toString() ?? null,
+        answer: typeof response === "string" ? response : response?.toString() ?? "",
       });
     } else if (question.question_type === "closed" && question.is_multiple) {
       formattedResponses.push({
@@ -83,17 +67,15 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
           : [],
       });
     } else if (question.question_type === "closed" && !question.is_multiple) {
-      const otherText = responses[`other_${question.id}`] ?? undefined;
+      const otherText = responses[`other_${question.id}`] ?? "";
       formattedResponses.push({
         survey_id: survey.id,
         question_id: question.id,
         option_selected: typeof response === "number" ? response : null,
-        other_text: otherText ?? undefined,
+        other_text: otherText,
       } as SurveyResponse);
     }
   });
-
-  console.log("📌 Respuestas formateadas antes de enviar:", formattedResponses); // Debug
 
   return formattedResponses;
 }

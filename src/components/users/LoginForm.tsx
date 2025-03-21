@@ -66,7 +66,7 @@ const RegisterLink = styled.p`
 const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
+  const auth = useAuth();
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ const LoginForm: React.FC = () => {
     setError(null);
 
     try {
-      await login(formData);
+      await auth?.login(formData);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -90,7 +90,7 @@ const LoginForm: React.FC = () => {
   };
 
   const handleGoToRegister = () => {
-    router.push("/register"); // Redirige a la página de registro
+    router.push("/register");
   };
 
   return (
@@ -124,7 +124,7 @@ const LoginForm: React.FC = () => {
         <StyledButton type="submit">Iniciar Sesión</StyledButton>
       </form>
       <RegisterLink>
-        ¿No tienes una cuenta?{" "}
+        ¿No tiene una cuenta?{" "}
           <a onClick={handleGoToRegister} role="button" tabIndex={0}>
             Regístrese aquí
           </a>

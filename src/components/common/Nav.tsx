@@ -28,7 +28,7 @@ const NavWrapper = styled.nav`
 
       &:hover {
         text-decoration: none;
-        background-color: #5c4aa1; /* Color de fondo en hover */
+        background-color: #5c4aa1;
       }
 
       a, span {
@@ -55,11 +55,11 @@ const NavWrapper = styled.nav`
 `;
 
 export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
-  const { authData, logout } = useAuth();
-  const user = authData?.user;
+  const auth = useAuth();
+  const user = auth?.authData?.user;
 
   const handleLogout = () => {
-    logout();
+    auth?.logout();
     closeMenu();
   };
 

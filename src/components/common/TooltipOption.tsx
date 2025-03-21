@@ -18,29 +18,29 @@ const TooltipOption: React.FC<TooltipOptionProps> = ({ note = "" }) => {
     setShowTooltip(!showTooltip);
   };
 
-  const handleClickOutside = (event: MouseEvent) => { //Cambio aqui
-    if (
-      showTooltip &&
-      tooltipRef.current &&
-      !tooltipRef.current.contains(event.target as Node)
-    ) {
-      setShowTooltip(false);
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showTooltip &&
+        tooltipRef.current &&
+        !tooltipRef.current.contains(event.target as Node)
+      ) {
+        setShowTooltip(false);
+      }
+    };
+
     if (showTooltip) {
-      document.addEventListener("click", handleClickOutside); //Cambio aqui
+      document.addEventListener("click", handleClickOutside);
     } else {
-      document.removeEventListener("click", handleClickOutside); //Cambio aqui
+      document.removeEventListener("click", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("click", handleClickOutside); //Cambio aqui
-    };
+      document.removeEventListener("click", handleClickOutside);
+    }
   }, [showTooltip]);
 
-  // Si `note` está vacío, solo mostramos el texto sin ícono ni tooltip
+  // Si `note` está vacío, mostrar el texto sin ícono ni tooltip
   if (!note.trim()) {
     return null;
   }

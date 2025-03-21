@@ -51,7 +51,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
 
 
     }
-  }, [year, month]);
+  }, [year, month, currentDay, currentMonth, currentYear]);
 
   // Formatear y enviar la fecha cuando los tres valores están seleccionados
   useEffect(() => {
@@ -60,7 +60,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
 
       onChange(questionId, formattedDate);
     }
-  }, [year, month, day]);
+  }, [year, month, day, onChange, questionId]);
 
   return (
     <DateSelectWrapper>

@@ -100,6 +100,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     handleError("El hook useAuth debe ser utilizado dentro de un AuthProvider.");
+    return undefined;
   }
   return context;
 };

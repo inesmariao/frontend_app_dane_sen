@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, memo  } from "react";
+import React, { useState, useEffect, memo  } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { handleError } from "@/utils/errorHandling";
 import Swal from "sweetalert2";
@@ -87,7 +87,7 @@ const SurveyApp = memo(() => {
     };
   
     loadSurvey();
-  }, [id]);
+  }, [id, router]);
 
   if (!survey) return <p>Cargando datos de la encuesta...</p>;
 
@@ -121,23 +121,17 @@ const SurveyApp = memo(() => {
     }
   }
 
-  console.log("survey.chapters:", survey?.chapters); // Debug
-  
+
   const handleOptionChange = (
     questionId: string | number,
     value: string | number | number[] | GeographicResponse
   ) => {
     setResponses((prev: Responses) => {
 
-      console.log(`🔄 Actualizando responses[${questionId}]:`, value); // Debug
-
       const numericQuestionId = typeof questionId === "string" ? parseInt(questionId, 10) : questionId;
-      console.log(`✅ Guardando respuesta para pregunta ${questionId}:`, value); // Debug
-
 
       // Manejo especial para las respuestas tipo "Otro"
       if (typeof questionId === "string" && questionId.startsWith("other_")) {
-        console.log(`✅ Guardando respuesta "Otro" para ${questionId}:`, value); // Debug
         return {
           ...prev,
           [questionId]: value,
@@ -248,7 +242,7 @@ const SurveyApp = memo(() => {
           showRejectionMessage1();
           return;
         }
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         showRejectionMessage1();
         return;
@@ -463,7 +457,6 @@ const SurveyApp = memo(() => {
   };
 
   const handleSubmit = async () => {
-    console.log("📌 Enviando respuestas:", responses); // Debug
 
     if (!survey) {
       Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
@@ -475,10 +468,6 @@ const SurveyApp = memo(() => {
 
     // Usar el helper para formatear las respuestas correctamente
     const formattedResponses = prepareAnswersForSubmit(survey, responses);
-
-    // ✅ Debug: Mostrar resumen antes de enviar
-    console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
-    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen."); // Debug
 
     // Identificar preguntas sin responder
     const unansweredQuestions = allQuestions.filter((q) => {
@@ -492,15 +481,11 @@ const SurveyApp = memo(() => {
           }
           const response = responses[sq.id];
 
-          console.log(`🔍 Verificando respuesta para subpregunta ${sq.id}:`, response); // Debug
-
           return response === undefined || response === null;
         });
       } else {
         // Para preguntas normales, verifica la pregunta principal
         const response = responses[q.id];
-
-        console.log(`🔍 Verificando respuesta para pregunta ${q.id}:`, response); // Debug
 
         return response === undefined || response === null || (Array.isArray(response) && response.length === 0);
       }
@@ -547,9 +532,6 @@ const SurveyApp = memo(() => {
     }
   };
 
-  console.log("currentChapterIndex:", currentChapterIndex); // Debug
-  console.log("showSecondQuestion:", showSecondQuestion); // Debug
-
   return (
     <SurveyContainer>
       <SurveyHeader>
@@ -558,10 +540,10 @@ const SurveyApp = memo(() => {
           <span className="block font-bold">{survey.description_title}</span>
         </SurveyDescriptionName>
         <SurveyDescriptionName className="space-y-2">
-          <span>
-            <strong>Definición de "discriminación":</strong>
-            {survey.description_name.replace(/Definición de\s?[“”"]?discriminación[“”"]?:/i, '')}
-          </span>
+        <span>
+          <strong>Definición de &quot;discriminación&quot;:</strong>
+          {survey.description_name.replace(/Definición de\s*["“”]*discriminación["“”]*:\s*/i, '')}
+        </span>
         </SurveyDescriptionName>
       </SurveyHeader>
 
@@ -612,5 +594,7 @@ const SurveyApp = memo(() => {
     </SurveyContainer>
   );
 });
+
+SurveyApp.displayName = "SurveyApp";
 
 export default SurveyApp;

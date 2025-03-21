@@ -17,8 +17,6 @@ const Chapter: React.FC<ChapterProps> = ({
   isFirstChapter,
 }) => {
 
-  console.log("Chapter prop:", chapter);// Debug
-
   return (
     <>
       <ChapterTitle>{chapter?.name}</ChapterTitle>

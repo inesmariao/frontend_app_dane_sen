@@ -240,7 +240,7 @@ const RegisterForm: React.FC = () => {
 
   return (
     <RegisterFormContainer>
-      <Instructions>Selecciona tu identificador para el registro:</Instructions>
+      <Instructions>Seleccione su identificador para el registro:</Instructions>
       <form onSubmit={handleSubmit}>
         <DropdownContainer ref={dropdownRef}>
           <DropdownButton onClick={toggleDropdown}>
@@ -263,7 +263,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="email"
             name="identifier"
-            placeholder="Escribe tu correo electrónico"
+            placeholder="Escriba su correo electrónico"
             value={formData.identifier}
             onChange={handleInputChange}
           />
@@ -272,7 +272,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="text"
             name="identifier"
-            placeholder="Escribe tu usuario (una palabra)"
+            placeholder="Escriba su usuario (una palabra)"
             value={formData.identifier}
             onChange={handleInputChange}
           />
@@ -281,7 +281,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="tel"
             name="identifier"
-            placeholder="Escribe tu número de celular"
+            placeholder="Escriba su número de celular"
             value={formData.identifier}
             onChange={handleInputChange}
           />

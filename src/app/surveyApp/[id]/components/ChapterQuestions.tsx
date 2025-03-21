@@ -27,10 +27,10 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
   questions,
   responses,
   handleOptionChange,
-  chapterName,
 }) => {
 
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(window.innerWidth < 768);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [noDisabilitySelected, setNoDisabilitySelected] = useState(false);
 
   useEffect(() => {
@@ -55,7 +55,8 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
         }
     }
   }, [responses, questions]);
-
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCheckboxChange = (questionId: number, optionId: number) => {
     let currentResponses = responses[questionId];
     if (!Array.isArray(currentResponses)) {
@@ -102,11 +103,9 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
         const isMultiple = question.is_multiple;
-        const isGeographic = question.is_geographic;
         const subQuestions = Array.isArray(question.subquestions) ? question.subquestions : [];
         const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
         const isRowLayout = question.matrix_layout_type === "row";
-        const yesOption = question.options?.find((option) => option.text_option.toLowerCase() === "sí");
 
         return (
 

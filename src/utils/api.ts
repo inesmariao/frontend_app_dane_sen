@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { getAuthToken, clearAuthData, setAuthData } from "@/utils/auth";
 import { SurveyResponse } from "@/types";
 import { handleError } from "@/utils/errorHandling";
@@ -12,10 +12,10 @@ const apiClient = axios.create({
   },
 });
 
-// **Rutas públicas (NO requieren autenticación)**
+// Rutas públicas (NO requieren autenticación)
 const publicEndpoints = ["/users/v1/register/", "/users/v1/login/"];
 
-// **Interceptor para agregar el token solo en solicitudes protegidas**
+// Interceptor para agregar el token solo en solicitudes protegidas
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAuthToken();
@@ -30,7 +30,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// **Interceptor para manejar errores de autenticación y redirigir al login**
+// Interceptor para manejar errores de autenticación y redirigir al login
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -143,7 +143,6 @@ export const getSurvey = async (surveyId: number) => {
 // Método para enviar las respuestas al Backend
 export async function submitResponses(responses: SurveyResponse[]) {
   try {
-    console.log("Enviando respuestas:", responses); // Agregar registro de depuración
     const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
 
     // Verificar si la respuesta es exitosa (código de estado 2xx)
@@ -152,11 +151,17 @@ export async function submitResponses(responses: SurveyResponse[]) {
       return { success: false, error: `Error ${response.status}: ${response.statusText}` };
     }
 
-    return response.data; // Devuelve los datos de la respuesta
-  } catch (error: any) {
+    return response.data;
+  } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      handleError(`Error de Axios al conectar con la API: ${error.response?.data?.error || "Error de conexión con el servidor"}`);
-      return { success: false, error: error.response?.data?.error || "Error de conexión con el servidor" };
+      const axiosError = error as AxiosError;
+      const responseData = axiosError.response?.data as { error?: string };
+      handleError(`Error de Axios al conectar con la API: ${responseData?.error || "Error de conexión con el servidor"}`);
+      return { success: false, error: responseData?.error || "Error de conexión con el servidor" };
+    }
+    if (error instanceof Error) {
+      handleError(`Error desconocido al conectar con la API: ${error.message}`);
+      return { success: false, error: "Error de conexión con el servidor" };
     }
     handleError(`Error desconocido al conectar con la API: ${error}`);
     return { success: false, error: "Error de conexión con el servidor" };
