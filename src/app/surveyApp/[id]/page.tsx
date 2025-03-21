@@ -219,7 +219,7 @@ const SurveyApp = memo(() => {
     const firstQuestionResponse = responses[1];
 
     if (!survey?.id) {
-      console.error("Error: No se encontró el ID de la encuesta.");
+      handleError("No se encontró el ID de la encuesta.");
       Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
       return;
     }
@@ -478,7 +478,7 @@ const SurveyApp = memo(() => {
 
     // ✅ Debug: Mostrar resumen antes de enviar
     console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
-    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
+    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen."); // Debug
 
     // Identificar preguntas sin responder
     const unansweredQuestions = allQuestions.filter((q) => {

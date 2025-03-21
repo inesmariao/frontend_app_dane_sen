@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { Survey, SurveyContextType } from "@/types";
+import { handleError } from "@/utils/errorHandling";
 
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
@@ -16,7 +17,7 @@ export const SurveyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export const useSurveyContext = () => {
   const context = useContext(SurveyContext);
   if (!context) {
-    throw new Error("useSurveyContext debe utilizarse dentro de un SurveyProvider");
+    handleError("useSurveyContext debe utilizarse dentro de un SurveyProvider");
   }
   return context;
 };

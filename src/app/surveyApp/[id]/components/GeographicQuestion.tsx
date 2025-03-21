@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { GeographicQuestionProps, GeographicResponse } from "@/types";
 import apiClient from "@/utils/api";
+import { handleError } from "@/utils/errorHandling";
 import {
   GeoContainer,
   GeoLabel,
@@ -46,16 +47,28 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
       .then((res) => {
         setDepartments(res.data);
       })
-      .catch((error) => console.error("Error al cargar departamentos:", error));
+      .catch((error) => {
+        if (error instanceof Error) {
+          handleError(error.message);
+        } else {
+          handleError("Error desconocido al cargar departamentos.");
+        }
+      });
   }, []);
 
   // Cargar municipios cuando se selecciona un departamento
   useEffect(() => {
     if (selectedDepartment) {
-      setLoadingMunicipalities(true); // Mostrar "Cargando..." mientras se obtienen municipios
+      setLoadingMunicipalities(true);
       apiClient.get(`/geo/municipalities/by-department/${selectedDepartment}/`)
         .then((res) => setMunicipalities(res.data.municipalities ?? []))
-        .catch((error) => console.error("Error al cargar municipios:", error))
+        .catch((error) => {
+          if (error instanceof Error) {
+            handleError(error.message);
+          } else {
+            handleError("Error desconocido al cargar municipios.");
+          }
+        })
         .finally(() => setLoadingMunicipalities(false));
     } else {
       setMunicipalities([]);

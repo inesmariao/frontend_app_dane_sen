@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getAuthToken, clearAuthData, setAuthData } from "@/utils/auth";
 import { SurveyResponse } from "@/types";
+import { handleError } from "@/utils/errorHandling";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
@@ -62,12 +63,12 @@ export const registerUser = async (userData: {
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data?.error || "Error al registrar usuario");
+        handleError(error.response.data?.error || "Error al registrar usuario");
     }
     if (error instanceof Error) {
-      throw new Error(error.message);
+      handleError(error.message);
     }
-    throw new Error("Error al conectar con el servidor");
+    handleError("Error al conectar con el servidor");
   }
 };
 
@@ -79,7 +80,7 @@ export const loginUser = async (credentials: { identifier: string; password: str
     const { access_token, refresh_token, user } = response.data;
 
     if (!access_token || !user) {
-      throw new Error("Respuesta inválida del backend.");
+      handleError("Respuesta inválida del backend.");
     }
 
     setAuthData(access_token, user);
@@ -87,12 +88,12 @@ export const loginUser = async (credentials: { identifier: string; password: str
     return { token: access_token, refreshToken: refresh_token, user };
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data?.error || "Error al iniciar sesión.");
+      handleError(error.response.data?.error || "Error al iniciar sesión.");
     }
     if (error instanceof Error) {
-      throw new Error(error.message);
+      handleError(error.message);
     }
-    throw new Error("Error al conectar con el servidor durante el inicio de sesión.");
+    handleError("Error al conectar con el servidor durante el inicio de sesión.");
   }
 };
 
@@ -102,7 +103,7 @@ export const getSurvey = async (surveyId: number) => {
   try {
 
     if (!surveyId || isNaN(surveyId)) {
-      console.error("ID de la encuesta no válido.");
+      handleError("ID de la encuesta no válido.");
       return null;
     }
 
@@ -130,12 +131,12 @@ export const getSurvey = async (surveyId: number) => {
         }
         return null;
       }
-      throw new Error(error.response.data?.error || "Error al obtener la encuesta.");
+      handleError(error.response.data?.error || "Error al obtener la encuesta.");
     }
     if (error instanceof Error) {
-      throw new Error(error.message);
+      handleError(error.message);
     }
-    throw new Error("Error desconocido al obtener la encuesta.");
+    handleError("Error desconocido al obtener la encuesta.");
   }
 };
 
@@ -147,17 +148,17 @@ export async function submitResponses(responses: SurveyResponse[]) {
 
     // Verificar si la respuesta es exitosa (código de estado 2xx)
     if (response.status < 200 || response.status >= 300) {
-      console.error("Error en la API al enviar respuestas:", response.status, response.statusText);
+      handleError(`Error en la API al enviar respuestas: ${response.status} ${response.statusText}`);
       return { success: false, error: `Error ${response.status}: ${response.statusText}` };
     }
 
     return response.data; // Devuelve los datos de la respuesta
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
-      console.error("Error de Axios al conectar con la API:", error.response);
+      handleError(`Error de Axios al conectar con la API: ${error.response?.data?.error || "Error de conexión con el servidor"}`);
       return { success: false, error: error.response?.data?.error || "Error de conexión con el servidor" };
     }
-    console.error("Error desconocido al conectar con la API:", error);
+    handleError(`Error desconocido al conectar con la API: ${error}`);
     return { success: false, error: "Error de conexión con el servidor" };
   }
 }

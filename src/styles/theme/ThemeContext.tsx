@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import { handleError } from "@/utils/errorHandling";
 
 type ThemeType = "light" | "dark";
 
@@ -41,7 +42,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme debe usarse dentro de ThemeProvider");
+    handleError("useTheme debe usarse dentro de ThemeProvider");
   }
   return context;
 };
