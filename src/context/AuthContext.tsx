@@ -59,19 +59,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: { identifier: string; password: string }) => {
     try {
       const { token, user } = await loginUser(credentials);
-  
+
       // Guardar los datos de autenticación
       setAuthData({ token, user });
-  
+
       // Redirigir al usuario después del login
       router.push("/surveys");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Error al iniciar sesión:", error.message);
-        throw error;
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error al iniciar sesión:", error.message);
+        }
+      } else {
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error desconocido al iniciar sesión");
+        }
       }
-      console.error("Error desconocido al iniciar sesión");
-      throw new Error("Error desconocido al iniciar sesión");
     }
   };
 
@@ -85,7 +88,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("El hook useAuth debe ser utilizado dentro de un AuthProvider.");
+    if (process.env.NODE_ENV === "development") {
+      console.error("El hook useAuth debe ser utilizado dentro de un AuthProvider.");
+    }
   }
   return context;
 };

@@ -104,10 +104,10 @@ export default function Home() {
         <Title>¡Bienvenido/a AppDiversa!</Title>
         <Subtitle>
           <p>
-            Desde el DANE queremos darte las gracias por tomarte el tiempo de participar. Tus respuestas son muy valiosas para nosotros, ya que nos ayudarán a entender mejor las realidades que viven las personas en relación con la discriminación en diferentes ámbitos. Esta información será clave para promover cambios y políticas que favorezcan la inclusión y el respeto.
+            Desde el DANE queremos darle las gracias por tomarse el tiempo de participar. Sus respuestas son muy valiosas para nosotros, ya que nos ayudarán a entender mejor las realidades que viven las personas en relación con la discriminación en diferentes ámbitos. Esta información será clave para promover cambios y políticas que favorezcan la inclusión y el respeto.
           </p>
           <p>
-            Recuerda que todas tus respuestas son anónimas y tratadas de acuerdo con la política de tratamiento y protección de datos personales (Res.0379/2022).
+            Recuerde que todas sus respuestas son anónimas y tratadas de acuerdo con la política de tratamiento y protección de datos personales (Res.0379/2022).
           </p>
         </Subtitle>
         <StyledButton onClick={handleNext}>Siguiente</StyledButton>

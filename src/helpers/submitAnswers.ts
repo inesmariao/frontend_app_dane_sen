@@ -1,14 +1,31 @@
 import { Responses, Survey, SurveyResponse, GeographicResponse } from "@/types";
 
 export function prepareAnswersForSubmit(survey: Survey, responses: Responses): SurveyResponse[] {
+  console.log("// DEBUG - survey.questions:", survey.questions); 
   const formattedResponses: SurveyResponse[] = [];
 
   survey.questions.forEach((question) => {
     const response = responses[question.id];
 
-    if (question.question_type === "matrix" && question.subquestions?.length) {
+    // Manejo de la primera pregunta y fecha de nacimiento
+    if (question.id === 1) {
+      formattedResponses.push({
+        survey_id: survey.id,
+        question_id: 1,
+        option_selected: typeof response === "number" ? response : null,
+      });
+    } else if (question.id === 2) {
+      formattedResponses.push({
+        survey_id: survey.id,
+        question_id: 2,
+        answer: typeof response === "string" ? response : null,
+      });
+    } else if (question.question_type === "matrix" && question.subquestions?.length) {
+      console.log("// DEBUG - question.subquestions:", question.subquestions);
       question.subquestions.forEach((subq) => {
+        console.log("// DEBUG - subq.id:", subq.id);
         const subResponse = responses[subq.id];
+        console.log("// DEBUG - responses[subq.id]:", subResponse); 
         const otherText = responses[`other_${subq.id}`] ?? undefined;
 
         if (typeof subResponse === "number") {
@@ -27,8 +44,8 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
         survey_id: survey.id,
         question_id: question.id,
         option_selected: geo.option_selected ?? null,
-        new_department: geo.new_department ?? null,
-        new_municipality: geo.new_municipality ?? null,
+        department: geo.department ?? null,
+        municipality: geo.municipality ?? null,
       });
     } else if (question.is_geographic && typeof response === "object" && response !== null) {
       const geo = response as GeographicResponse;
@@ -41,6 +58,7 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
         municipality: geo.municipality ?? null,
       });
     } else if (question.question_type === "open") {
+      console.log("// DEBUG - responses[question.id]:", responses[question.id]);
       formattedResponses.push({
         survey_id: survey.id,
         question_id: question.id,
@@ -64,6 +82,8 @@ export function prepareAnswersForSubmit(survey: Survey, responses: Responses): S
       } as SurveyResponse);
     }
   });
+
+  console.log("📌 Respuestas formateadas antes de enviar:", formattedResponses); // Debug
 
   return formattedResponses;
 }

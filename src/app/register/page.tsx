@@ -13,7 +13,7 @@ const Title = styled.h2`
 
   @media (max-width: 768px) {
     margin-bottom: 6px;
-    font-size: 1.2rem; /* Título más pequeño en pantallas pequeñas */
+    font-size: 1.2rem;
   }
 `;
 

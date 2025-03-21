@@ -106,7 +106,7 @@ export const getSurvey = async (surveyId: number) => {
       return null;
     }
 
-    const token = localStorage.getItem("authToken");
+    const token = getAuthToken();
     if (!token) {
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("auth:logout"));
@@ -140,23 +140,27 @@ export const getSurvey = async (surveyId: number) => {
 };
 
 // Método para enviar las respuestas al Backend
-export const submitResponses = async (responses: SurveyResponse[]) => {
+export async function submitResponses(responses: SurveyResponse[]) {
   try {
-      const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
-      return response.data;
-  } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
+    console.log("Enviando respuestas:", responses); // Agregar registro de depuración
+    const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
 
-          if (error.response.status === 403 || error.response.status === 400) {
-              return { rejected: true, message: error.response.data?.message || "No puede continuar con la encuesta." };
-          }
+    // Verificar si la respuesta es exitosa (código de estado 2xx)
+    if (response.status < 200 || response.status >= 300) {
+      console.error("Error en la API al enviar respuestas:", response.status, response.statusText);
+      return { success: false, error: `Error ${response.status}: ${response.statusText}` };
+    }
 
-          return { error: true, message: error.response.data?.error || "Error al enviar las respuestas." };
-      }
-      return { error: true, message: "Error desconocido al enviar las respuestas." };
+    return response.data; // Devuelve los datos de la respuesta
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      console.error("Error de Axios al conectar con la API:", error.response);
+      return { success: false, error: error.response?.data?.error || "Error de conexión con el servidor" };
+    }
+    console.error("Error desconocido al conectar con la API:", error);
+    return { success: false, error: "Error de conexión con el servidor" };
   }
-};
-
+}
 
 
 export default apiClient;

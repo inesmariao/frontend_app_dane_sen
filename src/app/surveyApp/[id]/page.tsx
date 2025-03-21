@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { handleError } from "@/utils/errorHandling";
 import Swal from "sweetalert2";
 import { getSurvey, submitResponses } from "@/utils/api";
+import { prepareAnswersForSubmit } from "@/helpers/submitAnswers";
 import Chapter from "./components/Chapter";
-import { Survey, Question, Responses, GeographicResponse, SurveyResponse } from "@/types";
+import { Survey, Question, SubQuestion, Responses, GeographicResponse, SurveyResponse } from "@/types";
 import {
   SurveyContainer,
   SurveyHeader,
@@ -22,49 +24,72 @@ const SurveyApp: React.FC = () => {
 
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<Responses>({});
-  const [error, setError] = useState(false);
+  const [, setError] = useState(false);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showSecondQuestion, setShowSecondQuestion] = useState(false);
   const [birthDate, setBirthDate] = useState<string>("");
 
+
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
     const loadSurvey = async () => {
-
-      console.log("📊 Encuesta cargada:", survey); // Debug
-
-
       try {
         if (!id) {
-          throw new Error("ID de la encuesta no definido.");
+          handleError(
+            "ID de la encuesta no definido. Es posible que el usuario no esté autenticado."
+          );
+  
+          Swal.fire({
+            icon: "warning",
+            title: "Sesión requerida",
+            text: "Debe iniciar sesión para acceder a la encuesta.",
+            confirmButtonText: "Ir al login",
+          }).then(() => {
+            router.push("/login");
+          });
+  
+          return;
         }
-
+  
         const data = await getSurvey(Number(id));
         if (!data) {
-          throw new Error("No se encontraron datos para esta encuesta.");
+          handleError(
+            "No se encontraron datos para esta encuesta. Es posible que el usuario no esté autenticado."
+          );
+  
+          Swal.fire({
+            icon: "warning",
+            title: "Sesión requerida",
+            text: "Debe iniciar sesión para acceder a la encuesta.",
+            confirmButtonText: "Ir al login",
+          }).then(() => {
+            router.push("/login");
+          });
+  
+          return;
         }
-
+  
+        // Procesar encuesta con subpreguntas
         const surveyWithSubquestions = {
           ...data,
           questions: data.questions.map((q: Question) => ({
             ...q,
-            subquestions: q.subquestions ?? []
-          }))
+            subquestions: q.subquestions ?? [],
+          })),
         };
-
+  
         setSurvey(surveyWithSubquestions);
-
       } catch (error) {
-        console.error("Error al cargar la encuesta:", error);
+        handleError("Error al cargar la encuesta:", error);
         setError(true);
       }
     };
+  
     loadSurvey();
   }, [id]);
 
-  if (error) return <p>Ocurrió un error al cargar la encuesta.</p>;
-
   if (!survey) return <p>Cargando datos de la encuesta...</p>;
+
 
   const handleOptionChange = (
     questionId: string | number,
@@ -84,13 +109,11 @@ const SurveyApp: React.FC = () => {
       }
 
       if (questionId === 2) {
-        console.log("📌 Respuesta de la pregunta 2 (antes de formatear):", value); // Debug
         if (typeof value === "string" || typeof value === "number") {
           const formattedDate = new Date(value).toISOString().split("T")[0];
-          console.log(`📆 Fecha formateada en 'handleOptionChange':`, formattedDate); // Debug
           setBirthDate(formattedDate);
         } else {
-          console.error("❌ Error: El valor recibido para la fecha no es válido:", value); // Debug
+          handleError("Error: El valor recibido para la fecha no es válido:", value);
         }
       }
 
@@ -123,9 +146,9 @@ const SurveyApp: React.FC = () => {
               // Solo agregar si la opción seleccionada es "Sí"
               ...(geoValue.option_selected === yesOptionId
                 ? {
-                    new_department: geoValue.new_department ?? null,
-                    new_municipality: geoValue.new_municipality ?? null
-                  }
+                  new_department: geoValue.new_department ?? null,
+                  new_municipality: geoValue.new_municipality ?? null
+                }
                 : {})
             } as GeographicResponse
           };
@@ -160,61 +183,61 @@ const SurveyApp: React.FC = () => {
     const firstQuestionResponse = responses[1];
 
     if (!survey?.id) {
-        console.error("Error: No se encontró el ID de la encuesta.");
-        Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
-        return;
+      console.error("Error: No se encontró el ID de la encuesta.");
+      Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
+      return;
     }
 
     if (!firstQuestionResponse) {
       Swal.fire({
-          icon: "warning",
-          title: "Debe responder la primera pregunta",
-          text: "Por favor indique si ha vivido en Colombia antes de continuar.",
+        icon: "warning",
+        title: "Debe responder la primera pregunta",
+        text: "Por favor indique si ha vivido en Colombia antes de continuar.",
       });
       return;
-  }
+    }
 
     if (firstQuestionResponse === 2) {
-        try {
-            // Guardar intento en la BD antes de mostrar la alerta
-            const response = await submitResponses([
-                {
-                    survey_id: survey.id,
-                    question_id: 1,
-                    option_selected: 2
-                }
-            ]);
+      try {
+        // Guardar intento en la BD antes de mostrar la alerta
+        const response = await submitResponses([
+          {
+            survey_id: survey.id,
+            question_id: 1,
+            option_selected: 2
+          }
+        ]);
 
-            if (response?.rejected) {
-                showRejectionMessage1();
-                return;
-            }
-
-        } catch (error) {
-            showRejectionMessage1();
-            return;
+        if (response?.rejected) {
+          showRejectionMessage1();
+          return;
         }
+
+      } catch (error) {
+        showRejectionMessage1();
+        return;
+      }
     }
 
     if (firstQuestionResponse === 1) {
 
-        // Guardar en el estado para enviarlo junto con la segunda pregunta
-        setResponses((prev) => ({
-            ...prev,
-            1: firstQuestionResponse,
-        }));
+      // Guardar en el estado para enviarlo junto con la segunda pregunta
+      setResponses((prev) => ({
+        ...prev,
+        1: firstQuestionResponse,
+      }));
 
       // Si responde SÍ, mostrar la pregunta de fecha de nacimiento
-        setShowSecondQuestion(true);
+      setShowSecondQuestion(true);
     }
-};
+  };
 
-// Método para mostrar el mensaje de rechazo para la pregunta 1 y redirigir
-const showRejectionMessage1 = () => {
+  // Método para mostrar el mensaje de rechazo para la pregunta 1 y redirigir
+  const showRejectionMessage1 = () => {
     Swal.fire({
-        icon: "error",
-        title: "No puede continuar",
-        html: `
+      icon: "error",
+      title: "No puede continuar",
+      html: `
         <p style="text-align: justify;">
             Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas que residan en Colombia en los últimos 5 años.
         </p>
@@ -225,78 +248,78 @@ const showRejectionMessage1 = () => {
         <br>
         <p><strong>Gracias por su comprensión.</strong></p>
         `,
-        confirmButtonText: "Aceptar",
+      confirmButtonText: "Aceptar",
     }).then(() => {
-        router.push("/surveys");
+      router.push("/surveys");
     });
-};
+  };
 
 
-const handleBirthDateSubmit = async () => {
-  if (!birthDate) {
+  const handleBirthDateSubmit = async () => {
+    if (!birthDate) {
       Swal.fire({
-          icon: "warning",
-          title: "Fecha de nacimiento requerida",
-          text: "Debe seleccionar su fecha de nacimiento antes de continuar.",
+        icon: "warning",
+        title: "Fecha de nacimiento requerida",
+        text: "Debe seleccionar su fecha de nacimiento antes de continuar.",
       });
       return;
-  }
+    }
 
-  if (!survey?.id) {
-      console.error("Error: No se encontró el ID de la encuesta.");
+    if (!survey?.id) {
+      handleError("Error: No se encontró el ID de la encuesta.");
       Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
       return;
-  }
+    }
 
-  // Calcular la edad
-  const birthYear = parseInt(birthDate.split("-")[0], 10);
-  const currentYear = new Date().getFullYear();
-  const age = currentYear - birthYear;
+    // Calcular la edad
+    const birthYear = parseInt(birthDate.split("-")[0], 10);
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - birthYear;
 
-  // Asegurar que la respuesta de la pregunta 1 se incluya
-  const firstQuestionResponse = responses[1];
+    // Asegurar que la respuesta de la pregunta 1 se incluya
+    const firstQuestionResponse = responses[1];
 
-  if (!firstQuestionResponse) {
-    console.error("Error: La pregunta 1 no tiene respuesta registrada.");
-    Swal.fire("Error", "Debe responder si ha vivido en Colombia antes de continuar.", "error");
-    return;
-  }
+    if (!firstQuestionResponse) {
+      handleError("Error: La pregunta 1 no tiene respuesta registrada.");
+      Swal.fire("Error", "Debe responder si ha vivido en Colombia antes de continuar.", "error");
+      return;
+    }
 
-  // Enviar ambas respuestas al backend
-  const responsesToSubmit = [
-    {
+    // Enviar ambas respuestas al backend
+    const responsesToSubmit = [
+      {
         survey_id: survey.id,
         question_id: 1,
         option_selected: typeof responses[1] === "number" ? responses[1] : null,
-    },
-    {
+      },
+      {
         survey_id: survey.id,
         question_id: 2,
         answer: birthDate,
-    },
-  ] as SurveyResponse[];
+      },
+    ] as SurveyResponse[];
 
-  if (age < 18) {
-    try {
+    if (age < 18) {
+      try {
         const response = await submitResponses(responsesToSubmit);
 
         if (response?.rejected) {
-            showRejectionMessage2();
-            return;
+          showRejectionMessage2();
+          return;
         }
-    } catch (error) {
-        console.error("Error al registrar intento de encuesta:", error);
+      } catch (error) {
+        handleError("Error al registrar intento de encuesta:", error);
         showRejectionMessage2();
         return;
+      }
     }
-  }
 
-  // Solo avanza si la edad es >= 18
-  setCurrentChapterIndex(1);
-};
+    // Solo avanza si la edad es >= 18
+    setCurrentChapterIndex(1);
+  };
 
-const showRejectionMessage2 = () => {
-  Swal.fire({
+  const showRejectionMessage2 = () => {
+    Swal.fire({
       icon: "error",
       title: "No puede continuar",
       html: `
@@ -311,10 +334,10 @@ const showRejectionMessage2 = () => {
       <p><strong>Gracias por su comprensión.</strong></p>
       `,
       confirmButtonText: "Aceptar",
-  }).then(() => {
+    }).then(() => {
       router.push("/surveys");
-  });
-};
+    });
+  };
 
 
   const handleQuestion12Logic = (
@@ -352,7 +375,7 @@ const showRejectionMessage2 = () => {
 
   const handleQuestion11Logic = (
     prevResponses: Responses,
-    value: string | number | number[]| GeographicResponse
+    value: string | number | number[] | GeographicResponse
   ) => {
     const questionId = 11;
     const question11 = survey?.questions.find(q => q.id === questionId);
@@ -406,18 +429,25 @@ const showRejectionMessage2 = () => {
   const handleSubmit = async () => {
     console.log("📌 Enviando respuestas:", responses); // Debug
 
-    // Obtener todas las preguntas y subpreguntas
-    const allQuestions = survey.questions.flatMap(q => {
-      if (q.question_type === "matrix" && q.subquestions) {
-        return [q, ...q.subquestions]; // Incluir la pregunta matriz y sus subpreguntas
-      }
-      return q;
-    });
+    if (!survey) {
+      Swal.fire("Error", "No se pudo obtener la encuesta. Intente recargar la página.", "error");
+      return;
+    }
+
+    // Obtener todas las preguntas de la encuesta
+    const allQuestions = survey.questions;
+
+    // Usar el helper para formatear las respuestas correctamente
+    const formattedResponses = prepareAnswersForSubmit(survey, responses);
+
+    // ✅ Debug: Mostrar resumen antes de enviar
+    console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
+    alert("Respuestas guardadas correctamente. Revisa la consola para ver el resumen.");
 
     // Identificar preguntas sin responder
-    const unansweredQuestions = allQuestions.filter((q) => {
-      if ("subquestions" in q && q.subquestions?.length) {
-        return q.subquestions.some(sq => {
+    const unansweredQuestions = allQuestions.filter((q: Question) => {
+      if (q.subquestions && q.subquestions.length > 0) {
+        return q.subquestions.some((sq: SubQuestion) => {
           const response = responses[sq.id];
           return response === undefined || (Array.isArray(response) && response.length === 0);
         });
@@ -427,92 +457,45 @@ const showRejectionMessage2 = () => {
       }
     });
 
+    // Si hay preguntas sin responder, mostrar un SweetAlert2 en lugar de error
     if (unansweredQuestions.length > 0) {
-      alert("Por favor responde todas las preguntas antes de continuar.");
-      // Debug
-      console.log("❌ Preguntas sin responder:",
-        unansweredQuestions.map(q => "text_question" in q ? q.text_question : q.text_subquestion)
-      );
+      const unansweredNumbers = unansweredQuestions.map(q => q.id).join(", ");
+
+      Swal.fire({
+        icon: "warning",
+        title: "Faltan preguntas por responder",
+        html: `Por favor, responde las siguientes preguntas antes de finalizar: <strong>${unansweredNumbers}</strong>`,
+        confirmButtonText: "Aceptar",
+      });
+
       return;
     }
 
-    // Formateo de respuestas
-    const formattedResponses: SurveyResponse[] = survey.questions.map((question) => {
-      const response = responses[question.id];
-
-      // Preguntas tipo matriz (con subpreguntas)
-      if (question.question_type === "matrix" && question.subquestions?.length) {
-        return {
-          question_id: question.id,
-          subquestions: question.subquestions.map((subq) => ({
-            subquestion_id: subq.id,
-            option_selected: responses[subq.id] ?? null,
-          })),
-        };
-      }
-
-      if (question.id === 8) {
-        const geoResponse = response as GeographicResponse ?? {};
-      
-        // Buscar el ID de la opción que representa "Sí"
-        const yesOption = question.options?.find(opt => opt.text_option.toLowerCase() === "sí");
-        const yesOptionId = yesOption ? yesOption.id : null;
-
-        const formattedResponse: any = {
-          question_id: question.id,
-          option_selected: geoResponse.option_selected ?? null,
-        };
-      
-        // Agregar new_department y new_municipality si se seleccionó "Sí"
-        if (geoResponse.option_selected === yesOptionId) {
-          formattedResponse.new_department = geoResponse.new_department ?? null;
-          formattedResponse.new_municipality = geoResponse.new_municipality ?? null;
-        }
-
-      
-        return formattedResponse;
-      }
-
-      // Preguntas geográficas (con campos especiales como "country")
-      if (question.is_geographic && typeof response === "object" && !Array.isArray(response)) {
-        const geoResponse = response as GeographicResponse ?? {};
-        return {
-          question_id: question.id,
-          option_selected: typeof geoResponse.option_selected === "number" ? geoResponse.option_selected : null,
-          country: geoResponse.country ?? null,
-          department: geoResponse.department ?? null,
-          municipality: geoResponse.municipality ?? null,
-        };
-      }
-
-      // Preguntas abiertas
-      if (question.question_type === "open") {
-        return {
-          question_id: question.id,
-          answer: typeof response === "string" ? response : response?.toString() ?? null,
-        };
-      }
-
-      // Preguntas cerradas de selección múltiple
-      if (question.question_type === "closed" && question.is_multiple) {
-        return {
-          question_id: question.id,
-          options_multiple_selected: Array.isArray(response)
-            ? response.filter((id) => typeof id === "number")
-            : [],
-        };
-      }
-
-      // Preguntas cerradas de selección única
-      if (question.question_type === "closed" && !question.is_multiple) {
-        return {
-          question_id: question.id,
-          option_selected: typeof response === "number" ? response : null,
-        };
-      }
-
-      return { question_id: question.id, option_selected: null };
-    });
+    // Enviar respuestas al backend si todo está completo
+    try {
+      await submitResponses(formattedResponses);
+      Swal.fire({
+        icon: "success",
+        title: "¡Gracias por hacer parte de la App Diversa!",
+        html: `
+          <p style="text-align: justify;">
+            Su participación es fundamental para generar un impacto positivo en la lucha contra la discriminación.
+            Con sus respuestas, podremos identificar los desafíos que enfrentan diferentes grupos y trabajar en soluciones
+            que hagan de nuestra sociedad un lugar más justo e inclusivo para todos.
+          </p>
+          <br>
+          <p style="text-align: justify;">
+            Si tiene algún comentario adicional o quiere seguir siendo parte de esta iniciativa, no dudes en contactarnos.
+          </p>
+        `,
+        confirmButtonText: "Aceptar",
+      }).then(() => {
+        router.push("/surveys");
+      });
+    } catch (error) {
+      handleError("Error al enviar respuestas:", error);
+      Swal.fire("Error", "Hubo un problema al enviar las respuestas. Intente de nuevo.", "error");
+    }
 
     // ✅ Debug: Mostrar resumen antes de enviar
     console.log("📌 Resumen de respuestas a enviar:", formattedResponses);
@@ -520,20 +503,46 @@ const showRejectionMessage2 = () => {
     // ✅ Debug
     console.log("✅ Datos a enviar:", JSON.stringify(formattedResponses, null, 2));
 
-    // Enviar respuestas
+    // Enviar respuestas al backend
     try {
       await submitResponses(formattedResponses);
-      Swal.fire("¡Gracias!", "Tus respuestas han sido enviadas con éxito.", "success").then(() =>
-        router.push("/surveys")
-      );
+      Swal.fire({
+        icon: "success",
+        title: "¡Gracias por hacer parte de la App Diversa!",
+        html: `
+          <p style="text-align: justify;">
+            Su participación es fundamental para generar un impacto positivo en la lucha contra la discriminación.
+            Con sus respuestas, podremos identificar los desafíos que enfrentan diferentes grupos y trabajar en soluciones
+            que hagan de nuestra sociedad un lugar más justo e inclusivo para todos.
+          </p>
+          <br>
+          <p style="text-align: justify;">
+            Si tiene algún comentario adicional o quiere seguir siendo parte de esta iniciativa, no dudes en contactarnos (mjvargasm@dane.gov.co).
+          </p>
+        `,
+        confirmButtonText: "Aceptar"
+      }).then(() => {
+        router.push("/surveys");
+      });
     } catch (error) {
-      console.error("Error al enviar respuestas:", error);
-      Swal.fire("Error", "Hubo un problema al enviar tus respuestas. Intenta de nuevo.", "error");
+      handleError("Error al enviar respuestas:", error);
+      Swal.fire("Error", "Hubo un problema al enviar las respuestas. Intente de nuevo.", "error");
     }
   };
 
+
+
   const currentChapter = survey.chapters?.[currentChapterIndex] ?? null;
-  const chapterQuestions = survey.questions.filter((q) => q.chapter === currentChapter.id);
+
+  let chapterQuestions: Question[] = [];
+
+  try {
+    chapterQuestions = survey?.questions
+      ? survey.questions.filter((q: Question) => q.chapter === currentChapter?.id)
+      : [];
+  } catch (error) {
+    handleError("Error al filtrar preguntas por capítulo:", error);
+  }
 
 
   return (
@@ -582,7 +591,7 @@ const showRejectionMessage2 = () => {
       )}
 
       {/* Resto de capítulos */}
-      {currentChapterIndex > 0 && (
+      {currentChapterIndex && (
         <Chapter
           chapter={currentChapter}
           chapterName={currentChapter.name}
