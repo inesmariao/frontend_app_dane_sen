@@ -31,7 +31,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
 }) => {
 
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(window.innerWidth < 768);
-  const [showGeographicSelectors, setShowGeographicSelectors] = useState(false);
+  const [noDisabilitySelected, setNoDisabilitySelected] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,6 +42,54 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (questions.find((q) => q.id === 11)) {
+      const noDisabilityOption = questions
+        .find((q) => q.id === 11)
+        ?.options?.find((opt) => opt.text_option.toLowerCase() === "no presenta ningún tipo de discapacidad");
+
+        if (noDisabilityOption && Array.isArray(responses[11])) {
+          setNoDisabilitySelected((responses[11] as number[]).includes(noDisabilityOption.id));
+        } else {
+          setNoDisabilitySelected(false);
+        }
+    }
+  }, [responses, questions]);
+
+  const handleCheckboxChange = (questionId: number, optionId: number) => {
+    let currentResponses = responses[questionId];
+    if (!Array.isArray(currentResponses)) {
+      currentResponses = [];
+    }
+    const isChecked = (currentResponses as number[]).includes(optionId);
+    let updatedResponses: number[];
+
+    if (isChecked) {
+      updatedResponses = (currentResponses as number[]).filter((id: number) => id !== optionId);
+    } else {
+      updatedResponses = [...(currentResponses as number[]), optionId];
+    }
+
+    if (questionId === 11) {
+      const noDisabilityOption = questions
+        .find((q) => q.id === 11)
+        ?.options?.find((opt) => opt.text_option.toLowerCase() === "no presenta ningún tipo de discapacidad");
+
+      if (noDisabilityOption && optionId === noDisabilityOption.id) {
+        if (isChecked) {
+          updatedResponses = [];
+        } else {
+          updatedResponses = [noDisabilityOption.id];
+        }
+        setNoDisabilitySelected(!isChecked);
+      } else if (noDisabilityOption && updatedResponses.includes(noDisabilityOption.id)) {
+        updatedResponses = updatedResponses.filter((id: number) => id !== optionId);
+        setNoDisabilitySelected(false);
+      }
+    }
+
+    handleOptionChange(questionId, updatedResponses);
+  };
 
   return (
     <>
@@ -389,7 +437,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
               )
             ) :
               // Preguntas cerradas (checkbox o radiobutton)
-              Array.isArray(question.options) && question.options.length > 0 && question.id !== 8 ? (
+              Array.isArray(question.options) && question.options.length > 0 && question.id !== 6 && question.id !== 8 ? (
                 question.options?.map((option) => {
                   if (!option || typeof option.id !== "number") return null;
 
@@ -397,6 +445,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                     ? Array.isArray(responses[question.id]) &&
                     (responses[question.id] as number[]).includes(option.id)
                     : responses[question.id] === option.id;
+
                   const optionKey = `option-q-${question.id}-opt-${option.id}`;
 
                   return (

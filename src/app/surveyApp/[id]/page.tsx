@@ -111,14 +111,23 @@ const SurveyApp: React.FC = () => {
 
         case 8: {
           const geoValue = value as GeographicResponse;
+          // Buscar la opción "Sí" en las opciones de la pregunta 8
+          const yesOption = survey?.questions.find(q => q.id === 8)?.options?.find(opt => opt.text_option.toLowerCase() === "sí");
+          const yesOptionId = yesOption ? yesOption.id : null;
+
           return {
             ...prev,
             [numericQuestionId]: {
               ...(prev[numericQuestionId] as GeographicResponse ?? {}),
               option_selected: geoValue.option_selected ?? null,
-              new_department: geoValue.new_department ?? null,
-              new_municipality: geoValue.new_municipality ?? null,
-            } as GeographicResponse,
+              // Solo agregar si la opción seleccionada es "Sí"
+              ...(geoValue.option_selected === yesOptionId
+                ? {
+                    new_department: geoValue.new_department ?? null,
+                    new_municipality: geoValue.new_municipality ?? null
+                  }
+                : {})
+            } as GeographicResponse
           };
         }
 
@@ -275,7 +284,6 @@ const handleBirthDateSubmit = async () => {
             showRejectionMessage2();
             return;
         }
-
     } catch (error) {
         console.error("Error al registrar intento de encuesta:", error);
         showRejectionMessage2();
@@ -286,8 +294,6 @@ const handleBirthDateSubmit = async () => {
   // Solo avanza si la edad es >= 18
   setCurrentChapterIndex(1);
 };
-
-
 
 const showRejectionMessage2 = () => {
   Swal.fire({
@@ -309,7 +315,6 @@ const showRejectionMessage2 = () => {
       router.push("/surveys");
   });
 };
-
 
 
   const handleQuestion12Logic = (
@@ -347,29 +352,31 @@ const showRejectionMessage2 = () => {
 
   const handleQuestion11Logic = (
     prevResponses: Responses,
-    value: string | number | number[] | GeographicResponse
+    value: string | number | number[]| GeographicResponse
   ) => {
-    const question11 = survey?.questions.find(q => q.id === 11);
+    const questionId = 11;
+    const question11 = survey?.questions.find(q => q.id === questionId);
 
     if (!question11 || !question11.options) return prevResponses;
 
     const noDisabilityOption = question11.options.find(option =>
-      option.text_option.trim().toLowerCase() === "no presento ningún tipo de discapacidad"
+      option.text_option.trim().toLowerCase() === "no presenta ningún tipo de discapacidad"
     );
 
     if (!noDisabilityOption) return prevResponses;
 
     const noDisabilityOptionId = noDisabilityOption.id;
 
+    // Si se selecciona "No presenta ningún tipo de discapacidad", se eliminan las demás opciones
     if (typeof value === "number") {
       return {
         ...prevResponses,
-        "11": value === noDisabilityOptionId ? [noDisabilityOptionId] : [value],
+        [questionId]: value === noDisabilityOptionId ? [noDisabilityOptionId] : [value],
       };
     } else if (Array.isArray(value)) {
       return {
         ...prevResponses,
-        "11": value.includes(noDisabilityOptionId)
+        [questionId]: value.includes(noDisabilityOptionId)
           ? [noDisabilityOptionId]
           : value.filter(id => id !== noDisabilityOptionId),
       };
@@ -444,15 +451,26 @@ const showRejectionMessage2 = () => {
         };
       }
 
-      // Asegura que la pregunta 8 envíe "new_department" y "new_municipality"
       if (question.id === 8) {
         const geoResponse = response as GeographicResponse ?? {};
-        return {
+      
+        // Buscar el ID de la opción que representa "Sí"
+        const yesOption = question.options?.find(opt => opt.text_option.toLowerCase() === "sí");
+        const yesOptionId = yesOption ? yesOption.id : null;
+
+        const formattedResponse: any = {
           question_id: question.id,
           option_selected: geoResponse.option_selected ?? null,
-          new_department: geoResponse.new_department ?? null,
-          new_municipality: geoResponse.new_municipality ?? null,
         };
+      
+        // Agregar new_department y new_municipality si se seleccionó "Sí"
+        if (geoResponse.option_selected === yesOptionId) {
+          formattedResponse.new_department = geoResponse.new_department ?? null;
+          formattedResponse.new_municipality = geoResponse.new_municipality ?? null;
+        }
+
+      
+        return formattedResponse;
       }
 
       // Preguntas geográficas (con campos especiales como "country")

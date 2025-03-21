@@ -37,14 +37,8 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const yesOption = options?.find((option) => option.text_option.toLowerCase() === "sí");
   const isYesSelected = (responses[questionId] as GeographicResponse)?.option_selected === yesOption?.id;
 
-  // Mostrar el selector de departamento solo si:
-  // - En la pregunta 6, la opción "Colombia" está seleccionada
-  // - En la pregunta 8, la opción "Sí" está seleccionada
-  const showDepartmentSelectorQS = isQuestionSix;
-  const showDepartmentSelectorQE = (isQuestionEight && isYesSelected);
-
-   // Determinar si se deben mostrar los selectores de departamento y municipio
-   const showSelectors = isQuestionSix || (isQuestionEight && isYesSelected);
+  // Determinar si se deben mostrar los selectores de departamento y municipio
+  const showSelectors = isQuestionSix || (isQuestionEight && isYesSelected);
 
   // Cargar departamentos
   useEffect(() => {
@@ -67,15 +61,6 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
       setMunicipalities([]);
     }
   }, [selectedDepartment]);
-
-  // Manejo de opciones Sí/No
-  const handleMainOptionChange = (optionId: number) => {
-    handleOptionChange(questionId, {
-      option_selected: optionId,
-      new_department: null,
-      new_municipality: null,
-    });
-  };
 
   // Manejadores de cambio en selectores
   const handleDepartmentChange = (departmentId: number) => {
