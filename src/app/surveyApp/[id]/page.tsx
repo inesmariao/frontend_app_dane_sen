@@ -510,7 +510,7 @@ const SurveyApp = memo(() => {
       await submitResponses(formattedResponses);
       Swal.fire({
         icon: "success",
-        title: "¡Gracias por hacer parte de la App Diversa!",
+        title: "¡Gracias por hacer parte de App Diversa!",
         html: `
           <p style="text-align: justify;">
             Su participación es fundamental para generar un impacto positivo en la lucha contra la discriminación.
@@ -519,7 +519,7 @@ const SurveyApp = memo(() => {
           </p>
           <br>
           <p style="text-align: justify;">
-            Si tiene algún comentario adicional o quiere seguir siendo parte de esta iniciativa, no dudes en contactarnos.
+            Si tiene algún comentario adicional o quiere seguir siendo parte de esta iniciativa, no dude en contactarnos.
           </p>
         `,
         confirmButtonText: "Aceptar",
