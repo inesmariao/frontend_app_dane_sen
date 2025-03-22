@@ -4,6 +4,7 @@ import React, { useState, useEffect, memo  } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { handleError } from "@/utils/errorHandling";
 import Swal from "sweetalert2";
+import { getSystemMessage } from "@/utils/api";
 import { getSurvey, submitResponses } from "@/utils/api";
 import { prepareAnswersForSubmit } from "@/helpers/submitAnswers";
 import Chapter from "./components/Chapter";
@@ -29,7 +30,6 @@ const SurveyApp = memo(() => {
   const [showSecondQuestion, setShowSecondQuestion] = useState(false);
   const [birthDate, setBirthDate] = useState<string>("");
 
-  
 
   // Redirigir al login si el usuario no está autenticado
   useEffect(() => {
@@ -239,12 +239,12 @@ const SurveyApp = memo(() => {
         ]);
 
         if (response?.rejected) {
-          showRejectionMessage1();
+          showRejectionNoColombia();
           return;
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        showRejectionMessage1();
+        showRejectionNoColombia();
         return;
       }
     }
@@ -263,21 +263,15 @@ const SurveyApp = memo(() => {
   };
 
   // Método para mostrar el mensaje de rechazo para la pregunta 1 y redirigir
-  const showRejectionMessage1 = () => {
+  const showRejectionNoColombia = async () => {
+    const message = await getSystemMessage("rejection_no_colombia");
+  
+    if (!message) return;
+  
     Swal.fire({
       icon: "error",
-      title: "No puede continuar",
-      html: `
-        <p style="text-align: justify;">
-            Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas que residan en Colombia en los últimos 5 años.
-        </p>
-        <br>
-        <p style="text-align: justify;">
-            Le invitamos a participar en futuras encuestas que puedan ser de su interés.
-        </p>
-        <br>
-        <p><strong>Gracias por su comprensión.</strong></p>
-        `,
+      title: message.title,
+      html: message.content,
       confirmButtonText: "Aceptar",
     }).then(() => {
       router.push("/surveys");
@@ -334,12 +328,12 @@ const SurveyApp = memo(() => {
         const response = await submitResponses(responsesToSubmit);
 
         if (response?.rejected) {
-          showRejectionMessage2();
+          showRejectionUnderage();
           return;
         }
       } catch (error) {
         handleError("Error al registrar intento de encuesta:", error);
-        showRejectionMessage2();
+        showRejectionUnderage();
         return;
       }
     }
@@ -348,27 +342,20 @@ const SurveyApp = memo(() => {
     setCurrentChapterIndex(1);
   };
 
-  const showRejectionMessage2 = () => {
+  const showRejectionUnderage = async () => {
+    const message = await getSystemMessage("rejection_underage");
+
+    if (!message) return;
+
     Swal.fire({
       icon: "error",
-      title: "No puede continuar",
-      html: `
-      <p style="text-align: justify;">
-          Agradecemos su interés en participar en esta encuesta, sin embargo, hemos notado que no cumple con el perfil, ya que la encuesta está dirigida a personas mayores de 18 años que residan en Colombia en los últimos 5 años.
-      </p>
-      <br>
-      <p style="text-align: justify;">
-          Le invitamos a participar en futuras encuestas que puedan ser de su interés.
-      </p>
-      <br>
-      <p><strong>Gracias por su comprensión.</strong></p>
-      `,
+      title: message.title,
+      html: message.content,
       confirmButtonText: "Aceptar",
     }).then(() => {
       router.push("/surveys");
     });
   };
-
 
   const handleQuestion12Logic = (
     prevResponses: Responses,

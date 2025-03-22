@@ -168,5 +168,21 @@ export async function submitResponses(responses: SurveyResponse[]) {
   }
 }
 
+// Método para obtener un mensaje del sistema por clave
+export const getSystemMessage = async (key: string): Promise<{ title: string; content: string } | null> => {
+  try {
+    const response = await apiClient.get(`/app_diversa/v1/messages/${key}/`);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      handleError(error.response.data?.error || "No se pudo obtener el mensaje del sistema.");
+    }
+    if (error instanceof Error) {
+      handleError(error.message);
+    }
+    return null;
+  }
+};
+
 
 export default apiClient;
