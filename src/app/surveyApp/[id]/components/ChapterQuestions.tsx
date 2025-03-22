@@ -494,7 +494,7 @@ const ChapterQuestions: React.FC<ChapterProps> = ({
                   );
                 })
               ) : null}
-            {/* 🔹 Lógica especial para la pregunta 8 */}
+            {/* Lógica especial para la pregunta 8 */}
             {question.id === 8 && (
               <>
                 {question.options?.map((option) => {

@@ -53,7 +53,6 @@ export interface ChapterProps {
   questions: Question[];
   responses: { [key: string]: string | number | number[] | GeographicResponse };
   handleOptionChange: (questionId: string | number, value: string | number | number[] | GeographicResponse) => void;
-  chapterName: string;
   handleNextChapter: () => void;
   handlePrevChapter: () => void;
   isFirstChapter: boolean;

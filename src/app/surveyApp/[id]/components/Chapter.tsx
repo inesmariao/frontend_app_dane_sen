@@ -27,7 +27,6 @@ const Chapter: React.FC<ChapterProps> = ({
         questions={questions}
         responses={responses}
         handleOptionChange={handleOptionChange}
-        chapterName={chapter?.name}
         handleNextChapter={handleNextChapter}
         handlePrevChapter={handlePrevChapter}
         isFirstChapter={isFirstChapter}

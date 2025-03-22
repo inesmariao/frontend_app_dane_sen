@@ -551,7 +551,6 @@ const SurveyApp = memo(() => {
       {currentChapterIndex === 0 && !showSecondQuestion && currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={survey.questions.filter((q) => q.id === 1)}
           responses={responses}
           handleOptionChange={handleOptionChange}
@@ -566,7 +565,6 @@ const SurveyApp = memo(() => {
       {currentChapterIndex === 0 && showSecondQuestion && currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={survey.questions.filter((q) => q.id === 2)}
           responses={responses}
           handleOptionChange={handleOptionChange}
@@ -578,10 +576,9 @@ const SurveyApp = memo(() => {
       )}
 
       {/* Resto de capítulos */}
-      {currentChapterIndex &&  currentChapter && (
+      {currentChapterIndex > 0 &&  currentChapter && (
         <Chapter
           chapter={currentChapter}
-          chapterName={currentChapter?.name || "Capítulo no disponible"}
           questions={chapterQuestions}
           responses={responses}
           handleOptionChange={handleOptionChange}
