@@ -13,7 +13,7 @@ const apiClient = axios.create({
 });
 
 // Rutas públicas (NO requieren autenticación)
-const publicEndpoints = ["/users/v1/register/", "/users/v1/login/"];
+const publicEndpoints = ["/app_diversa/v1/messages/", "/users/v1/register/", "/users/v1/login/"];
 
 // Interceptor para agregar el token solo en solicitudes protegidas
 apiClient.interceptors.request.use(

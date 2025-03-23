@@ -18,29 +18,42 @@ const AccessibilityButtons = () => {
     useAccessibility();
 
   const [isContrast, setIsContrast] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-    // Detecta cambios en la clase "contrast" y actualiza el estado
-    useEffect(() => {
-      const updateContrastState = () => {
-        const contrastEnabled = document.body.classList.contains("contrast");
-        setIsContrast(contrastEnabled);
-      };
-  
-      updateContrastState();
-  
-      // Escuchamos cambios en el atributo de clase del body
-      const observer = new MutationObserver(updateContrastState);
-      observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-  
-      return () => observer.disconnect();
-    }, []);
+  // Detecta cambios en la clase "contrast" y actualiza el estado
+  useEffect(() => {
+    const updateMobile = () => setIsMobile(window.innerWidth <= 480);
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
+
+  useEffect(() => {
+    const updateContrastState = () => {
+      setIsContrast(document.body.classList.contains("contrast"));
+    };
+
+    updateContrastState();
+    const observer = new MutationObserver(updateContrastState);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
-    <AccessibilityBar $isContrast={isContrast}>
-      <AccessibilityButton onClick={() => {
-        toggleContrast();
-        setIsContrast(document.body.classList.contains("contrast"));
-      }} $isContrast={isContrast}>
+    <AccessibilityBar $isContrast={isContrast} $isExpanded={isExpanded}>
+      {isMobile && (
+        <AccessibilityButton
+          onClick={toggleExpand}
+          $isContrast={isContrast}
+          style={{ zIndex: 1001 }}
+        >
+          {isExpanded ? "✕" : "☰"}
+        </AccessibilityButton>
+      )}
+      <AccessibilityButton onClick={toggleContrast} $isContrast={isContrast}>
         <AiOutlineBgColors />
         <span>Alto Contraste</span>
       </AccessibilityButton>

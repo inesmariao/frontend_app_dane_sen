@@ -2,32 +2,8 @@ import styled, { css } from "styled-components";
 
 interface AccessibilityProps {
   $isContrast: boolean;
+  $isExpanded?: boolean;
 }
-
-export const AccessibilityBar = styled.div<AccessibilityProps>`
-  position: fixed;
-  right: 10px;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  z-index: 1000;
-  padding: 5px;
-  margin: 10px;
-  font-size: 1rem;
-
-  ${({ $isContrast }) =>
-    $isContrast
-      ? css`
-          top: 50vh;
-          transform: translateY(-50%);
-        `
-      : css`
-          top: 50%;
-          transform: translateY(-50%);
-        `}
-`;
 
 export const AccessibilityButton = styled.button<AccessibilityProps>`
   display: flex;
@@ -79,6 +55,26 @@ export const AccessibilityButton = styled.button<AccessibilityProps>`
     opacity: 1;
     visibility: visible;
   }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    padding: 0px;
+
+    svg {
+      font-size: 18px !important;
+      left: 8px;
+    }
+
+    span {
+      font-size: 0.8rem;
+      margin-left: 30px;
+    }
+
+    &:hover {
+      width: 160px;
+    }
+  }
 `;
 
 export const AccessibilityLink = styled(AccessibilityButton).attrs({ as: "a" })<AccessibilityProps>`
@@ -91,3 +87,37 @@ export const applyFontSize = (size: string) => {
     document.documentElement.style.fontSize = size;
   }
 };
+
+export const AccessibilityBar = styled.div<AccessibilityProps>`
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  z-index: 1000;
+  padding: 5px;
+  margin: 10px;
+  gap: 8px;
+
+  ${({ $isContrast }) =>
+    $isContrast &&
+    css`
+      top: 50vh;
+    `}
+
+  // SOLO para móviles: barra contraíble manualmente
+  @media (max-width: 480px) {
+    right: 0;
+
+    ${AccessibilityButton}, ${AccessibilityLink} {
+      transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+      max-height: ${({ $isExpanded }) => ($isExpanded ? "40px" : "0")};
+      opacity: ${({ $isExpanded }) => ($isExpanded ? 1 : 0)};
+      transform: ${({ $isExpanded }) =>
+        $isExpanded ? "translateX(0)" : "translateX(100%)"};
+      pointer-events: ${({ $isExpanded }) => ($isExpanded ? "auto" : "none")};
+    }
+  }
+`;

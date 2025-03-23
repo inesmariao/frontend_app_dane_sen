@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DateSelectorProps } from "@/types";
 import { DateSelectWrapper, DateStyledSelect } from "@/styles/components/StyledSurvey";
 
@@ -12,6 +12,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
+  const prevFormattedDate = useRef<string | null>(null);
 
   const months = [
     { name: "Enero", value: "01" },
@@ -58,7 +59,11 @@ const DateSelector: React.FC<DateSelectorProps> = ({ questionId, onChange }) => 
     if (year && month && day) {
       const formattedDate = `${year}-${month}-${day.padStart(2, "0")}`;
 
-      onChange(questionId, formattedDate);
+      // Solo llamar a onChange si la fecha formateada ha cambiado
+      if (formattedDate !== prevFormattedDate.current) {
+        onChange(questionId, formattedDate);
+        prevFormattedDate.current = formattedDate;
+      }
     }
   }, [year, month, day, onChange, questionId]);
 
