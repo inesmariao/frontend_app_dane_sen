@@ -219,11 +219,11 @@ const RegisterForm: React.FC = () => {
     }
 
     try {
-      await registerUser(formData); // Llamada al API de registro
+      await registerUser(formData);
       setSuccessMessage("Usuario registrado exitosamente. Redirigiendo...");
 
       setTimeout(() => {
-        router.push("/login"); // Redirigir al login después del éxito
+        router.push("/login");
       }, 2000); // Espera de 2 segundos para mostrar el mensaje
     } catch (err: unknown) {
       if (err instanceof Error) {
