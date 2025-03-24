@@ -129,6 +129,7 @@ export const handleFinalSubmit = async (
 
   try {
     const formatted = prepareAnswersForSubmit(survey, responses);
+    console.log('Payload a enviar:', responses); // Debug
     await submitResponses(formatted);
   
     const successMessage = await getSystemMessage("thank_you_message");

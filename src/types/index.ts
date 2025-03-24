@@ -123,8 +123,6 @@ export interface GeographicResponse {
   country?: number;
   department?: number | null;
   municipality?: number | null;
-  new_department?: number | null;
-  new_municipality?: number | null;
 }
 
 export interface GeographicQuestionProps {

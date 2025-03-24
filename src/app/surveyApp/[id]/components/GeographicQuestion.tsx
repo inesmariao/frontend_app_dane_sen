@@ -26,13 +26,8 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const [municipalities, setMunicipalities] = useState<{ id: number; name: string; code: number }[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState<boolean>(false);
 
-  const selectedDepartment = isQuestionEight
-  ? (responses[questionId] as GeographicResponse)?.new_department ?? ""
-  : (responses[questionId] as GeographicResponse)?.department ?? "";
-
-  const selectedMunicipality = isQuestionEight
-  ? (responses[questionId] as GeographicResponse)?.new_municipality ?? ""
-  : (responses[questionId] as GeographicResponse)?.municipality ?? "";
+  const selectedDepartment = (responses[questionId] as GeographicResponse)?.department ?? "";
+  const selectedMunicipality = (responses[questionId] as GeographicResponse)?.municipality ?? "";
 
   // Verificar si la opción seleccionada es "Sí" (solo para pregunta 8)
   const yesOption = options?.find((option) => option.text_option.toLowerCase() === "sí");
@@ -40,6 +35,19 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
 
   // Determinar si se deben mostrar los selectores de departamento y municipio
   const showSelectors = isQuestionSix || (isQuestionEight && isYesSelected);
+
+  useEffect(() => {
+    const selectedOption = (responses[questionId] as GeographicResponse)?.option_selected;
+  
+    // Asegurar que la respuesta incluya option_selected cuando cambie
+    if (typeof selectedOption === "number") {
+      const updatedResponse: GeographicResponse = {
+        ...(responses[questionId] as GeographicResponse),
+        option_selected: selectedOption,
+      };
+      handleOptionChange(questionId, updatedResponse);
+    }
+  }, [(responses[questionId] as GeographicResponse)?.option_selected]);
 
   // Cargar departamentos
   useEffect(() => {
@@ -79,10 +87,8 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const handleDepartmentChange = (departmentId: number) => {
     const updatedResponse: GeographicResponse = {
       ...(responses[questionId] as GeographicResponse),
-      department: isQuestionSix ? departmentId : undefined,
+      department: departmentId,
       municipality: null,
-      new_department: isQuestionEight ? departmentId : undefined,
-      new_municipality: null,
     };
     handleOptionChange(questionId, updatedResponse);
   };
@@ -90,8 +96,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const handleMunicipalityChange = (municipalityId: number) => {
     const updatedResponse: GeographicResponse = {
       ...(responses[questionId] as GeographicResponse),
-      municipality: isQuestionSix ? municipalityId : undefined,
-      new_municipality: isQuestionEight ? municipalityId : undefined,
+      municipality: municipalityId,
     };
     handleOptionChange(questionId, updatedResponse);
   };
@@ -101,7 +106,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
       {showSelectors && (
         <GeoContainer>
           <GeoLabel htmlFor="department-select">
-            {isQuestionSix ? "6.1 - Departamento" : "8.1 - Nuevo Departamento"}
+            {isQuestionSix ? "6.1 - Departamento" : "8.1 - Departamento"}
           </GeoLabel>
           <StyledSelect
             id="department-select"

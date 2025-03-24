@@ -9,26 +9,19 @@ export const useSurveyResponses = (questions: Question[] = []) => {
   const processGeographicResponse = (
     prev: Responses,
     geoValue: GeographicResponse,
-    numericQuestionId: number,
-    yesOptionId?: number | null
-  ) => {
-    const baseResponse = {
+    numericQuestionId: number
+  ): GeographicResponse => {
+    const optionSelected = numericQuestionId === 6
+    ? 135
+    : geoValue.option_selected!;
+
+    return {
       ...(prev[numericQuestionId] as GeographicResponse ?? {}),
-      option_selected: geoValue.option_selected ?? null,
-      country: geoValue.country ?? undefined,
+      option_selected: optionSelected,
+      country: 572,
       department: geoValue.department ?? undefined,
       municipality: geoValue.municipality ?? undefined,
     };
-
-    if (numericQuestionId === 8 && geoValue.option_selected === yesOptionId) {
-      return {
-        ...baseResponse,
-        new_department: geoValue.new_department ?? undefined,
-        new_municipality: geoValue.new_municipality ?? undefined,
-      };
-    }
-
-    return baseResponse;
   };
 
   const processQuestion11And12 = (
@@ -38,21 +31,21 @@ export const useSurveyResponses = (questions: Question[] = []) => {
     noOptionId: number | null
   ) => {
     if (typeof noOptionId === "number") {
-  if (typeof value === "number") {
-    return {
-      ...prevResponses,
-      [questionId]: value === noOptionId ? [noOptionId] : [value],
-    };
-  } else if (Array.isArray(value)) {
-    return {
-      ...prevResponses,
-      [questionId]: value.includes(noOptionId)
-        ? [noOptionId]
-        : value.filter((id) => id !== noOptionId),
-    };
-  }
-}
-return prevResponses;
+      if (typeof value === "number") {
+        return {
+          ...prevResponses,
+          [questionId]: value === noOptionId ? [noOptionId] : [value],
+        };
+      } else if (Array.isArray(value)) {
+        return {
+          ...prevResponses,
+          [questionId]: value.includes(noOptionId)
+            ? [noOptionId]
+            : value.filter((id) => id !== noOptionId),
+        };
+      }
+    }
+    return prevResponses;
   };
 
   const handleOptionChange = useCallback((
@@ -71,11 +64,7 @@ return prevResponses;
       switch (numericId) {
         case 6:
         case 8: {
-          const geoValue = value as GeographicResponse;
-          const yesOptionId = questions.find((q) => q.id === numericId)?.options?.find(
-            (opt) => opt.text_option.toLowerCase() === "sí"
-          )?.id;
-          updatedResponses[numericId] = processGeographicResponse(prev, geoValue, numericId, yesOptionId);
+          updatedResponses[numericId] = processGeographicResponse(prev, value as GeographicResponse, numericId);
           break;
         }
         case 11:
@@ -86,8 +75,8 @@ return prevResponses;
               : "no he sentido discriminación";
 
           const noOptionId: number | null =
-          questions.find((q) => q.id === numericId)
-            ?.options?.find((opt) => opt.text_option.trim().toLowerCase() === noOptionText)?.id ?? null;
+            questions.find((q) => q.id === numericId)
+              ?.options?.find((opt) => opt.text_option.trim().toLowerCase() === noOptionText)?.id ?? null;
 
           const result = processQuestion11And12(prev, value, numericId, noOptionId);
           updatedResponses[numericId] = result[numericId];
@@ -110,6 +99,6 @@ return prevResponses;
     setCurrentChapterIndex,
     showSecondQuestion,
     setShowSecondQuestion,
-    handleOptionChange
+    handleOptionChange,
   };
 };
