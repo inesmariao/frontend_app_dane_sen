@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChapterProps, GeographicResponse } from "@/types";
+import { GeographicResponse, ChapterQuestionsProps } from "@/types";
 import DateSelector from "@/components/common/DateSelector";
 import { GeographicQuestion } from "./GeographicQuestion";
 import TooltipOption from "@/components/common/TooltipOption";
@@ -23,7 +23,7 @@ import {
   TooltipOptionContainer
 } from "@/styles/components/StyledSurvey";
 
-const ChapterQuestions: React.FC<ChapterProps> = ({
+const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
   questions,
   responses,
   handleOptionChange,

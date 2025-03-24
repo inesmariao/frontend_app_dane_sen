@@ -119,6 +119,7 @@ const SurveyApp = memo(() => {
           handlePrevChapter={handlePrevChapter}
           isFirstChapter={currentChapterIndex === 0}
           isLastChapter={currentChapterIndex === survey.chapters.length - 1}
+          chapterIndex={currentChapterIndex}
         />
       )}
     </SurveyContainer>

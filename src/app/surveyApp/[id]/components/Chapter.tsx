@@ -14,7 +14,7 @@ const Chapter: React.FC<ChapterProps> = ({
   handleNextChapter,
   handlePrevChapter,
   isLastChapter,
-  isFirstChapter,
+  chapterIndex,
 }) => {
 
   return (
@@ -23,19 +23,14 @@ const Chapter: React.FC<ChapterProps> = ({
 
       {/* Renderizar las preguntas del capítulo */}
       <ChapterQuestions
-        chapter={chapter}
         questions={questions}
         responses={responses}
         handleOptionChange={handleOptionChange}
-        handleNextChapter={handleNextChapter}
-        handlePrevChapter={handlePrevChapter}
-        isFirstChapter={isFirstChapter}
-        isLastChapter={isLastChapter}
       />
 
       {/* Botones de navegación entre capítulos */}
       <ButtonContainer>
-        {!isFirstChapter && (
+        {chapterIndex > 1 && (
           <LargeStyledButton onClick={handlePrevChapter} style={{ marginRight: "1rem" }}>
             ← Retroceder
           </LargeStyledButton>

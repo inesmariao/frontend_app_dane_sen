@@ -57,6 +57,16 @@ export interface ChapterProps {
   handlePrevChapter: () => void;
   isFirstChapter: boolean;
   isLastChapter: boolean;
+  chapterIndex: number;
+}
+
+export interface ChapterQuestionsProps {
+  questions: Question[];
+  responses: Responses;
+  handleOptionChange: (
+    questionId: string | number,
+    value: string | number | number[] | GeographicResponse
+  ) => void;
 }
 
 export interface Question {
