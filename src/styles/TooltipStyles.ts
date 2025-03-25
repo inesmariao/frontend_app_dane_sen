@@ -54,25 +54,32 @@ export const TooltipContainer = styled.div`
   white-space: normal;
   word-break: break-word;
   overflow-wrap: break-word;
-  max-width: 640px;
-  min-width: 320px;
 
-  @media (max-width: 768px) {
-    font-size: 1.1rem;
-    padding: 0.6rem;
-    max-width: 90vw;
-    min-width: 60vw;
+  /* Mobile (por defecto) */
+  max-width: 90vw;
+  min-width: 60vw;
+
+  /* Web (más ancho) */
+  @media (min-width: 768px) {
+    max-width: 600px;
+    min-width: 300px;
+    font-size: 1.3rem;
   }
 
-  @media (max-width: 320px) {
-    font-size: 1rem;
-    padding: 0.5rem;
-    max-width: 80vw;
-    min-width: 50vw;
+  /* Posicionamiento responsivo para bordes */
+  &.left {
+    left: auto;
+    right: 0;
   }
 
-  .contrast & {
-    font-weight: normal;
+  &.right {
+    left: 0;
+    right: auto;
+  }
+
+  &.center {
+    left: 0;
+    right: auto;
   }
 `;
 

@@ -10,12 +10,14 @@ import {
 
 const TooltipOption: React.FC<TooltipOptionProps> = ({ note = "" }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [positionClass, setPositionClass] = useState("center");
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    setShowTooltip(!showTooltip);
+    setShowTooltip((prev) => !prev);
   };
 
   useEffect(() => {
@@ -23,38 +25,47 @@ const TooltipOption: React.FC<TooltipOptionProps> = ({ note = "" }) => {
       if (
         showTooltip &&
         tooltipRef.current &&
-        !tooltipRef.current.contains(event.target as Node)
+        !tooltipRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
       ) {
         setShowTooltip(false);
       }
     };
 
-    if (showTooltip) {
-      document.addEventListener("click", handleClickOutside);
-    } else {
-      document.removeEventListener("click", handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showTooltip]);
+
+  useEffect(() => {
+    if (showTooltip && tooltipRef.current) {
+      const rect = tooltipRef.current.getBoundingClientRect();
+      const padding = 10;
+
+      if (rect.left < padding) {
+        setPositionClass("right");
+      } else if (rect.right > window.innerWidth - padding) {
+        setPositionClass("left");
+      } else {
+        setPositionClass("center");
+      }
     }
   }, [showTooltip]);
 
-  // Si `note` está vacío, mostrar el texto sin ícono ni tooltip
-  if (!note.trim()) {
-    return null;
-  }
+  if (!note.trim()) return null;
 
   return (
     <TooltipWrapper>
-      <TooltipButton type="button" onClick={handleClick}>
+      <TooltipButton ref={buttonRef} type="button" onClick={handleClick}>
         <TooltipInfoIconWrapper>
           <TooltipInfoIcon />
         </TooltipInfoIconWrapper>
       </TooltipButton>
 
       {showTooltip && (
-        <TooltipContainer ref={tooltipRef}>
+        <TooltipContainer ref={tooltipRef} className={positionClass}>
           {note}
         </TooltipContainer>
       )}
