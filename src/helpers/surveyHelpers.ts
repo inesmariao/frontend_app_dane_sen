@@ -98,15 +98,30 @@ export const handleBirthDateSubmit = async (
 export const handleFinalSubmit = async (
   survey: Survey,
   responses: Responses,
-  router: AppRouterInstance
+  router: AppRouterInstance,
+  currentChapterIndex: number,
+  chapterStep: number
 ) => {
-  const allQuestions = survey.questions;
-  const unanswered = allQuestions.filter((q) => {
-    if (
-      q.question_type === "matrix" &&
-      Array.isArray(q.subquestions) &&
-      q.subquestions.length > 0
-    ) {
+  console.log("Respuestas crudas:", responses); // Debug
+
+  // 🔎 Paso 1: filtrar preguntas visibles antes de formatear
+  let questionsToSubmit = survey.questions;
+
+  if (currentChapterIndex === 2 && chapterStep === 1) {
+    const responseQ12 = responses[12];
+    const noDiscriminacion = Array.isArray(responseQ12) && responseQ12.includes(65);
+    if (noDiscriminacion) {
+      questionsToSubmit = survey.questions.filter((q) => q.id !== 13);
+    }
+  }
+
+  // Este survey temporal solo cambia las preguntas, no afecta lo demás
+  const formatted = prepareAnswersForSubmit({ ...survey, questions: questionsToSubmit }, responses);
+  console.log("Payload final a enviar (formateado):", formatted);
+
+  // Paso 2: validación de respuestas
+  const unanswered = questionsToSubmit.filter((q) => {
+    if (q.question_type === "matrix" && Array.isArray(q.subquestions) && q.subquestions.length > 0) {
       return q.subquestions.some((sq) => {
         if (sq.is_other) return false;
         return responses[sq.id] === undefined || responses[sq.id] === null;
@@ -128,12 +143,9 @@ export const handleFinalSubmit = async (
   }
 
   try {
-    const formatted = prepareAnswersForSubmit(survey, responses);
-    console.log('Payload a enviar:', responses); // Debug
     await submitResponses(formatted);
-  
     const successMessage = await getSystemMessage("thank_you_message");
-  
+
     if (successMessage) {
       Swal.fire({
         icon: "success",
@@ -147,3 +159,4 @@ export const handleFinalSubmit = async (
     Swal.fire("Error", "Hubo un problema al enviar las respuestas. Intente de nuevo.", "error");
   }
 };
+

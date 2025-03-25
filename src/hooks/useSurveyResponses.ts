@@ -1,10 +1,32 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Responses, GeographicResponse, Question } from "@/types";
 
 export const useSurveyResponses = (questions: Question[] = []) => {
   const [responses, setResponses] = useState<Responses>({});
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showSecondQuestion, setShowSecondQuestion] = useState(false);
+
+  useEffect(() => {
+    const responseQ12 = responses[12];
+    const selectedNoDiscriminacion =
+      Array.isArray(responseQ12) && responseQ12.includes(65);
+
+    if (selectedNoDiscriminacion) {
+      if (responses[13] !== 136) {
+        setResponses((prev) => ({
+          ...prev,
+          13: 136,
+        }));
+      }
+    } else {
+      if (responses[13] === 136) {
+        const { 13: _, [`other_13`]: __, ...rest } = responses;
+        setResponses(rest);
+      }
+    }
+  }, [responses[12]]);
+
+
 
   const processGeographicResponse = (
     prev: Responses,

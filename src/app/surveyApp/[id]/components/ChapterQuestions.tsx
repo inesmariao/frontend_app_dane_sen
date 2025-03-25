@@ -99,6 +99,8 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
+        console.log("Rendering question:", question.id);
+        console.log("Respuesta actual:", responses[question.id]);
 
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
@@ -107,13 +109,26 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
         const questionKey = question.id ? `question-${question.id}` : `question-${questionIndex}`;
         const isRowLayout = question.matrix_layout_type === "row";
 
+        // Ajuste visual dinámico del orden cuando se oculta la pregunta 13
+        let visualOrder = question.order_question;
+        const q12Response = responses[12];
+        const shouldHide13 = Array.isArray(q12Response)
+          ? q12Response.includes(65)
+          : q12Response === 65;
+        if (shouldHide13 && question.order_question > 13) {
+          visualOrder = question.order_question - 1;
+        }
+        if (shouldHide13 && question.id === 13) {
+          return null;
+        }
+
         return (
 
           <QuestionCard key={questionKey}>
 
             {/* Contenedor para la pregunta y el tooltip en la misma fila */}
             <TooltipOptionContainer>
-              <QuestionText>{`${question.order_question} - ${question.text_question}`}</QuestionText>
+            <QuestionText>{`${visualOrder} - ${question.text_question}`}</QuestionText>
               {question.note && (
                 <TooltipOption note={question.note} />
               )}
@@ -437,7 +452,7 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
             ) :
               // Preguntas cerradas (checkbox o radiobutton)
               Array.isArray(question.options) && question.options.length > 0 && question.id !== 6 && question.id !== 8 ? (
-                question.options?.map((option) => {
+                (question.id === 13 ? question.options?.filter((option) => option.id !== 136) : question.options)?.map((option) => {
                   if (!option || typeof option.id !== "number") return null;
 
                   const isChecked = isMultiple
