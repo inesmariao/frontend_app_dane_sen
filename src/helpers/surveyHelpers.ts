@@ -102,7 +102,6 @@ export const handleFinalSubmit = async (
   currentChapterIndex: number,
   chapterStep: number
 ) => {
-  console.log("Respuestas crudas:", responses); // Debug
 
   // 🔎 Paso 1: filtrar preguntas visibles antes de formatear
   let questionsToSubmit = survey.questions;
@@ -117,7 +116,6 @@ export const handleFinalSubmit = async (
 
   // Este survey temporal solo cambia las preguntas, no afecta lo demás
   const formatted = prepareAnswersForSubmit({ ...survey, questions: questionsToSubmit }, responses);
-  console.log("Payload final a enviar (formateado):", formatted);
 
   // Paso 2: validación de respuestas
   const unanswered = questionsToSubmit.filter((q) => {

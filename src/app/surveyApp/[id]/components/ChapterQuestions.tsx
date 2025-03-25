@@ -55,37 +55,7 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
         }
     }
   }, [responses, questions]);
-  
-  const renderTooltip = (note: string | undefined, cardRef: React.RefObject<HTMLDivElement>) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const tooltipRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
-          setIsVisible(false);
-        }
-      };
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    },);
-
-    useEffect(() => {
-      if (isVisible && tooltipRef.current && cardRef.current) {
-        const tooltipWidth = tooltipRef.current.offsetWidth;
-        const cardWidth = cardRef.current.offsetWidth;
-        const tooltipLeft = tooltipRef.current.offsetLeft;
-
-        // Ajustar la posición del tooltip si se desborda del borde derecho de la tarjeta
-        if (tooltipLeft + tooltipWidth > cardWidth) {
-          tooltipRef.current.style.left = `${cardWidth - tooltipWidth}px`;
-        }
-      }
-    }, [isVisible]);
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCheckboxChange = (questionId: number, optionId: number) => {
@@ -130,8 +100,6 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
 
       {/* Renderizado de preguntas */}
       {questions.map((question, questionIndex) => {
-        console.log("Rendering question:", question.id);
-        console.log("Respuesta actual:", responses[question.id]);
 
         const isMatrix = question.question_type === "matrix";
         const isNumeric = question.data_type === "integer";
