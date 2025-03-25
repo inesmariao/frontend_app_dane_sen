@@ -531,7 +531,6 @@ export const TooltipContainer = styled.div`
   top: 100%;
   left: 0;
   margin-top: 0.25rem;
-  width: 16rem;
   padding: 0.75rem;
   background-color: #1d4ed8;
   color: white;
@@ -539,42 +538,29 @@ export const TooltipContainer = styled.div`
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  max-width: 90vw;
-  word-wrap: break-word;
+  max-width: 320px;
+  min-width: 200px;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 
-  // Estilos específicos para iPhone 5/SE y similares
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    padding: 0.6rem;
+    max-width: 90vw;
+    min-width: 60vw;
+  }
+
+  /* Media query para dispositivos con anchos de pantalla muy pequeños */
   @media (max-width: 320px) {
-    font-size: 0.9rem;
+    font-size: 1rem;
     padding: 0.5rem;
     max-width: 80vw;
-    left:5%;
-    transform: translateX(-70%);
-    margin-left: 0.5rem;
-    margin-right: 1rem;
+    min-width: 50vw;
   }
 
-  // Estilos para móviles de mayor tamaño que el iPhone 5/SE y similares
-  @media (max-width: 768px) and (min-width: 321px) {
-    top: auto;
-    bottom: 100%;
-    max-height: 50vh;
-    overflow-y: auto;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  // Estilos específicos para modo de contraste
   .contrast & {
     font-weight: normal;
-  }
-
-  // Estilos específicos para modo de contraste en pantallas medianas y pequeñas
-  @media (max-width: 768px) {
-    .contrast & {
-      font-size: 1rem;
-      font-weight: normal;
-      padding: 0.5rem;
-    }
   }
 `;
 

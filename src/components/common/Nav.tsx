@@ -89,7 +89,7 @@ export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
         )}
         <li onClick={closeMenu}>
           <FaEnvelope />
-          <Link href="/contacto">Contacto</Link>
+          <Link href="/contact">Contacto</Link>
         </li>
       </ul>
     </NavWrapper>
