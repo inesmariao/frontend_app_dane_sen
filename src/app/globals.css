@@ -61,4 +61,39 @@ svg {
   font-size: 1.5rem;
 }
 
+.swal2-popup {
+  width: 90% !important;
+  max-width: 360px !important;
+  padding: 1.25rem 1rem !important;
+  font-size: 0.95rem;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Ajuste general del icono */
+.swal2-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 0 auto 1rem auto;
+}
+
+.swal2-title {
+  font-size: 1.25rem !important;
+  margin-bottom: 0.75rem !important;
+  line-height: 1.3 !important;
+}
+
+.swal2-html-container {
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  margin-bottom: 1rem !important;
+  padding: 0 0.5rem;
+}
+
+.swal2-actions {
+  margin-top: 0 !important;
+}
+
+
+
 
