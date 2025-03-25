@@ -20,6 +20,8 @@ import {
 import { useSurveyData } from "@/hooks/useSurveyData";
 import { useSurveyResponses } from "@/hooks/useSurveyResponses";
 import { useBirthDate } from "@/hooks/useBirthDate";
+import Spinner from "@/components/common/Spinner";
+
 
 const SurveyApp = memo(() => {
   const router = useRouter();
@@ -38,7 +40,7 @@ const SurveyApp = memo(() => {
 
   const { birthDate } = useBirthDate(responses);
 
-  if (!survey) return <p>Cargando datos de la encuesta...</p>;
+  if (!survey) return <Spinner />;
 
   const currentChapter =
     survey.chapters && currentChapterIndex < survey.chapters.length
