@@ -7,10 +7,10 @@ interface OptionWrapperProps {
 
 // Contenedor principal de la encuesta
 export const SurveyContainer = styled.section`
-  width: 80%;
-  max-width: 1200px;
+  width: 70%;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
 
   @media (max-width: 768px) {
     width: 95%;
@@ -18,6 +18,7 @@ export const SurveyContainer = styled.section`
 
   @media (max-width: 480px) {
     width: 100%;
+    padding: 0 1.2rem;
   }
 `;
 
@@ -30,29 +31,33 @@ export const SurveyHeader = styled.div`
 // Título de la encuesta
 export const SurveyTitle = styled.div`
   font-family: "Poppins", sans-serif;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #413087;
   line-height: 1.2;
-  margin: 1rem;
+  margin: 0.5rem;
   text-shadow: 0.125rem 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
   text-align: center;
 
   @media (max-width: 48rem) {
-    font-size: 1.5rem;
-    margin: 1.25rem 1rem;
+    font-size: 1.3rem;
+    margin: 0.5rem;
   }
 `;
 
 // Descripción debajo del título
 export const SurveyDescriptionName = styled.p`
   font-family: "Poppins", sans-serif;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #000;
-  margin-bottom: 1.5rem;
-  margin-top: 2rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
   text-align: left;
 
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+  
   @media (max-width: 985px) {
     font-size: 1rem;
   }
@@ -82,8 +87,8 @@ export const QuestionCard = styled.div`
   background-color: #ffffff;
   border-radius: 15px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  margin: 1rem 0;
-  padding: 1.5rem;
+  margin: 0.5rem 0;
+  padding: 1rem;
 `;
 
 // Texto de las preguntas

@@ -32,23 +32,23 @@ export const WelcomeCard = styled.div`
 
 export const Title = styled.h1`
   color: #413087;
-  text-shadow: 0.1rem 0.1rem 0.2rem rgba(77, 74, 74, 0.5);
+  text-shadow: 0.05rem 0.05rem 0.1rem rgba(77, 74, 74, 0.3);
 
-  @media (max-width: 47.9375rem) {
-    font-size: 1.4rem;
-    line-height: 1.2;
-    padding: 0.2rem;
+  @media (max-width: 767px) {
+    font-size: 1rem;
+    line-height: 1.1;
+    padding: 0.1rem;
   }
 
-  @media (min-width: 48rem) and (max-width: 64rem) {
-    font-size: 1.6rem;
-    line-height: 1.6;
+  @media (min-width: 768px) and (max-width: 1024px) {
+    font-size: 1.25rem;
+    line-height: 1.3;
     padding: 0;
     margin-top: 0.2rem;
   }
 
-  @media (min-width: 64rem) {
-    font-size: 1.7rem;
+  @media (min-width: 1024px) {
+    font-size: 1.4rem;
     line-height: 1;
     padding: 0;
     margin-top: 0.5rem;

@@ -22,7 +22,7 @@ const LayoutWrapper = styled.div`
 
 const TitleWrapper = styled.div`
   font-family: "Poppins", sans-serif;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: bold;
   color: #413087;
   line-height: 1;
