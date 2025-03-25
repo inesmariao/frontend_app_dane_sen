@@ -27,6 +27,8 @@ const SurveyApp = memo(() => {
   const router = useRouter();
   const { survey } = useSurveyData();
   const [chapterStep, setChapterStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const {
     responses,
@@ -64,34 +66,39 @@ const SurveyApp = memo(() => {
   }
 
   const handleChapterNext = () => {
-    if (currentChapterIndex === 0) {
-      if (showSecondQuestion) {
-        handleBirthDateSubmit(birthDate, survey, responses, setCurrentChapterIndex, router);
-      } else {
-        handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
-      }
-    } else if (currentChapterIndex === 2) {
-      const responseQ12 = responses[12];
-  
-      if (chapterStep === 0) {
-        setChapterStep(1);
+    setIsLoading(true);
+    try {
+      if (currentChapterIndex === 0) {
+        if (showSecondQuestion) {
+          handleBirthDateSubmit(birthDate, survey, responses, setCurrentChapterIndex, router);
+        } else {
+          handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
+        }
+      } else if (currentChapterIndex === 2) {
+        const responseQ12 = responses[12];
+    
+        if (chapterStep === 0) {
+          setChapterStep(1);
+          window.scrollTo({ top: 0 });
+          return;
+        }
+    
+        // Paso 1: finalizar capítulo y avanzar
+        setCurrentChapterIndex((prev) => prev + 1);
+        setChapterStep(0);
         window.scrollTo({ top: 0 });
         return;
-      }
-  
-      // Paso 1: finalizar capítulo y avanzar
-      setCurrentChapterIndex((prev) => prev + 1);
-      setChapterStep(0);
-      window.scrollTo({ top: 0 });
-      return;
-    } else {
-      // Resto del flujo normal
-      if (currentChapterIndex < survey.chapters.length - 1) {
-        setCurrentChapterIndex((prev) => prev + 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        handleFinalSubmit(survey, responses, router, currentChapterIndex, chapterStep);
+        // Resto del flujo normal
+        if (currentChapterIndex < survey.chapters.length - 1) {
+          setCurrentChapterIndex((prev) => prev + 1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          handleFinalSubmit(survey, responses, router, currentChapterIndex, chapterStep);
+        }
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -150,6 +157,7 @@ const SurveyApp = memo(() => {
           isFirstChapter={currentChapterIndex === 0}
           isLastChapter={currentChapterIndex === survey.chapters.length - 1}
           chapterIndex={currentChapterIndex}
+          isLoading={isLoading}
         />
       )}
     </SurveyContainer>

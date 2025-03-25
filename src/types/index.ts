@@ -58,6 +58,7 @@ export interface ChapterProps {
   isFirstChapter: boolean;
   isLastChapter: boolean;
   chapterIndex: number;
+  isLoading: boolean;
 }
 
 export interface ChapterQuestionsProps {

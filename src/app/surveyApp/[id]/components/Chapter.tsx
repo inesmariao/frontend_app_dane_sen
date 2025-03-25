@@ -4,7 +4,7 @@ import React from "react";
 import ChapterQuestions from "./ChapterQuestions";
 import { ChapterProps } from "@/types";
 import { ChapterTitle, ButtonContainer } from "@/styles/components/StyledSurvey";
-import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
+import { LargeStyledButton, Spinner } from "@/styles/components/StyledButtonVariants";
 
 const Chapter: React.FC<ChapterProps> = ({
   chapter,
@@ -15,6 +15,7 @@ const Chapter: React.FC<ChapterProps> = ({
   handlePrevChapter,
   isLastChapter,
   chapterIndex,
+  isLoading,
 }) => {
 
   return (
@@ -36,9 +37,16 @@ const Chapter: React.FC<ChapterProps> = ({
           </LargeStyledButton>
         )}
 
-        <LargeStyledButton onClick={handleNextChapter}>
-          {isLastChapter ? "Enviar y Finalizar" : "Siguiente →"}
-        </LargeStyledButton>
+      <LargeStyledButton onClick={handleNextChapter} disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Spinner />
+            Cargando...
+          </>
+        ) : (
+          isLastChapter ? "Enviar y Finalizar" : "Siguiente →"
+        )}
+      </LargeStyledButton>
       </ButtonContainer>
     </>
   );
