@@ -6,7 +6,7 @@ import {
   TooltipInfoIconWrapper,
   TooltipInfoIcon,
   TooltipContainer,
-} from "@/styles/components/StyledSurvey";
+} from "@/styles/TooltipStyles";
 
 const TooltipOption: React.FC<TooltipOptionProps> = ({ note = "" }) => {
   const [showTooltip, setShowTooltip] = useState(false);

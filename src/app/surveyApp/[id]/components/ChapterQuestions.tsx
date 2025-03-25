@@ -19,9 +19,9 @@ import {
   Table,
   TableRow,
   NumericInputWrapper,
-  OtherInputWrapper,
-  TooltipOptionContainer
+  OtherInputWrapper
 } from "@/styles/components/StyledSurvey";
+import { TooltipOptionContainer } from "@/styles/TooltipStyles";
 
 const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
   questions,
