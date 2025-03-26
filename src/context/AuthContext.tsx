@@ -18,7 +18,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const user = localStorage.getItem("authUser");
   
     if (!token || !user) {
-      router.push("/login");
+      const currentPath = window.location.pathname;
+      // Evitar redirección automática en la página de bienvenida
+      if (currentPath !== "/") {
+        router.push("/login");
+      }
       return;
     }
 
