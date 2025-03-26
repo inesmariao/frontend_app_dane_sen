@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { AiOutlineInfoCircle } from "react-icons/ai";
 
 interface OptionWrapperProps {
   isCheckbox?: boolean;
@@ -15,13 +14,13 @@ export const SurveyContainer = styled.section`
 
   @media (max-width: 768px) {
     width: 95%;
-    padding-bottom: 4rem; 
+    padding-bottom: 4rem;
   }
 
   @media (max-width: 480px) {
     width: 100%;
     padding: 0 1.2rem;
-    padding-bottom: 4rem; 
+    padding-bottom: 4rem;
   }
 `;
 
@@ -303,10 +302,19 @@ export const OptionLabel = styled.label`
   cursor: pointer;
   vertical-align: middle;
 
+  /* Pantallas medianas */
   @media (max-width: 985px) {
     font-size: 1.1rem;
     margin-top: 0.2rem;
     text-align: left;
+  }
+
+  /* Pantallas pequeñas */
+  &.matrix-label {
+    @media (max-width: 767px) {
+      font-size: 0.95rem;
+      text-align: center;
+    }
   }
 `;
 
@@ -323,6 +331,7 @@ export const TableHeader = styled.div`
   display: table-row;
   font-weight: bold;
 `;
+
 export const Table = styled.div`
   font-family: "Poppins", sans-serif;
   font-weight: normal;
@@ -330,7 +339,8 @@ export const Table = styled.div`
   width: 100%;
   border-collapse: collapse;
 
-  @media (max-width: 985px) {
+  /* Solo pantallas pequeñas */
+  @media (max-width: 767px) {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -343,7 +353,8 @@ export const TableRow = styled.div`
   font-weight: normal;
   display: table-row;
 
-  @media (max-width: 985px) {
+  /* Solo pantallas pequeñas */
+  @media (max-width: 767px) {
     display: flex;
     flex-direction: column;
     align-items: flex-start;

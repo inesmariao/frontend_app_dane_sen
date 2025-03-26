@@ -24,6 +24,7 @@ export function useSystemMessage(
         const content = res.data?.content || '';
         setHtml({ __html: content });
         setText(getTextFromHtml(content));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         setHtml(null);
         setText(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback  } from "react";
 import { GeographicQuestionProps, GeographicResponse } from "@/types";
 import apiClient from "@/utils/api";
 import { handleError } from "@/utils/errorHandling";
@@ -25,7 +25,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   const [departments, setDepartments] = useState<{ id: number; name: string; code: number }[]>([]);
   const [municipalities, setMunicipalities] = useState<{ id: number; name: string; code: number }[]>([]);
   const [loadingMunicipalities, setLoadingMunicipalities] = useState<boolean>(false);
-
+  const selectedResponse = responses[questionId] as GeographicResponse;
   const selectedDepartment = (responses[questionId] as GeographicResponse)?.department ?? "";
   const selectedMunicipality = (responses[questionId] as GeographicResponse)?.municipality ?? "";
 
@@ -36,70 +36,95 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
   // Determinar si se deben mostrar los selectores de departamento y municipio
   const showSelectors = isQuestionSix || (isQuestionEight && isYesSelected);
 
-  useEffect(() => {
-    const selectedOption = (responses[questionId] as GeographicResponse)?.option_selected;
-  
-    // Asegurar que la respuesta incluya option_selected cuando cambie
-    if (typeof selectedOption === "number") {
+  // Manejadores de cambio en selectores
+  const handleDepartmentChange = useCallback(
+    (departmentId: number) => {
       const updatedResponse: GeographicResponse = {
-        ...(responses[questionId] as GeographicResponse),
-        option_selected: selectedOption,
+        ...selectedResponse,
+        department: departmentId,
+        municipality: null,
       };
       handleOptionChange(questionId, updatedResponse);
+    },
+    [handleOptionChange, questionId, selectedResponse]
+  );
+
+  const handleMunicipalityChange = useCallback(
+    (municipalityId: number) => {
+      const updatedResponse: GeographicResponse = {
+        ...selectedResponse,
+        municipality: municipalityId,
+      };
+      handleOptionChange(questionId, updatedResponse);
+    },
+    [handleOptionChange, questionId, selectedResponse]
+  );
+
+  useEffect(() => {
+    const currentResponse = responses[questionId] as GeographicResponse;
+    const selectedOption = currentResponse?.option_selected;
+
+    // Solo actualiza si no hay option_selected
+  if (typeof selectedOption === "number" && !currentResponse?.country) {
+    const updatedResponse: GeographicResponse = {
+      ...currentResponse,
+      option_selected: selectedOption,
+    };
+    handleOptionChange(questionId, updatedResponse);
     }
-  }, [(responses[questionId] as GeographicResponse)?.option_selected]);
+  }, [handleOptionChange, questionId]);
+
 
   // Cargar departamentos
   useEffect(() => {
-    apiClient.get("/geo/departments/")
-      .then((res) => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await apiClient.get("/geo/departments/");
         setDepartments(res.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         if (error instanceof Error) {
           handleError(error.message);
         } else {
           handleError("Error desconocido al cargar departamentos.");
         }
-      });
+      }
+    };
+
+    fetchDepartments();
   }, []);
 
   // Cargar municipios cuando se selecciona un departamento
   useEffect(() => {
-    if (selectedDepartment) {
-      setLoadingMunicipalities(true);
-      apiClient.get(`/geo/municipalities/by-department/${selectedDepartment}/`)
-        .then((res) => setMunicipalities(res.data.municipalities ?? []))
-        .catch((error) => {
+    const fetchMunicipalities = async () => {
+      if (selectedDepartment) {
+        setLoadingMunicipalities(true);
+        try {
+          const res = await apiClient.get(
+            `/geo/municipalities/by-department/${selectedDepartment}/`
+          );
+          setMunicipalities(res.data.municipalities ?? []);
+        } catch (error) {
           if (error instanceof Error) {
             handleError(error.message);
           } else {
             handleError("Error desconocido al cargar municipios.");
           }
-        })
-        .finally(() => setLoadingMunicipalities(false));
-    } else {
-      setMunicipalities([]);
-    }
+        } finally {
+          setLoadingMunicipalities(false);
+        }
+      } else {
+        setMunicipalities([]);
+      }
+    };
+
+    fetchMunicipalities();
   }, [selectedDepartment]);
 
-  // Manejadores de cambio en selectores
-  const handleDepartmentChange = (departmentId: number) => {
-    const updatedResponse: GeographicResponse = {
-      ...(responses[questionId] as GeographicResponse),
-      department: departmentId,
-      municipality: null,
-    };
-    handleOptionChange(questionId, updatedResponse);
-  };
 
-  const handleMunicipalityChange = (municipalityId: number) => {
-    const updatedResponse: GeographicResponse = {
-      ...(responses[questionId] as GeographicResponse),
-      municipality: municipalityId,
-    };
-    handleOptionChange(questionId, updatedResponse);
-  };
+
+
+
+
 
   return (
     <>

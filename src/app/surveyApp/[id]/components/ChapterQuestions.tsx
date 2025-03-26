@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { GeographicResponse, ChapterQuestionsProps } from "@/types";
 import DateSelector from "@/components/common/DateSelector";
 import { GeographicQuestion } from "./GeographicQuestion";
@@ -280,7 +280,8 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                                 <div className="labels">
                                   {filteredOptions.map((option) => (
                                     <TooltipOptionContainer key={`label-${question.id}-${subQuestion.id}-${option.id}`}>
-                                      <OptionLabel htmlFor={`option-${subQuestion.id}-${option.id}`}>
+                                      <OptionLabel className="matrix-label"
+                                        htmlFor={`option-${subQuestion.id}-${option.id}`}>
                                         {option.text_option}
                                       </OptionLabel>
                                       {option.note && <TooltipOption note={option.note} />}
@@ -553,7 +554,7 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                   const optionKey = `option-q-${question.id}-opt-${option.id}`;
 
                   return (
-                    <>
+                    <React.Fragment key={optionKey}>
                       <TooltipOptionContainer key={optionKey}>
                         <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                           <input
@@ -598,7 +599,7 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                           </OtherInputWrapper>
                         </div>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })
               ) : null}

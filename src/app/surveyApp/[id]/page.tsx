@@ -60,7 +60,7 @@ const SurveyApp = memo(() => {
         router.push("/surveys");
       });
     };
-  
+
     showChapterError();
     return null;
   }
@@ -75,14 +75,15 @@ const SurveyApp = memo(() => {
           handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
         }
       } else if (currentChapterIndex === 2) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const responseQ12 = responses[12];
-    
+
         if (chapterStep === 0) {
           setChapterStep(1);
           window.scrollTo({ top: 0 });
           return;
         }
-    
+
         // Paso 1: finalizar capítulo y avanzar
         setCurrentChapterIndex((prev) => prev + 1);
         setChapterStep(0);
@@ -120,6 +121,7 @@ const SurveyApp = memo(() => {
           if (chapterStep === 0) {
             return q.id === 12; // solo mostrar la Q12
           } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const responseQ12 = responses[12];
             const noDiscriminacion = Array.isArray(responseQ12) && responseQ12.includes(65);
             return noDiscriminacion
