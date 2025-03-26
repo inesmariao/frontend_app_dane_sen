@@ -11,14 +11,17 @@ export const SurveyContainer = styled.section`
   max-width: 960px;
   margin: 0 auto;
   padding: 0 1rem;
+  padding-bottom: 2rem;
 
   @media (max-width: 768px) {
     width: 95%;
+    padding-bottom: 4rem; 
   }
 
   @media (max-width: 480px) {
     width: 100%;
     padding: 0 1.2rem;
+    padding-bottom: 4rem; 
   }
 `;
 
@@ -248,8 +251,9 @@ export const OtherInputWrapper = styled.div`
   @media (max-width: 768px) {
     width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0.5rem;
   }
 `;
 
