@@ -222,13 +222,13 @@ export const OptionWrapper = styled.div.withConfig({
   }
 
   }
+
+  
 `;
 
 // Estilos para la opción "Otro"
 export const OtherInputWrapper = styled.div`
-  width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
   margin-top: 0.5rem;
 
@@ -248,13 +248,16 @@ export const OtherInputWrapper = styled.div`
   }
 
   /* Para pantallas pequeñas, ocupa toda la fila */
-  @media (max-width: 768px) {
-    width: 100%;
-    display: flex;
+  &.mobile-full-width {
+    @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 0.5rem;
+    gap: 0.5rem;
+    input {
+      width: 100%;
+    }
   }
+}
 `;
 
 // Opciones de las preguntas tipo matrix con matrix_layout_type = column

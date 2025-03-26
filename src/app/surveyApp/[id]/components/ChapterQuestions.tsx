@@ -48,11 +48,11 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
         .find((q) => q.id === 11)
         ?.options?.find((opt) => opt.text_option.toLowerCase() === "no presenta ningún tipo de discapacidad");
 
-        if (noDisabilityOption && Array.isArray(responses[11])) {
-          setNoDisabilitySelected((responses[11] as number[]).includes(noDisabilityOption.id));
-        } else {
-          setNoDisabilitySelected(false);
-        }
+      if (noDisabilityOption && Array.isArray(responses[11])) {
+        setNoDisabilitySelected((responses[11] as number[]).includes(noDisabilityOption.id));
+      } else {
+        setNoDisabilitySelected(false);
+      }
     }
   }, [responses, questions]);
 
@@ -127,7 +127,7 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
 
             {/* Contenedor para la pregunta y el tooltip en la misma fila */}
             <TooltipOptionContainer>
-            <QuestionText>{`${visualOrder} - ${question.text_question}`}</QuestionText>
+              <QuestionText>{`${visualOrder} - ${question.text_question}`}</QuestionText>
               {question.note && (
                 <TooltipOption note={question.note} />
               )}
@@ -203,16 +203,31 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                             {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                           </SubQuestionColumn>
                           <Column>
-                            <OtherInputWrapper>
-                              <input
-                                type="text"
-                                id={`other-input-sq-${subQuestion.id}`}
-                                placeholder="Otro, ¿cuál?"
-                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                              />
-                            </OtherInputWrapper>
+                            {isSmallScreen ? (
+                              <div className="w-full mt-2">
+                                <OtherInputWrapper>
+                                  <input
+                                    type="text"
+                                    id={`other-input-sq-${subQuestion.id}`}
+                                    placeholder="Otro, ¿cuál?"
+                                    value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                    onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                  />
+                                </OtherInputWrapper>
+                              </div>
+                            ) : (
+                              <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                <input
+                                  type="text"
+                                  id={`other-input-sq-${subQuestion.id}`}
+                                  placeholder="Otro, ¿cuál?"
+                                  value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                  onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                />
+                              </OtherInputWrapper>
+                            )}
                           </Column>
+
                         </TableRow>
                       );
                     }
@@ -299,15 +314,29 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                                     </TooltipOptionContainer>
                                     {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" */}
                                     {isOtherSubQuestion && (
-                                      <OtherInputWrapper>
-                                        <input
-                                          type="text"
-                                          id={`other-input-sq-${subQuestion.id}`}
-                                          placeholder="Otro, ¿cuál?"
-                                          value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                          onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                                        />
-                                      </OtherInputWrapper>
+                                      isSmallScreen ? (
+                                        <div className="w-full mt-2">
+                                          <OtherInputWrapper>
+                                            <input
+                                              type="text"
+                                              id={`other-input-sq-${subQuestion.id}`}
+                                              placeholder="Otro, ¿cuál?"
+                                              value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                              onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                            />
+                                          </OtherInputWrapper>
+                                        </div>
+                                      ) : (
+                                        <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                          <input
+                                            type="text"
+                                            id={`other-input-sq-${subQuestion.id}`}
+                                            placeholder="Otro, ¿cuál?"
+                                            value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                            onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                          />
+                                        </OtherInputWrapper>
+                                      )
                                     )}
                                   </div>
                                 );
@@ -321,15 +350,29 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                                 (option) => option.id === responses[subQuestion.id] && option.text_option.toLowerCase().includes("no sé")
                               ) && (
 
-                                <OtherInputWrapper>
-                                  <input
-                                    type="text"
-                                    id={`other-input-${subQuestion.id}`}
-                                    placeholder="Otro, ¿cuál?"
-                                    value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                    onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                                  />
-                                </OtherInputWrapper>
+                                isSmallScreen ? (
+                                  <div className="w-full mt-2">
+                                    <OtherInputWrapper>
+                                      <input
+                                        type="text"
+                                        id={`other-input-${subQuestion.id}`}
+                                        placeholder="Otro, ¿cuál?"
+                                        value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                        onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                      />
+                                    </OtherInputWrapper>
+                                  </div>
+                                ) : (
+                                  <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                    <input
+                                      type="text"
+                                      id={`other-input-${subQuestion.id}`}
+                                      placeholder="Otro, ¿cuál?"
+                                      value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                    />
+                                  </OtherInputWrapper>
+                                )
 
                               )}
                           </OptionWrapper_Subquestions>
@@ -359,16 +402,35 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                             {subQuestion.instruction && <QuestionInstructions>{subQuestion.instruction}</QuestionInstructions>}
                           </SubQuestionColumn>
                           <OptionWrapper_Column>
-                            <OtherInputWrapper>
-                              <input
-                                type="text"
-                                id={`other-input-sq-${subQuestion.id}`}
-                                placeholder="Otro, ¿cuál?"
-                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                              />
-                            </OtherInputWrapper>
+                            {isSmallScreen ? (
+                              <div className="w-full mt-2">
+                                <OtherInputWrapper>
+                                  <input
+                                    type="text"
+                                    id={`other-input-sq-${subQuestion.id}`}
+                                    placeholder="Otro, ¿cuál?"
+                                    value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                    onChange={(e) =>
+                                      handleOptionChange(`other_${subQuestion.id}`, e.target.value)
+                                    }
+                                  />
+                                </OtherInputWrapper>
+                              </div>
+                            ) : (
+                              <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                <input
+                                  type="text"
+                                  id={`other-input-sq-${subQuestion.id}`}
+                                  placeholder="Otro, ¿cuál?"
+                                  value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                  onChange={(e) =>
+                                    handleOptionChange(`other_${subQuestion.id}`, e.target.value)
+                                  }
+                                />
+                              </OtherInputWrapper>
+                            )}
                           </OptionWrapper_Column>
+
                         </div>
                       );
                     }
@@ -412,36 +474,65 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                                 </OptionLabel>
                                 {option.note && <TooltipOption note={option.note} />}
                                 {/* Mostrar input solo si es la subpregunta "Otro, ¿cuál?" y si la opción está seleccionada */}
-                                {isOtherSubQuestion && (
-
-                                  <OtherInputWrapper>
-                                    <input
-                                      type="text"
-                                      id={`other-input-sq-${subQuestion.id}`}
-                                      placeholder="Otro, ¿cuál?"
-                                      value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                      onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                                    />
-                                  </OtherInputWrapper>
-
+                                {isOtherSubQuestion && isChecked && (
+                                  isSmallScreen ? (
+                                    <div className="w-full mt-2">
+                                      <OtherInputWrapper>
+                                        <input
+                                          type="text"
+                                          id={`other-input-sq-${subQuestion.id}`}
+                                          placeholder="Otro, ¿cuál?"
+                                          value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                          onChange={(e) =>
+                                            handleOptionChange(`other_${subQuestion.id}`, e.target.value)
+                                          }
+                                        />
+                                      </OtherInputWrapper>
+                                    </div>
+                                  ) : (
+                                    <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                      <input
+                                        type="text"
+                                        id={`other-input-sq-${subQuestion.id}`}
+                                        placeholder="Otro, ¿cuál?"
+                                        value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                        onChange={(e) =>
+                                          handleOptionChange(`other_${subQuestion.id}`, e.target.value)
+                                        }
+                                      />
+                                    </OtherInputWrapper>
+                                  )
                                 )}
                               </TooltipOptionContainer>
                             );
                           })}
                           {/* Input "Otro" para la subpregunta */}
                           {isOtherSubQuestion && (
-
-                            <OtherInputWrapper>
-                              <input
-                                type="text"
-                                id={`other-input-sq-${subQuestion.id}`}
-                                placeholder="Otro, ¿cuál?"
-                                value={String(responses[`other_${subQuestion.id}`] ?? "")}
-                                onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
-                              />
-                            </OtherInputWrapper>
-
+                            isSmallScreen ? (
+                              <div className="w-full mt-2">
+                                <OtherInputWrapper>
+                                  <input
+                                    type="text"
+                                    id={`other-input-sq-${subQuestion.id}`}
+                                    placeholder="Otro, ¿cuál?"
+                                    value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                    onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                  />
+                                </OtherInputWrapper>
+                              </div>
+                            ) : (
+                              <OtherInputWrapper style={{ marginLeft: "1rem" }}>
+                                <input
+                                  type="text"
+                                  id={`other-input-sq-${subQuestion.id}`}
+                                  placeholder="Otro, ¿cuál?"
+                                  value={String(responses[`other_${subQuestion.id}`] ?? "")}
+                                  onChange={(e) => handleOptionChange(`other_${subQuestion.id}`, e.target.value)}
+                                />
+                              </OtherInputWrapper>
+                            )
                           )}
+
                         </OptionWrapper_Column>
                       </div>
                     );
@@ -462,49 +553,52 @@ const ChapterQuestions: React.FC<ChapterQuestionsProps> = ({
                   const optionKey = `option-q-${question.id}-opt-${option.id}`;
 
                   return (
-                    <TooltipOptionContainer key={optionKey}>
-                      <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
-                        <input
-                          type={isMultiple ? "checkbox" : "radio"}
-                          id={`option-q-${question.id}-opt-${option.id}`}
-                          name={`question-q-${question.id}`}
-                          value={option.id}
-                          checked={isChecked}
-                          onChange={() => {
-                            if (isMultiple) {
-                              const currentSelections = Array.isArray(responses[question.id])
-                                ? (responses[question.id] as number[])
-                                : [];
-                              const updatedSelections = isChecked
-                                ? currentSelections.filter((id) => id !== option.id)
-                                : [...currentSelections, option.id];
-                              handleOptionChange(question.id, updatedSelections);
-                            } else {
-                              handleOptionChange(question.id, option.id);
-                            }
-                          }}
-                        />
-                        <OptionLabel htmlFor={`option-q-${question.id}-opt-${option.id}`} className="flex items-center">
-                          {option.text_option}
-                        </OptionLabel>
-                        {option.note && <TooltipOption note={option.note} />}
-                      </OptionWrapper>
-
-                      {/* Input de texto "Otro" */}
-                      {option.is_other && isChecked && (
-                        <OtherInputWrapper>
+                    <>
+                      <TooltipOptionContainer key={optionKey}>
+                        <OptionWrapper isCheckbox={isMultiple} className="flex items-start w-full">
                           <input
-                            type="text"
-                            id={`other-input-q-${question.id}`}
-                            placeholder="Otro, ¿cuál?"
-                            value={String(responses[`other_${question.id}`] ?? "")}
-                            onChange={(e) =>
-                              handleOptionChange(`other_${question.id}`, e.target.value)
-                            }
+                            type={isMultiple ? "checkbox" : "radio"}
+                            id={`option-q-${question.id}-opt-${option.id}`}
+                            name={`question-q-${question.id}`}
+                            value={option.id}
+                            checked={isChecked}
+                            onChange={() => {
+                              if (isMultiple) {
+                                const currentSelections = Array.isArray(responses[question.id])
+                                  ? (responses[question.id] as number[])
+                                  : [];
+                                const updatedSelections = isChecked
+                                  ? currentSelections.filter((id) => id !== option.id)
+                                  : [...currentSelections, option.id];
+                                handleOptionChange(question.id, updatedSelections);
+                              } else {
+                                handleOptionChange(question.id, option.id);
+                              }
+                            }}
                           />
-                        </OtherInputWrapper>
+                          <OptionLabel htmlFor={`option-q-${question.id}-opt-${option.id}`} className="flex items-center">
+                            {option.text_option}
+                          </OptionLabel>
+                          {option.note && <TooltipOption note={option.note} />}
+                        </OptionWrapper>
+                      </TooltipOptionContainer>
+                      {/* Input de texto "Otro" como bloque separado */}
+                      {option.is_other && isChecked && (
+                        <div className="w-full mt-2">
+                          <OtherInputWrapper className="mobile-full-width">
+                            <input
+                              type="text"
+                              id={`other-input-q-${question.id}`}
+                              placeholder="Otro, ¿cuál?"
+                              value={String(responses[`other_${question.id}`] ?? "")}
+                              onChange={(e) =>
+                                handleOptionChange(`other_${question.id}`, e.target.value)
+                              }
+                            />
+                          </OtherInputWrapper>
+                        </div>
                       )}
-                    </TooltipOptionContainer>
+                    </>
                   );
                 })
               ) : null}
