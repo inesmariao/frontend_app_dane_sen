@@ -1,192 +1,170 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-
-import { getSurvey, submitResponses } from "@/utils/api";
+import React, { useState, memo } from "react";
 import { useRouter } from "next/navigation";
-import { useParams } from 'next/navigation';
-import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
-import { Survey, Chapter, Question, Option } from "@/types";
+import Swal from "sweetalert2";
+import Chapter from "./components/Chapter";
 import {
   SurveyContainer,
   SurveyHeader,
   SurveyTitle,
   SurveyDescriptionName,
-  ButtonContainer
 } from "@/styles/components/StyledSurvey";
-import ChapterOne from "@/app/surveyApp/[id]/components/ChapterOne";
-import ChapterTwo from "@/app/surveyApp/[id]/components/ChapterTwo";
-import ChapterThree from "@/app/surveyApp/[id]/components/ChapterThree";
 
-interface ChapterProps {
-  questions: Question[];
-  responses: { [key: number]: string | number | number[] };
-  handleOptionChange: (questionId: number, value: string | number | number[]) => void;
-  chapterName: string;
-}
+import {
+  handleBirthDateSubmit,
+  handleFinalSubmit,
+  handleFirstQuestionSubmit,
+} from "@/helpers/surveyHelpers";
+
+import { useSurveyData } from "@/hooks/useSurveyData";
+import { useSurveyResponses } from "@/hooks/useSurveyResponses";
+import { useBirthDate } from "@/hooks/useBirthDate";
+import Spinner from "@/components/common/Spinner";
 
 
-const SurveyApp: React.FC = () => {
-
-  const params = useParams();
-  const id = params?.id;
-
-  const [survey, setSurvey] = useState<any>(null);
-  const [responses, setResponses] = useState<{ [key: number]: number | string | number[] }>({});
-  const [error, setError] = useState(false);
-  const [currentChapter, setCurrentChapter] = useState(1);
+const SurveyApp = memo(() => {
   const router = useRouter();
+  const { survey } = useSurveyData();
+  const [chapterStep, setChapterStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Redirigir al login si el usuario no está autenticado
-  useEffect(() => {
-    const loadSurvey = async () => {
-      try {
-        if (id) {
-          const data = await getSurvey(Number(id));
-          setSurvey(data);
-        }
-      } catch (error: any) {
-        console.error("Error al cargar la encuesta:", error.message);
-        if (error.message.includes("UNAUTHORIZED") || error.response?.status === 401) {
-          router.push("/login");
-        } else {
-          setError(true);
-        }
-      }
-    };
-    loadSurvey();
-  }, [id]);
 
-  if (error) {
-    return <p>Ocurrió un error al cargar la encuesta.</p>;
-  }
+  const {
+    responses,
+    setResponses,
+    currentChapterIndex,
+    setCurrentChapterIndex,
+    showSecondQuestion,
+    setShowSecondQuestion,
+    handleOptionChange,
+  } = useSurveyResponses(survey?.questions);
 
-  if (!survey) {
-    return <p>Cargando datos de la encuesta...</p>;
-  }
+  const { birthDate } = useBirthDate(responses);
 
-  const handleOptionChange = (questionId: number, value: number | string | number[]) => {
-    setResponses((prev) => {
-      const current = prev[questionId];
+  if (!survey) return <Spinner />;
 
-      // Manejar selección múltiple
-      if (Array.isArray(current)) {
-        if (typeof value === 'number') {
-          const updatedSelections = current.includes(value)
-            ? current.filter((id) => id !== value)
-            : [...current, value];
-          return { ...prev, [questionId]: updatedSelections };
-        }
-      }
+  const currentChapter =
+    survey.chapters && currentChapterIndex < survey.chapters.length
+      ? survey.chapters[currentChapterIndex]
+      : null;
 
-      // Manejar selección única (radio buttons)
-      return { ...prev, [questionId]: value };
-    });
-  };
-
-  const handleNextChapter = () => {
-    if (currentChapter < 3) {
-      setCurrentChapter((prev) => prev + 1);
-      window.scrollTo({
-        top: 0,
-        behavior: "auto",
+  if (!currentChapter) {
+    const showChapterError = () => {
+      Swal.fire({
+        icon: "error",
+        title: "Error al cargar el capítulo",
+        text: "No se pudo cargar el capítulo. Por favor, recarga la página.",
+        confirmButtonText: "Aceptar",
+      }).then(() => {
+        router.push("/surveys");
       });
-    } else {
-      handleSubmit();
-    }
-  };
+    };
 
-  const handleSubmit = async () => {
-    // Verificar si hay preguntas sin responder.
-    const unansweredQuestions = survey.questions.filter((q: Question) => {
-      const response = responses[q.id]; // Obtenemos la respuesta actual
-      return (
-        response === undefined || // Si no hay respuesta
-        (Array.isArray(response) && response.length === 0) // Si es un arreglo vacío
-      );
-    });
+    showChapterError();
+    return null;
+  }
 
-    if (unansweredQuestions.length > 0) {
-      alert("Por favor responde todas las preguntas.");
-      return;
-    }
-
-    // Formatear las respuestas antes de enviarlas al backend.
-    const formattedResponses = Object.entries(responses).map(([questionId, value]) => ({
-      question_id: parseInt(questionId, 10),
-      ...(Array.isArray(value)
-        ? { options_multiple_selected: value }
-        : { option_selected: value }),
-    }));
-
+  const handleChapterNext = () => {
+    setIsLoading(true);
     try {
-      const response = await submitResponses(formattedResponses);
-      console.log("Respuestas enviadas:", response);
-    } catch (error: any) {
-      console.error("Error al enviar respuestas:", error.message);
+      if (currentChapterIndex === 0) {
+        if (showSecondQuestion) {
+          handleBirthDateSubmit(birthDate, survey, responses, setCurrentChapterIndex, router);
+        } else {
+          handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
+        }
+      } else if (currentChapterIndex === 2) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const responseQ12 = responses[12];
+
+        if (chapterStep === 0) {
+          setChapterStep(1);
+          window.scrollTo({ top: 0 });
+          return;
+        }
+
+        // Paso 1: finalizar capítulo y avanzar
+        setCurrentChapterIndex((prev) => prev + 1);
+        setChapterStep(0);
+        window.scrollTo({ top: 0 });
+        return;
+      } else {
+        // Resto del flujo normal
+        if (currentChapterIndex < survey.chapters.length - 1) {
+          setCurrentChapterIndex((prev) => prev + 1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          handleFinalSubmit(survey, responses, router, currentChapterIndex, chapterStep);
+        }
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const chapterOneQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 1
-  );
-  const chapterTwoQuestions = survey.questions.filter(
-    (q: Question) => q.chapter ===  2
-  );
-  const chapterThreeQuestions = survey.questions.filter(
-    (q: Question) => q.chapter === 3
-  );
 
+  const handlePrevChapter = () => {
+    if (currentChapterIndex > 1) {
+      setCurrentChapterIndex((prev) => prev - 1);
+      window.scrollTo({ top: 0 });
+    }
+  };
 
-  const chapterWithIdOne = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 1
-  );
-  const chapterWithIdTwo = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 2
-  );
-  const chapterWithIdThree = (survey.chapters as Chapter[]).find(
-    (chapter) => chapter.id === 3
-  );
+  const questionsToRender =
+  currentChapterIndex === 0
+    ? survey.questions.filter((q) =>
+        showSecondQuestion ? q.id === 2 : q.id === 1
+      )
+      : currentChapter.id === 3
+      ? survey.questions.filter((q) => {
+          if (chapterStep === 0) {
+            return q.id === 12; // solo mostrar la Q12
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const responseQ12 = responses[12];
+            const noDiscriminacion = Array.isArray(responseQ12) && responseQ12.includes(65);
+            return noDiscriminacion
+              ? [14, 15].includes(q.id) // solo Q14 y Q15
+              : [13, 14, 15].includes(q.id); // Q13, Q14, Q15
+          }
+        })
+      : survey.questions.filter((q) => q.chapter === currentChapter?.id);
 
   return (
     <SurveyContainer>
       <SurveyHeader>
         <SurveyTitle>{survey.name}</SurveyTitle>
-        <SurveyDescriptionName>{survey.description_name}</SurveyDescriptionName>
+        <SurveyDescriptionName className="space-y-2">
+          <span className="block font-bold">{survey.description_title}</span>
+        </SurveyDescriptionName>
+        <SurveyDescriptionName className="space-y-2">
+          <span>
+            <strong>Definición de &quot;discriminación&quot;:</strong>
+            {survey.description_name.replace(
+              /Definición de\s*["“”]*discriminación["“”]*:\s*/i,
+              ""
+            )}
+          </span>
+        </SurveyDescriptionName>
       </SurveyHeader>
-
-      {currentChapter === 1 && (
-        <ChapterOne
-          questions={chapterOneQuestions}
+      {currentChapter && questionsToRender.length > 0 && (
+        <Chapter
+          chapter={currentChapter}
+          questions={questionsToRender}
           responses={responses}
           handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdOne?.name|| "Capítulo 1"}
+          handleNextChapter={handleChapterNext}
+          handlePrevChapter={handlePrevChapter}
+          isFirstChapter={currentChapterIndex === 0}
+          isLastChapter={currentChapterIndex === survey.chapters.length - 1}
+          chapterIndex={currentChapterIndex}
+          isLoading={isLoading}
         />
       )}
-      {currentChapter === 2 && (
-        <ChapterTwo
-          questions={chapterTwoQuestions}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdTwo?.name || "Capítulo 2"}
-        />
-      )}
-      {currentChapter === 3 && (
-        <ChapterThree
-          questions={chapterThreeQuestions}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          chapterName={chapterWithIdThree?.name || "Capítulo 3"}
-        />
-      )}
-
-      <ButtonContainer>
-        <LargeStyledButton onClick={handleNextChapter}>
-          {currentChapter < 3 ? "Siguiente" : "Enviar y Finalizar"}
-        </LargeStyledButton>
-      </ButtonContainer>
     </SurveyContainer>
   );
-};
+});
 
+SurveyApp.displayName = "SurveyApp";
 export default SurveyApp;

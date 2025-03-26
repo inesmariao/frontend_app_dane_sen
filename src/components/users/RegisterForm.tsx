@@ -167,7 +167,6 @@ const RegisterForm: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -220,14 +219,18 @@ const RegisterForm: React.FC = () => {
     }
 
     try {
-      await registerUser(formData); // Llamada al API de registro
-      setSuccess("Usuario registrado exitosamente. Redirigiendo...");
+      await registerUser(formData);
+      setSuccessMessage("Usuario registrado exitosamente. Redirigiendo...");
 
       setTimeout(() => {
-        router.push("/login"); // Redirigir al login después del éxito
+        router.push("/login");
       }, 2000); // Espera de 2 segundos para mostrar el mensaje
-    } catch (err: any) {
-      setErrors(err.message || "Error al registrar usuario.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrors(err.message);
+      } else {
+        setErrors("Error al registrar usuario.");
+      }
     }
   };
 
@@ -237,7 +240,7 @@ const RegisterForm: React.FC = () => {
 
   return (
     <RegisterFormContainer>
-      <Instructions>Selecciona tu identificador para el registro:</Instructions>
+      <Instructions>Seleccione su identificador para el registro:</Instructions>
       <form onSubmit={handleSubmit}>
         <DropdownContainer ref={dropdownRef}>
           <DropdownButton onClick={toggleDropdown}>
@@ -260,7 +263,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="email"
             name="identifier"
-            placeholder="Escribe tu correo electrónico"
+            placeholder="Escriba su correo electrónico"
             value={formData.identifier}
             onChange={handleInputChange}
           />
@@ -269,7 +272,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="text"
             name="identifier"
-            placeholder="Escribe tu usuario (una palabra)"
+            placeholder="Escriba su usuario (una palabra)"
             value={formData.identifier}
             onChange={handleInputChange}
           />
@@ -278,7 +281,7 @@ const RegisterForm: React.FC = () => {
           <StyledInput
             type="tel"
             name="identifier"
-            placeholder="Escribe tu número de celular"
+            placeholder="Escriba su número de celular"
             value={formData.identifier}
             onChange={handleInputChange}
           />
@@ -315,7 +318,7 @@ const RegisterForm: React.FC = () => {
       <LoginLink>
         ¿Ya tienes una cuenta?{" "}
         <a onClick={handleLoginRedirect} role="button" tabIndex={0}>
-          Inicia sesión aquí
+          Inicie sesión aquí
         </a>
       </LoginLink>
     </RegisterFormContainer>

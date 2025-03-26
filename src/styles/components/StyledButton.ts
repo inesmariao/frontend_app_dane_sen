@@ -38,7 +38,7 @@ const StyledButton = styled.button`
   }
 
   @media (min-width: 48rem) and (max-width: 64rem) {
-    margin-top: 0.1rem;
+    margin-top: 1rem;
     margin-bottom: 1rem;
     padding: 0.5rem 1.2rem;
     font-size: 0.9rem;

@@ -9,6 +9,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
+    font-size: ${({ theme }) => theme.fontSize};
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
     color: #333;

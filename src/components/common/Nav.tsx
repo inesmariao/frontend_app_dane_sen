@@ -2,6 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
+import Link from "next/link";
 import { FaHome } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa";
 import { FaSignInAlt } from "react-icons/fa";
@@ -27,7 +28,7 @@ const NavWrapper = styled.nav`
 
       &:hover {
         text-decoration: none;
-        background-color: #5c4aa1; /* Color de fondo en hover */
+        background-color: #5c4aa1;
       }
 
       a, span {
@@ -54,11 +55,11 @@ const NavWrapper = styled.nav`
 `;
 
 export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
-  const { authData, logout } = useAuth();
-  const user = authData?.user;
+  const auth = useAuth();
+  const user = auth?.authData?.user;
 
   const handleLogout = () => {
-    logout();
+    auth?.logout();
     closeMenu();
   };
 
@@ -67,17 +68,17 @@ export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
       <ul>
         <li onClick={closeMenu}>
           <FaHome />
-          <a href="/">Inicio</a>
+          <Link href="/">Inicio</Link>
         </li>
         <li onClick={closeMenu}>
           <FaUsers />
-          <a href="/register">Registro de Usuarios</a>
+          <Link href="/register">Registro de Usuarios</Link>
         </li>
         {!user ? (
           // Mostrar la opción de Login solo si no hay un usuario autenticado
           <li onClick={closeMenu}>
             <FaSignInAlt />
-            <a href="/login">Login</a>
+            <Link href="/login">Login</Link>
           </li>
         ) : (
           // Mostrar la opción de Cerrar sesión si el usuario está autenticado
@@ -88,7 +89,7 @@ export const Nav: React.FC<{ closeMenu: () => void }> = ({ closeMenu }) => {
         )}
         <li onClick={closeMenu}>
           <FaEnvelope />
-          <a href="#contacto">Contacto</a>
+          <Link href="/contact">Contacto</Link>
         </li>
       </ul>
     </NavWrapper>

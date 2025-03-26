@@ -13,7 +13,7 @@ const Title = styled.h2`
 
   @media (max-width: 768px) {
     margin-bottom: 6px;
-    font-size: 1.2rem; /* Título más pequeño en pantallas pequeñas */
+    font-size: 1.2rem;
   }
 `;
 
@@ -21,8 +21,8 @@ const RegisterPage: React.FC = () => {
   return (
     <>
       <Head>
-          <title>Registro de Usuarios - AppDiversa</title>
-          <meta name="description" content="Registro de Usuarios - AppDiversa" />
+          <title>Registro de Usuarios</title>
+          <meta name="description" content="Registro de Usuarios" />
       </Head>
       <Title>Registro de Usuarios</Title>
       <RegisterForm />

@@ -192,6 +192,7 @@ export default function Header() {
           width={110}
           height={53}
           priority
+          unoptimized
         />
         <Image
           src="/assets/images/logo-dane.png"
@@ -199,7 +200,7 @@ export default function Header() {
           alt="Logo DANE"
           width={116}
           height={50}
-          priority
+          
         />
       </LogoContainer>
       <DropdownMenu ref={menuRef} className={isMenuOpen ? "open" : ""}>

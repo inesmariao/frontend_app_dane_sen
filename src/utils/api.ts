@@ -1,4 +1,7 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { getAuthToken, clearAuthData, setAuthData } from "@/utils/auth";
+import { SurveyResponse } from "@/types";
+import { handleError } from "@/utils/errorHandling";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
@@ -8,6 +11,45 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Rutas públicas (NO requieren autenticación)
+const publicEndpoints = ["/app_diversa/v1/messages/", "/users/v1/register/", "/users/v1/login/"];
+
+// Interceptor para agregar el token solo en solicitudes protegidas
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+
+    // Si la URL NO está en `publicEndpoints`, agrega el token
+    if (token && !publicEndpoints.some((endpoint) => config.url?.includes(endpoint))) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor para manejar errores de autenticación y redirigir al login
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+
+    if (error.response?.status === 401) {
+      clearAuthData();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:logout"));
+      }
+    } else if (error.response?.status === 403) {
+      // Verifica si el error es debido a la respuesta del usuario y no debe cerrar sesión
+      if (error.response.data?.message?.includes("No cumple con los requisitos")) {
+        return Promise.reject(error);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // Método para el registro de usuarios
 export const registerUser = async (userData: {
@@ -19,12 +61,14 @@ export const registerUser = async (userData: {
   try {
     const response = await apiClient.post("/users/v1/register/", userData);
     return response.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(error.response.data.error || "Error al registrar usuario");
-    } else {
-      throw new Error("Error al conectar con el servidor");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+        handleError(error.response.data?.error || "Error al registrar usuario");
     }
+    if (error instanceof Error) {
+      handleError(error.message);
+    }
+    handleError("Error al conectar con el servidor");
   }
 };
 
@@ -36,12 +80,20 @@ export const loginUser = async (credentials: { identifier: string; password: str
     const { access_token, refresh_token, user } = response.data;
 
     if (!access_token || !user) {
-      throw new Error("Respuesta inválida del backend.");
+      handleError("Respuesta inválida del backend.");
     }
 
+    setAuthData(access_token, user);
+
     return { token: access_token, refreshToken: refresh_token, user };
-  } catch (error: any) {
-    throw new Error(error.response?.data?.error || "Error al iniciar sesión.");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      handleError(error.response.data?.error || "Error al iniciar sesión.");
+    }
+    if (error instanceof Error) {
+      handleError(error.message);
+    }
+    handleError("Error al conectar con el servidor durante el inicio de sesión.");
   }
 };
 
@@ -49,9 +101,18 @@ export const loginUser = async (credentials: { identifier: string; password: str
 export const getSurvey = async (surveyId: number) => {
 
   try {
-    const token = localStorage.getItem("authToken");
+
+    if (!surveyId || isNaN(surveyId)) {
+      handleError("ID de la encuesta no válido.");
+      return null;
+    }
+
+    const token = getAuthToken();
     if (!token) {
-      throw new Error("No se encontró el token de autenticación.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:logout"));
+      }
+      return null;
     }
 
     const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`, {
@@ -61,29 +122,67 @@ export const getSurvey = async (surveyId: number) => {
     });
 
     return response.data;
-  } catch (error: any) {
-    console.error("Error en getSurvey:", error.message || error);
-
-    if (error.response?.status === 401) {
-      throw new Error("UNAUTHORIZED"); // Manejar específicamente el error de no autenticado
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 401 || error.response.status === 403) {
+        console.warn("Sesión expirada. Redirigiendo...");
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("auth:logout"));
+        }
+        return null;
+      }
+      handleError(error.response.data?.error || "Error al obtener la encuesta.");
     }
-
-    throw new Error(error.response?.data?.error || "Error al obtener la encuesta.");
+    if (error instanceof Error) {
+      handleError(error.message);
+    }
+    handleError("Error desconocido al obtener la encuesta.");
   }
 };
 
 // Método para enviar las respuestas al Backend
-export const submitResponses = async (responses: any) => {
+export async function submitResponses(responses: SurveyResponse[]) {
   try {
-    const response = await axios.post(`${API_URL}/responses`, responses, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    });
+    const response = await apiClient.post("/app_diversa/v1/submit-response/", responses);
+
+    // Verificar si la respuesta es exitosa (código de estado 2xx)
+    if (response.status < 200 || response.status >= 300) {
+      handleError(`Error en la API al enviar respuestas: ${response.status} ${response.statusText}`);
+      return { success: false, error: `Error ${response.status}: ${response.statusText}` };
+    }
+
     return response.data;
-  } catch (error) {
-    throw new Error("Error al enviar las respuestas.");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      const responseData = axiosError.response?.data as { error?: string };
+      handleError(`Error de Axios al conectar con la API: ${responseData?.error || "Error de conexión con el servidor"}`);
+      return { success: false, error: responseData?.error || "Error de conexión con el servidor" };
+    }
+    if (error instanceof Error) {
+      handleError(`Error desconocido al conectar con la API: ${error.message}`);
+      return { success: false, error: "Error de conexión con el servidor" };
+    }
+    handleError(`Error desconocido al conectar con la API: ${error}`);
+    return { success: false, error: "Error de conexión con el servidor" };
+  }
+}
+
+// Método para obtener un mensaje del sistema por clave
+export const getSystemMessage = async (key: string): Promise<{ title: string; content: string } | null> => {
+  try {
+    const response = await apiClient.get(`/app_diversa/v1/messages/${key}/`);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      handleError(error.response.data?.error || "No se pudo obtener el mensaje del sistema.");
+    }
+    if (error instanceof Error) {
+      handleError(error.message);
+    }
+    return null;
   }
 };
+
 
 export default apiClient;

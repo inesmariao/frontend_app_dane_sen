@@ -1,44 +1,56 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/utils/api";
-
-interface AuthContextType {
-  authData: { token: string | null; user: any } | null;
-  setAuthData: (data: { token: string; user: any }) => void;
-  logout: () => void;
-  login: (credentials: { identifier: string; password: string }) => Promise<void>;
-}
+import { AuthContextType, User } from "@/types";
+import { handleError } from "@/utils/errorHandling";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [authData, setAuthDataState] = useState<{ token: string | null; user: any } | null>(
+  const [authData, setAuthDataState] = useState<{ token: string | null; user: User } | null>(
     null
   );
-  const router = useRouter(); // Hook de redirección
+  const router = useRouter();
 
   useEffect(() => {
     // Cargar datos de autenticación desde localStorage al iniciar
     const token = localStorage.getItem("authToken");
     const user = localStorage.getItem("authUser");
   
-    if (token && user) {
-      try {
-        const parsedUser = JSON.parse(user); // Intenta analizar solo si el valor existe
-        setAuthDataState({ token, user: parsedUser });
-      } catch (error) {
-        console.error("Error al analizar el usuario desde localStorage. Se limpiará el estado:", error);
-        localStorage.removeItem("authToken"); // Limpia localStorage si está corrupto
-        localStorage.removeItem("authUser");
-      }
-    }
-  }, []);
-
-  const setAuthData = (data: { token: string; user: any }) => {
-    if (!data.token || !data.user) {
-      console.error("Intento de guardar datos inválidos en localStorage");
+    if (!token || !user) {
+      router.push("/login");
       return;
     }
+
+    try {
+      const parsedUser = JSON.parse(user);
+      setAuthDataState({ token, user: parsedUser });
+    } catch (error) {
+      if (error instanceof Error) {
+        handleError(error.message);
+      } else if (typeof error === 'string') {
+        handleError(error);
+      } else {
+        handleError("Error desconocido.");
+      }
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("authUser");
+      router.push("/login");
+    }
+
+    const handleLogout = () => {
+      handleError("Evento de cierre de sesión recibido. Redirigiendo...", "warn");
+      router.push("/login");
+    };
+
+    window.addEventListener("auth:logout", handleLogout);
+
+    return () => {
+      window.removeEventListener("auth:logout", handleLogout);
+    };
+  }, [router]);
+
+  const setAuthData = (data: { token: string; user: User }) => {
     localStorage.setItem("authToken", data.token);
     localStorage.setItem("authUser", JSON.stringify(data.user));
     setAuthDataState(data);
@@ -48,21 +60,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
     setAuthDataState(null);
-    router.push("/login"); // Redirigir al login al cerrar sesión
+    router.push("/login");
   };
 
   const login = async (credentials: { identifier: string; password: string }) => {
     try {
-      const { token, user } = await loginUser(credentials);
+      const response = await loginUser(credentials);
   
-      // Guardar los datos de autenticación
-      setAuthData({ token, user });
+      if (response) { // Verificar si la respuesta no es undefined
+        const { token, user } = response;
   
-      // Redirigir al usuario después del login
-      router.push("/surveys");
-    } catch (error: any) {
-      console.error("Error al iniciar sesión:", error.message);
-      throw error; // Devolver el error para manejarlo en el componente
+        // Guardar los datos de autenticación
+        setAuthData({ token, user });
+  
+        // Redirigir al usuario después del login
+        router.push("/surveys");
+      } else {
+        // Manejar el caso en que loginUser devuelve undefined (sesión expirada)
+        handleError("Sesión expirada. Redirigiendo al login.");
+        router.push("/login");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        handleError(error.message);
+      } else {
+        handleError("Error desconocido al iniciar sesión.");
+      }
     }
   };
 
@@ -76,7 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("El hook useAuth debe ser utilizado dentro de un AuthProvider.");
+    handleError("El hook useAuth debe ser utilizado dentro de un AuthProvider.");
+    return undefined;
   }
   return context;
 };

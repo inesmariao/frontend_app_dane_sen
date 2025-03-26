@@ -1,7 +1,9 @@
 "use client";
 
-import Head from "next/head";
-import { useEffect } from "react";
+import AccessibilityButtons from "@/components/common/AccessibilityButtons";
+import Script from 'next/script';
+import { useAccessibility } from "@/hooks/useAccessibility";
+import "@/app/globals.css";
 import StyledComponentsRegistry from "@/lib/styled-components-registry";
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
 import { ThemeProvider } from "@/styles/theme/ThemeContext";
@@ -20,7 +22,7 @@ const LayoutWrapper = styled.div`
 
 const TitleWrapper = styled.div`
   font-family: "Poppins", sans-serif;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: bold;
   color: #413087;
   line-height: 1;
@@ -47,33 +49,51 @@ const MainContent = styled.main`
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  /* useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-      const ReactAxe = require("@axe-core/react");
-      const React = require("react");
-      ReactAxe(React, window, 1000);
-    }
-  }, []); */
+  const { fontSize } = useAccessibility();
 
   return (
     <html lang="es">
-      <Head>
-        <title>App Diversa</title>
-        <meta name="description" content="Encuesta de App Diversa" />
+      <head>
+        <title>AppDiversa</title>
+        <meta name="description" content="App Recolección Datos" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
+        {/* Google Tag Manager Script */}
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','GTM-TNJW4WBV');
+            `,
+          }}
+        />
+      </head>
       <body>
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TNJW4WBV"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          ></iframe>
+        </noscript>
         <StyledComponentsRegistry>
           <ThemeProvider>
-            <StyledThemeProvider theme={theme}>
+            <StyledThemeProvider theme={{ ...theme, fontSize: fontSize }}>
               <AuthProvider>
                 <GlobalStyles />
                 <LayoutWrapper>
                   <Header />
-                  <TitleWrapper>App Diversa</TitleWrapper>
+                  <TitleWrapper>AppDiversa</TitleWrapper>
                   <MainContent>{children}</MainContent>
                   <Footer />
                 </LayoutWrapper>
+                <AccessibilityButtons />
               </AuthProvider>
             </StyledThemeProvider>
           </ThemeProvider>
