@@ -135,7 +135,9 @@ const SurveyApp = memo(() => {
         : survey.questions.filter((q) => q.chapter === currentChapter?.id);
 
   // Verificar si hay una opción seleccionada para la subpregunta 1606
-  const isFinalQuestionAnswered = typeof responses[1606] === "number";
+  const isFinalQuestionAnswered =
+    currentChapterIndex === survey.chapters.length - 1 &&
+    typeof responses[1606] === "number";
 
   return (
     <SurveyContainer>
