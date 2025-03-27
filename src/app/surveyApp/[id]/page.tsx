@@ -10,6 +10,7 @@ import {
   SurveyTitle,
   SurveyDescriptionName,
 } from "@/styles/components/StyledSurvey";
+import SurveyProgressBar from "@/components/common/SurveyProgressBar";
 
 import {
   handleBirthDateSubmit,
@@ -67,7 +68,7 @@ const SurveyApp = memo(() => {
 
   const handleChapterNext = async () => {
     setIsLoading(true);
-  
+
     try {
       if (currentChapterIndex === 0) {
         if (showSecondQuestion) {
@@ -78,13 +79,13 @@ const SurveyApp = memo(() => {
       } else if (currentChapterIndex === 2) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const responseQ12 = responses[12];
-  
+
         if (chapterStep === 0) {
           setChapterStep(1);
           window.scrollTo({ top: 0 });
           return;
         }
-  
+
         setCurrentChapterIndex((prev) => prev + 1);
         setChapterStep(0);
         window.scrollTo({ top: 0 });
@@ -103,7 +104,7 @@ const SurveyApp = memo(() => {
       }, 500);
     }
   };
-  
+
 
 
   const handlePrevChapter = () => {
@@ -114,12 +115,12 @@ const SurveyApp = memo(() => {
   };
 
   const questionsToRender =
-  currentChapterIndex === 0
-    ? survey.questions.filter((q) =>
+    currentChapterIndex === 0
+      ? survey.questions.filter((q) =>
         showSecondQuestion ? q.id === 2 : q.id === 1
       )
       : currentChapter.id === 3
-      ? survey.questions.filter((q) => {
+        ? survey.questions.filter((q) => {
           if (chapterStep === 0) {
             return q.id === 12; // solo mostrar la Q12
           } else {
@@ -131,7 +132,10 @@ const SurveyApp = memo(() => {
               : [13, 14, 15].includes(q.id); // Q13, Q14, Q15
           }
         })
-      : survey.questions.filter((q) => q.chapter === currentChapter?.id);
+        : survey.questions.filter((q) => q.chapter === currentChapter?.id);
+
+  // Verificar si hay una opción seleccionada para la subpregunta 1606
+  const isFinalQuestionAnswered = typeof responses[1606] === "number";
 
   return (
     <SurveyContainer>
@@ -151,18 +155,25 @@ const SurveyApp = memo(() => {
         </SurveyDescriptionName>
       </SurveyHeader>
       {currentChapter && questionsToRender.length > 0 && (
-        <Chapter
-          chapter={currentChapter}
-          questions={questionsToRender}
-          responses={responses}
-          handleOptionChange={handleOptionChange}
-          handleNextChapter={handleChapterNext}
-          handlePrevChapter={handlePrevChapter}
-          isFirstChapter={currentChapterIndex === 0}
-          isLastChapter={currentChapterIndex === survey.chapters.length - 1}
-          chapterIndex={currentChapterIndex}
-          isLoading={isLoading}
-        />
+        <>
+          <SurveyProgressBar
+            currentChapter={currentChapterIndex + 1}
+            totalChapters={survey.chapters.length}
+            isFinalQuestionAnswered={isFinalQuestionAnswered}
+          />
+          <Chapter
+            chapter={currentChapter}
+            questions={questionsToRender}
+            responses={responses}
+            handleOptionChange={handleOptionChange}
+            handleNextChapter={handleChapterNext}
+            handlePrevChapter={handlePrevChapter}
+            isFirstChapter={currentChapterIndex === 0}
+            isLastChapter={currentChapterIndex === survey.chapters.length - 1}
+            chapterIndex={currentChapterIndex}
+            isLoading={isLoading}
+          />
+        </>
       )}
     </SurveyContainer>
   );
