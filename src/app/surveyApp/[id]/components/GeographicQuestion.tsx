@@ -60,19 +60,19 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
     [handleOptionChange, questionId, selectedResponse]
   );
 
-  useEffect(() => {
-    const currentResponse = responses[questionId] as GeographicResponse;
-    const selectedOption = currentResponse?.option_selected;
+  const currentResponse = responses[questionId] as GeographicResponse;
 
-    // Solo actualiza si no hay option_selected
+  useEffect(() => {
+  const selectedOption = currentResponse?.option_selected;
+
   if (typeof selectedOption === "number" && !currentResponse?.country) {
     const updatedResponse: GeographicResponse = {
       ...currentResponse,
       option_selected: selectedOption,
     };
     handleOptionChange(questionId, updatedResponse);
-    }
-  }, [handleOptionChange, questionId, responses[questionId]]);
+  }
+}, [handleOptionChange, questionId, currentResponse]);
 
 
   // Cargar departamentos
