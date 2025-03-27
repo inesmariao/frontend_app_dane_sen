@@ -72,7 +72,7 @@ export const GeographicQuestion: React.FC<GeographicQuestionProps> = ({
     };
     handleOptionChange(questionId, updatedResponse);
     }
-  }, [handleOptionChange, questionId]);
+  }, [handleOptionChange, questionId, responses[questionId]]);
 
 
   // Cargar departamentos

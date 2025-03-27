@@ -76,6 +76,7 @@ const SurveyApp = memo(() => {
           await handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
         }
       } else if (currentChapterIndex === 2) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const responseQ12 = responses[12];
   
         if (chapterStep === 0) {
