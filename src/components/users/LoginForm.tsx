@@ -5,6 +5,7 @@ import styled from "styled-components";
 import StyledButton from "@/styles/components/StyledButton";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import FormSpinner from "@/components/common/FormSpinner";
 
 const LoginFormContainer = styled.div`
   max-width: 25rem;
@@ -63,11 +64,21 @@ const RegisterLink = styled.p`
   }
 `;
 
+const ButtonWithSpinnerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
 const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const auth = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,6 +88,7 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     try {
       await auth?.login(formData);
@@ -86,6 +98,8 @@ const LoginForm: React.FC = () => {
       } else {
         setError("Error al iniciar sesión.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,13 +135,18 @@ const LoginForm: React.FC = () => {
           />
         </div>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <StyledButton type="submit">Iniciar Sesión</StyledButton>
+        <ButtonWithSpinnerWrapper>
+          <StyledButton type="submit" disabled={isLoading}>
+            {isLoading ? "Iniciando..." : "Iniciar Sesión"}
+          </StyledButton>
+          {isLoading && <FormSpinner withText={false}/>}
+        </ButtonWithSpinnerWrapper>
       </form>
       <RegisterLink>
         ¿No tiene una cuenta?{" "}
-          <a onClick={handleGoToRegister} role="button" tabIndex={0}>
-            Regístrese aquí
-          </a>
+        <a onClick={handleGoToRegister} role="button" tabIndex={0}>
+          Regístrese aquí
+        </a>
       </RegisterLink>
     </LoginFormContainer>
   );

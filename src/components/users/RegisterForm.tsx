@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { registerUser } from "@/utils/api";
 import StyledButton from "@/styles/components/StyledButton";
+import FormSpinner from "@/components/common/FormSpinner";
 
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
@@ -18,15 +19,15 @@ const RegisterFormContainer = styled.div`
 
   /* Ajuste para pantallas medianas y grandes */
   @media (min-width: 769px) and (max-width: 1023px) {
-    margin: 0 auto; /* Espacio más equilibrado */
-    max-width: 22rem; /* Reduce ligeramente el ancho */
-    padding: 1rem; /* Aumenta un poco el padding */
+    margin: 0 auto;
+    max-width: 22rem;
+    padding: 1rem;
   }
 
   /* Ajuste adicional para pantallas grandes */
   @media (min-width: 1024px) {
-      margin: 1rem auto; /* Mayor separación en pantallas grandes */
-      max-width: 26rem; /* Reduce el ancho para pantallas grandes */
+      margin: 1rem auto;
+      max-width: 26rem;
     }
 `;
 
@@ -160,6 +161,15 @@ const SuccessMessage = styled.p`
   font-weight: bold;
 `;
 
+const ButtonWithSpinnerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+
 const RegisterForm: React.FC = () => {
 
   const [selectedIdentifier, setSelectedIdentifier] = useState("Correo electrónico");
@@ -168,6 +178,8 @@ const RegisterForm: React.FC = () => {
   const [errors, setErrors] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const [formData, setFormData] = useState({
     identifier: "",
@@ -212,9 +224,11 @@ const RegisterForm: React.FC = () => {
     e.preventDefault();
     setErrors(null);
     setSuccessMessage(null);
+    setIsLoading(true);
 
     if (!formData.identifier) {
       setErrors("Por favor selecciona un identificador y completa el campo correspondiente.");
+      setIsLoading(false);
       return;
     }
 
@@ -231,6 +245,8 @@ const RegisterForm: React.FC = () => {
       } else {
         setErrors("Error al registrar usuario.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -313,7 +329,12 @@ const RegisterForm: React.FC = () => {
         />
         {errors && <ErrorMessage>{errors}</ErrorMessage>}
         {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
-        <StyledButton type="submit">Registrarse</StyledButton>
+        <ButtonWithSpinnerWrapper>
+          <StyledButton type="submit" disabled={isLoading}>
+            {isLoading ? "Registrando..." : "Registrarse"}
+          </StyledButton>
+          {isLoading && <FormSpinner withText={false}/>}
+        </ButtonWithSpinnerWrapper>
       </form>
       <LoginLink>
         ¿Ya tienes una cuenta?{" "}
