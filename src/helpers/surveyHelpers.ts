@@ -103,7 +103,7 @@ export const handleFinalSubmit = async (
   chapterStep: number
 ) => {
 
-  // 🔎 Paso 1: filtrar preguntas visibles antes de formatear
+  // Paso 1: filtrar preguntas visibles antes de formatear
   let questionsToSubmit = survey.questions;
 
   if (currentChapterIndex === 2 && chapterStep === 1) {
@@ -114,7 +114,6 @@ export const handleFinalSubmit = async (
     }
   }
 
-  // Este survey temporal solo cambia las preguntas, no afecta lo demás
   const formatted = prepareAnswersForSubmit({ ...survey, questions: questionsToSubmit }, responses);
 
   // Paso 2: validación de respuestas

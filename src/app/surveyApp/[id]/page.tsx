@@ -65,43 +65,44 @@ const SurveyApp = memo(() => {
     return null;
   }
 
-  const handleChapterNext = () => {
+  const handleChapterNext = async () => {
     setIsLoading(true);
+  
     try {
       if (currentChapterIndex === 0) {
         if (showSecondQuestion) {
-          handleBirthDateSubmit(birthDate, survey, responses, setCurrentChapterIndex, router);
+          await handleBirthDateSubmit(birthDate, survey, responses, setCurrentChapterIndex, router);
         } else {
-          handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
+          await handleFirstQuestionSubmit(survey, responses, setResponses, setShowSecondQuestion, router);
         }
       } else if (currentChapterIndex === 2) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const responseQ12 = responses[12];
-
+  
         if (chapterStep === 0) {
           setChapterStep(1);
           window.scrollTo({ top: 0 });
           return;
         }
-
-        // Paso 1: finalizar capítulo y avanzar
+  
         setCurrentChapterIndex((prev) => prev + 1);
         setChapterStep(0);
         window.scrollTo({ top: 0 });
         return;
       } else {
-        // Resto del flujo normal
         if (currentChapterIndex < survey.chapters.length - 1) {
           setCurrentChapterIndex((prev) => prev + 1);
           window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
-          handleFinalSubmit(survey, responses, router, currentChapterIndex, chapterStep);
+          await handleFinalSubmit(survey, responses, router, currentChapterIndex, chapterStep);
         }
       }
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   };
+  
 
 
   const handlePrevChapter = () => {
@@ -159,6 +160,7 @@ const SurveyApp = memo(() => {
           isFirstChapter={currentChapterIndex === 0}
           isLastChapter={currentChapterIndex === survey.chapters.length - 1}
           chapterIndex={currentChapterIndex}
+          isLoading={isLoading}
         />
       )}
     </SurveyContainer>

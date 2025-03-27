@@ -1,10 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import styled from "styled-components";
 import ChapterQuestions from "./ChapterQuestions";
 import { ChapterProps } from "@/types";
 import { ChapterTitle, ButtonContainer } from "@/styles/components/StyledSurvey";
-import { LargeStyledButton, Spinner } from "@/styles/components/StyledButtonVariants";
+import { LargeStyledButton } from "@/styles/components/StyledButtonVariants";
+import FormSpinner from "@/components/common/FormSpinner";
+
+const ButtonWithSpinnerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+`;
 
 const Chapter: React.FC<ChapterProps> = ({
   chapter,
@@ -15,21 +24,19 @@ const Chapter: React.FC<ChapterProps> = ({
   handlePrevChapter,
   isLastChapter,
   chapterIndex,
-  isLoading,
+  isLoading
 }) => {
 
   return (
     <>
       <ChapterTitle>{chapter?.name}</ChapterTitle>
 
-      {/* Renderizar las preguntas del capítulo */}
       <ChapterQuestions
         questions={questions}
         responses={responses}
         handleOptionChange={handleOptionChange}
       />
 
-      {/* Botones de navegación entre capítulos */}
       <ButtonContainer>
         {chapterIndex > 1 && (
           <LargeStyledButton onClick={handlePrevChapter} style={{ marginRight: "1rem" }}>
@@ -37,16 +44,19 @@ const Chapter: React.FC<ChapterProps> = ({
           </LargeStyledButton>
         )}
 
-      <LargeStyledButton onClick={handleNextChapter} disabled={isLoading}>
-        {isLoading ? (
-          <>
-            <Spinner />
-            Cargando...
-          </>
-        ) : (
-          isLastChapter ? "Enviar y Finalizar" : "Siguiente →"
-        )}
-      </LargeStyledButton>
+        <ButtonWithSpinnerWrapper>
+          <LargeStyledButton onClick={handleNextChapter} disabled={isLoading}>
+            {isLoading
+              ? isLastChapter
+                ? "Enviando..."
+                : "Cargando..."
+              : isLastChapter
+              ? "Enviar y Finalizar"
+              : "Siguiente →"}
+          </LargeStyledButton>
+          {isLoading && isLastChapter && <FormSpinner withText={false} />}
+        </ButtonWithSpinnerWrapper>
+
       </ButtonContainer>
     </>
   );
