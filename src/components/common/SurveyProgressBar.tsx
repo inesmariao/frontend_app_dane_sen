@@ -41,7 +41,7 @@ const SurveyProgressBar: React.FC<SurveyProgressBarProps> = ({
       <div className="mt-1 text-xs text-gray-500">
         {percentage === 100 ? (
           <span className="text-green-600 font-medium">
-            ¡Último paso completado! Haz clic en <strong>Enviar y Finalizar</strong>.
+            ¡Último paso completado! Haga clic en <strong>Enviar y Finalizar</strong>.
           </span>
         ) : (
           `Aprox. ${remainingChapters * averageMinutesPerChapter} ${
