@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { registerUser } from "@/utils/api";
 import StyledButton from "@/styles/components/StyledButton";
 import FormSpinner from "@/components/common/FormSpinner";
+import { trackEvent } from "@/utils/analytics";
+
 
 const RegisterFormContainer = styled.div`
   max-width: 25rem;
@@ -234,6 +236,20 @@ const RegisterForm: React.FC = () => {
 
     try {
       await registerUser(formData);
+
+      // Enviar evento a GA4 vía GTM - Google Analytics
+      const methodMap: Record<string, string> = {
+        "Correo electrónico": "email",
+        "Usuario": "username",
+        "Número de celular": "phone_number",
+      };
+
+      const method = methodMap[selectedIdentifier] || "otro";
+
+      trackEvent("user_register", {
+        method,
+      });
+
       setSuccessMessage("Usuario registrado exitosamente. Redirigiendo...");
 
       setTimeout(() => {
@@ -333,7 +349,7 @@ const RegisterForm: React.FC = () => {
           <StyledButton type="submit" disabled={isLoading}>
             {isLoading ? "Registrando..." : "Registrarse"}
           </StyledButton>
-          {isLoading && <FormSpinner withText={false}/>}
+          {isLoading && <FormSpinner withText={false} />}
         </ButtonWithSpinnerWrapper>
       </form>
       <LoginLink>
