@@ -243,9 +243,9 @@ export default function Surveys() {
           />
           <StatusLabel className="closed">CERRADA</StatusLabel>
           <CardContent>
-            <SurveyTitle>Encuesta II - Violencia de Género</SurveyTitle>
+            <SurveyTitle>Encuesta II - Violencias de Género</SurveyTitle>
             <SurveyDescription>
-              Preguntas relacionadas con la violencia de género.
+              Preguntas relacionadas con violencias de género.
             </SurveyDescription>
             <StyledButtonWrapper>
               <StyledButton disabled>Próximamente</StyledButton>
