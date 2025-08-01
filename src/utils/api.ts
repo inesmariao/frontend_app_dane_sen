@@ -115,13 +115,11 @@ export const getSurvey = async (surveyId: number) => {
       return null;
     }
 
-    const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`);
-
-    // const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // });
+    const response = await apiClient.get(`/app_diversa/v1/surveys/${surveyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     return response.data;
   } catch (error: unknown) {
